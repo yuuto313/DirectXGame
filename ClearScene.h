@@ -6,14 +6,14 @@
 
 #include "Fade.h"
 //--------------------------------
-// タイトルロゴやUIは後から追加
 // 仮実装
+// ゲームシーンができてからシーンマネージャに組み込む
 //--------------------------------
 
 /// <summary>
-/// タイトルシーン
+/// クリアシーン
 /// </summary>
-class TitleScene {
+class ClearScene {
 public:
 	// シーンのフェーズ
 	enum class Phase {
@@ -28,7 +28,7 @@ public:
 	//-------------基本処理-------------//
 
 	/// <summary>
-	/// 初期化
+	///	初期化
 	/// </summary>
 	void Initialize();
 
@@ -41,7 +41,7 @@ public:
 	/// 描画
 	/// </summary>
 	void Draw();
-	
+
 	/// <summary>
 	/// フェーズ切り替え処理
 	/// </summary>
@@ -71,5 +71,4 @@ private:
 
 	// 現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;
-
 };

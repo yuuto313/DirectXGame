@@ -11,7 +11,7 @@ void TitleScene::Initialize() {
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialize();
 	// フェードの持続時間
-	float duration = 2.0f;
+	float duration = 1.0f;
 	//フェードの開始
 	fade_->Start(Fade::Status::FadeIn, duration);
 }
@@ -100,7 +100,7 @@ void TitleScene::ChangePhase() {
 		// AボタンorSPACEキーでメインフェーズ終了
 		if (input_->PushKey(DIK_SPACE) || joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
 			// フェードアウト開始
-			float duration = 2.0f;
+			float duration = 1.5f;
 			fade_->Start(Fade::Status::FadeOut, duration);
 			phase_ = Phase::kFadeOut;
 		}

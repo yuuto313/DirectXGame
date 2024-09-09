@@ -57,7 +57,7 @@ private:
 	// スプライト
 	std::unique_ptr<Sprite> sprite_;
 
-	//-------------変数-------------//
+	//-------------メンバ変数-------------//
 	// 現在のフェードの状態
 	Status status_ = Status::None;
 
