@@ -8,12 +8,27 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 
+#include "Fade.h"
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
 class GameScene {
 
 public: // メンバ関数
+
+	//シーンのフェーズ
+	enum class Phase {
+		//フェードイン
+		kFadeIn,
+		//ゲームプレイ
+		kPlay,
+		//フェードアウト
+		kFadeOut,
+	};
+
+	//-------------基本処理-------------//
+
 	/// <summary>
 	/// コンストクラタ
 	/// </summary>
@@ -39,6 +54,8 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+	//-------------ゲッター・セッター-------------//
+
 	/// <summary>
 	/// 終了フラグのゲッター
 	/// </summary>
@@ -54,6 +71,12 @@ private: // メンバ変数
 	/// ゲームシーン用
 	/// </summary>
 	
+	//フェード
+	std::unique_ptr<Fade> fade_;
+
+	//現在のフェーズ
+	Phase phase_ = Phase::kFadeIn;
+
 	//終了フラグ
 	bool finished_ = false;
 

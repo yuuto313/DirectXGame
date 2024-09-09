@@ -11,9 +11,40 @@ void GameScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+
+	// フェードの初期化
+	fade_ = std::make_unique<Fade>();
+	fade_->Initialize();
+	// フェードの持続時間
+	float duration = 2.0f;
+	// フェードの開始
+	fade_->Start(Fade::Status::FadeIn,duration);
+
 }
 
-void GameScene::Update() {}
+void GameScene::Update() {
+	switch (phase_) {
+	case GameScene::Phase::kFadeIn:
+		//フェードの更新
+		fade_->Update();
+
+		if (fade_->IsFinished()){
+			//プレイフェーズへ
+			phase_ = Phase::kPlay;
+		}
+
+		break;
+	case GameScene::Phase::kPlay:
+		break;
+	case GameScene::Phase::kFadeOut:
+		//フェードの更新
+		fade_->Update();
+
+		break;
+	default:
+		break;
+	}
+}
 
 void GameScene::Draw() {
 
@@ -53,6 +84,21 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+
+	// フェードの描画
+	switch (phase_) {
+	case GameScene::Phase::kFadeIn:
+	case GameScene::Phase::kFadeOut:
+
+		fade_->Draw();
+
+		break;
+	case GameScene::Phase::kPlay:
+
+		break;
+	default:
+		break;
+	}
 
 	// スプライト描画後処理
 	Sprite::PostDraw();

@@ -21,6 +21,21 @@ enum class Scene {
 //現在のシーン
 Scene scene = Scene::kUnknown;
 
+/// <summary>
+/// シーン切り替え処理
+/// </summary>
+void ChangeScene();
+
+/// <summary>
+/// シーンの更新
+/// </summary>
+void UpdateScene();
+
+/// <summary>
+/// シーンの描画
+/// </summary>
+void DrawScene();
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	WinApp* win = nullptr;
@@ -86,8 +101,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		imguiManager->Begin();
 		// 入力関連の毎フレーム処理
 		input->Update();
-		// ゲームシーンの毎フレーム処理
-		gameScene->Update();
+		// シーン切り替え
+		ChangeScene();
+		//　現在シーン更新
+		UpdateScene();
 		// 軸表示の更新
 		axisIndicator->Update();
 		// ImGui受付終了
@@ -95,8 +112,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 描画開始
 		dxCommon->PreDraw();
-		// ゲームシーンの描画
-		gameScene->Draw();
+		// 現在シーンの描画
+		DrawScene();
 		// 軸表示の描画
 		axisIndicator->Draw();
 		// プリミティブ描画のリセット
@@ -108,7 +125,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	// 各種解放
+	delete titleScene;
 	delete gameScene;
+
 	// 3Dモデル解放
 	Model::StaticFinalize();
 	audio->Finalize();
@@ -119,4 +138,68 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	win->TerminateGameWindow();
 
 	return 0;
+}
+
+void ChangeScene() {
+	switch (scene) {
+	case Scene::kUnknown:
+		break;
+	case Scene::kTitle:
+		if (titleScene->IsFinished()) {
+			//シーン変更
+			scene = Scene::kGame;
+			//旧シーンの解放
+			delete titleScene;
+			titleScene = nullptr;
+			//新シーンの生成と初期化
+			gameScene = new GameScene();
+			gameScene->Initialize();
+		}
+		break;
+	case Scene::kGame:
+		if (gameScene->IsFinished()) {
+			// シーン変更
+			// ゲームオーバーかクリアに移行する予定なので仮実装
+			scene = Scene::kTitle;
+			// 旧シーンの解放
+			delete gameScene;
+			gameScene = nullptr;
+			// 新シーンの生成と初期化
+			titleScene = nullptr;
+			titleScene->Initialize();
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void UpdateScene() {
+	switch (scene) {
+	case Scene::kUnknown:
+		break;
+	case Scene::kTitle:
+		titleScene->Update();
+		break;
+	case Scene::kGame:
+		gameScene->Update();
+		break;
+	default:
+		break;
+	}
+}
+
+void DrawScene() {
+	switch (scene) {
+	case Scene::kUnknown:
+		break;
+	case Scene::kTitle:
+		titleScene->Draw();
+		break;
+	case Scene::kGame:
+		gameScene->Draw();
+		break;
+	default:
+		break;
+	}
 }
