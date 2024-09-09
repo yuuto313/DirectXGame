@@ -1,12 +1,17 @@
 #pragma once
 
 #include "Audio.h"
+#include "DebugCamera.h"
 #include "DirectXCommon.h"
+#include "FollowCamera.h"
+#include "Ground.h"
 #include "Input.h"
 #include "Model.h"
+#include "Skydome.h"
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include "LockOn.h"
 
 /// <summary>
 /// ゲームシーン
@@ -47,4 +52,48 @@ private: // メンバ変数
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+
+	//===================================================
+	//ビュープロジェクション
+	//===================================================
+
+	ViewProjection viewProjection_;
+
+	//===================================================
+	//デバッグカメラ
+	//===================================================
+
+	std::unique_ptr<DebugCamera> debugCamera_;
+	//デバッグカメラ切り替え
+	bool isDebugCameraActive_ = false;
+
+	//===================================================
+	//追従カメラ
+	//===================================================
+
+	std::unique_ptr<FollowCamera> followCamera_;
+
+	//===================================================
+	//ロックオンカメラ
+	//===================================================
+
+	std::unique_ptr<LockOn> lockOn_;
+
+	//===================================================
+	//天球
+	//===================================================
+
+	std::unique_ptr<Skydome> skydome_;
+	//モデル
+	std::unique_ptr<Model> skydomeModel_;
+
+	//===================================================
+	//地面
+	//===================================================
+
+	std::unique_ptr<Ground> ground_;
+	//モデル
+	std::unique_ptr<Model> groundModel_;
+
+
 };
