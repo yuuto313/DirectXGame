@@ -2,10 +2,24 @@
 #include "AxisIndicator.h"
 #include "DirectXCommon.h"
 #include "GameScene.h"
+#include "TitleScene.h"
 #include "ImGuiManager.h"
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
 #include "WinApp.h"
+
+GameScene* gameScene = nullptr;
+TitleScene* titleScene = nullptr;
+
+//シーン
+enum class Scene {
+	kUnknown=0,
+	kTitle,
+	kGame,
+};
+
+//現在のシーン
+Scene scene = Scene::kUnknown;
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -16,7 +30,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Audio* audio = nullptr;
 	AxisIndicator* axisIndicator = nullptr;
 	PrimitiveDrawer* primitiveDrawer = nullptr;
-	GameScene* gameScene = nullptr;
 
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
@@ -58,8 +71,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 	// ゲームシーンの初期化
-	gameScene = new GameScene();
-	gameScene->Initialize();
+	scene = Scene::kTitle;
+	titleScene = new TitleScene();
+	titleScene->Initialize();
 
 	// メインループ
 	while (true) {
