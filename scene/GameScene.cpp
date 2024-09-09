@@ -13,60 +13,125 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
-	//-------------モデルの生成-------------//
+	/// <summary>
+	/// モデル読み込みここから
+	/// </summary>
 
-	chainModel_.reset(Model::CreateFromOBJ("chain", true));
+	//天球
+	skydomeModel_.reset(Model::CreateFromOBJ("Skydome",true));
 
-	//-------------生成と初期化-------------//
+	//地面
+	groundModel_.reset(Model::CreateFromOBJ("ground", true));
 
-	// ビュープロジェクションの初期化
+	/// <summary>
+	/// モデル読み込みここまで
+	/// </summary>
+	
+	
+
+	/// <summary>
+	/// ゲームオブジェクトの初期化ここから
+	/// </summary>
+
+
+	//===================================================
+	//ビュープロジェクション
+	//===================================================
+
 	viewProjection_.Initialize();
+	viewProjection_.translation_ = Vector3(0.0f, 10.0f, -10.0f);
 
-	// フェードの生成と初期化
-	fade_ = std::make_unique<Fade>();
-	fade_->Initialize();
+	//===================================================
+	//デバッグカメラ
+	//===================================================
 
-	// 鎖の生成と初期化
-	chain_ = std::make_unique<Chain>();
-	chain_->Initilaize(chainModel_.get());
+	debugCamera_ = std::make_unique<DebugCamera>(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
-	// フェードの持続時間
-	float duration = 2.0f;
-	// フェードの開始
-	fade_->Start(Fade::Status::FadeIn,duration);
+	//===================================================
+	//追従カメラ
+	//===================================================
+
+	followCamera_ = std::make_unique<FollowCamera>();
+	followCamera_->Initialize();
+
+
+	//===================================================
+	//ロックオンカメラ
+	//===================================================
+
+	lockOn_ = std::make_unique<LockOn>();
+	lockOn_->Initialize();
+
+	//===================================================
+	//地面
+	//===================================================
+
+	ground_ = std::make_unique<Ground>();
+	ground_->Initialize(groundModel_.get());
+
+	//===================================================
+	//天球
+	//===================================================
+
+	skydome_ = std::make_unique<Skydome>();
+	skydome_->Initialize(skydomeModel_.get());
+
+	/// <summary>
+	/// ゲームオブジェクトの初期化ここまで
+	/// </summary>
 
 }
 
-void GameScene::Update() {
+void GameScene::Update()
+{
+	/// <summary>
+	/// ゲームオブジェクトの更新ここから
+	/// </summary>
 
-	switch (phase_) {
-	case GameScene::Phase::kFadeIn:
-		//フェードの更新
-		fade_->Update();
+	//===================================================
+	//地面
+	//===================================================
 
-		if (fade_->IsFinished()){
-			//プレイフェーズへ
-			phase_ = Phase::kPlay;
+	ground_->Update();
+
+	//===================================================
+	//天球
+	//===================================================
+
+	skydome_->Update();
+
+
+	//===================================================
+	//ビュープロジェクション
+	//===================================================
+
+	/*---------------------[カメラ]-----------------------*/
+
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_P)) {
+		if (isDebugCameraActive_) {
+			isDebugCameraActive_ = false;
+		} else {
+			isDebugCameraActive_ = true;
 		}
-
-		break;
-	case GameScene::Phase::kPlay:
-
-		//--------------------------------
-		// 鎖の更新
-		//--------------------------------
-
-		chain_->Update();
-
-		break;
-	case GameScene::Phase::kFadeOut:
-		//フェードの更新
-		fade_->Update();
-
-		break;
-	default:
-		break;
 	}
+#endif
+	
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+		// ビュープロジェクション行列の転送
+		viewProjection_.TransferMatrix();
+	} else {
+		// ビュープロジェクション行列の更新と転送
+		viewProjection_.UpdateMatrix();
+		viewProjection_.TransferMatrix();
+	}
+
+	/// <summary>
+	/// ゲームオブジェクトの更新ここまで
+	/// </summary>
 }
 
 void GameScene::Draw() {
@@ -95,9 +160,18 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	
-	// 鎖のモデルを描画
-	chain_->Draw(viewProjection_);
+
+	//===================================================
+	//地面
+	//===================================================
+
+	ground_->Draw(viewProjection_);
+
+	//===================================================
+	//天球
+	//===================================================
+
+	skydome_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
