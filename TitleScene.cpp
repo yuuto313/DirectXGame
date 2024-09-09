@@ -14,6 +14,9 @@ void TitleScene::Initialize() {
 	float duration = 1.0f;
 	//フェードの開始
 	fade_->Start(Fade::Status::FadeIn, duration);
+
+	//デバッグ時にゲームシーンからスタートさせるためtrueに
+	finished_ = true;
 }
 
 void TitleScene::Update() { 
