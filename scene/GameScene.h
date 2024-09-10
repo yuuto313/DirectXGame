@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Audio.h"
+#include "CollisionManager.h"
 #include "DebugCamera.h"
 #include "DirectXCommon.h"
 #include "FollowCamera.h"
@@ -12,6 +13,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "LockOn.h"
+#include "Player.h"
 
 #include "Fade.h"
 #include "Chain.h"
@@ -119,5 +121,33 @@ private: // メンバ変数
 	//モデル
 	std::unique_ptr<Model> groundModel_;
 
+	//===================================================
+	//プレイヤー
+	//===================================================
+
+	std::unique_ptr<Player> player_;
+	//モデル
+	std::unique_ptr<Model>modelPlayerBody_;
+	std::unique_ptr<Model>modelPlayerHead_;
+	std::unique_ptr<Model>modelPlayerL_arm_;
+	std::unique_ptr<Model>modelPlayerR_arm_;
+	std::unique_ptr<Model>modelPlayerWeapon_;
+	std::unique_ptr<Model>modelHitEffect_;
+
+
+	//===================================================
+	//エネミー
+	//===================================================
+
+	std::unique_ptr<Enemy> enemy_;
+	//モデル
+	std::unique_ptr<Model>modelEnemyBody_;
+	std::unique_ptr<Model>modelEnemyWeapon_;
+
+	//===================================================
+	//衝突マネージャー
+	//===================================================
+
+	std::unique_ptr<CollisionManager> collisionManager_;
 
 };

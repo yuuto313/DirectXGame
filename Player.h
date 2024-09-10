@@ -1,5 +1,4 @@
 #pragma once
-#include "BaseCharacter.h"
 #include "Model.h"
 #include "WorldTransform.h"
 #include <optional>
@@ -15,11 +14,11 @@ enum class Behavior
 
 class ViewProjection;
 class LockOn;
-class Player : public BaseCharacter
+class Player : public Collider
 {
 public:
 
-	void Initialize(const std::vector<Model*>& models,ViewProjection* viewProjection);
+	void Initialize(const std::vector<Model*>& models, ViewProjection* viewProjection);
 
 	void Upadate();
 
@@ -60,8 +59,6 @@ public:
 	/// \brief 攻撃行動更新
 	void BehaviorAttackUpdate();
 
-	/// \brief 調整項目の適用
-	void ApplyParameters();
 
 	/// \brief ジャンプ行動初期化
 	void BehaviorJumpInitialize();
@@ -70,17 +67,15 @@ public:
 	void BehaviorJumpUpdate();
 
 	/// \brief 衝突を検出したら呼び出されるコールバック関数
-	void OnCollision() override;
+	void OnCollision()override;
 
 	/*---------------------[アクセッサ]-----------------------*/
 
 	/* ゲッター */
-
 	//ワールド変換データの取得
 	WorldTransform& GetWorldTransform() { return worldTransform_; }
 
-	//中心座標を取得
-	Vector3 GetCenterPosition() const override;
+	Vector3 GetWorldPosition() override;
 
 	//現在の行動状態の取得
 	Behavior GetBehavior() { return behavior_; }
@@ -94,7 +89,8 @@ public:
 	Hammer* GetHammer() { return hammer_.get(); }
 
 	/* セッター */
-
+	//カメラのセット
+	void SetViewProjection(const ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
 	
 	//ロックオンのセット
 	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }
@@ -118,17 +114,13 @@ private:
 	WorldTransform worldTransformR_arm_;
 
 	//モデル
-	Model* modelHead_ = nullptr;
-	Model* modelBody_ = nullptr;
-	Model* modelL_arm_ = nullptr;
-	Model* modelR_arm_ = nullptr;
-	Model* modelWeapon = nullptr;
+	std::vector<Model*> models_;
 
 	//ハンマー
 	std::unique_ptr<Hammer> hammer_;
 
 	//カメラ
-	ViewProjection* viewProjection_ = nullptr;
+	const ViewProjection* viewProjection_ = nullptr;
 
 	//ロックオン
 	const LockOn* lockOn_ = nullptr;

@@ -21,7 +21,7 @@ void Player::Initialize(const std::vector<Model*>& models,ViewProjection* viewPr
 	}
 
 	//引数で受け取ったものを取得
-	BaseCharacter::Initialize(models);
+	models_ = models;
 
 	viewProjection_ = viewProjection;
 
@@ -61,12 +61,13 @@ void Player::Initialize(const std::vector<Model*>& models,ViewProjection* viewPr
 	//衝突属性を設定
 	SetCollisionAttribute(kCollisionAttributePlayer);
 	SetCollisionMask(kCollisionAttributeEnemy);
+
+	UpdateMatrix();
 }
 
 void Player::Upadate()
 {
 	UpdateImGui();
-	ApplyParameters();
 
 	if (behaviorRequest_)
 	{
@@ -381,12 +382,15 @@ void Player::OnCollision()
 		behaviorRequest_ = Behavior::kJump;
 }
 
-Vector3 Player::GetCenterPosition() const
+Vector3 Player::GetWorldPosition()
 {
-	//ローカル座標でのオフセット
-	const Vector3 offset = {0.0f, 3.0f, 0.0f};
-	//ワールド座標に変換
-	Vector3 worldPos = Transform(offset, worldTransform_.matWorld_);
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+
+	// ワールド行列の平行移動成分を取得(ワールド座標)
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
 	return worldPos;
 }
-

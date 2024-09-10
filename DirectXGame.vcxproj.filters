@@ -84,9 +84,6 @@
     <ClCompile Include="Player.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="BaseCharacter.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Collider.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>

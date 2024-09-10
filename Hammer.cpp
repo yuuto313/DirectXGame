@@ -76,11 +76,10 @@ void Hammer::OnCollision(Collider* other)
 {
 	// 敵のポインタを取得
 	Enemy* enemy = static_cast<Enemy*>(other);
-	uint32_t serialNumber = enemy->GetSerialNumber();
 
 	// 敵の位置にエフェクトを発生
 	auto newHitEffect = std::make_unique<HitEffect>();
-	newHitEffect->Initialize(models_[kIndexModelEffect],enemy->GetWorldTransform().translation_);
+	newHitEffect->Initialize(models_[kIndexModelEffect],enemy->GetWorldPosition());
 	hitEffects_.push_back(std::move(newHitEffect));
 	
 }
