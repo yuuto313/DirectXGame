@@ -1,25 +1,64 @@
 #include "TitleScene.h"
 #include "WinApp.h"
+#include "TextureManager.h"
+#include <algorithm>
+
+TitleScene::TitleScene() {}
+
+TitleScene::~TitleScene() { 
+	// 解放処理
+	delete titleSprite_;
+	delete uiSprite_;
+}
 
 void TitleScene::Initialize() {
-	dxCommon_ = DirectXCommon::GetInstance();
 
-	// シングルトンインスタンスを取得する
+	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 
-	//フェードの初期化
+	//--------------------------------
+	// テクスチャ読み込み
+	//--------------------------------
+	// タイトル
+	titleTexID_ = TextureManager::Load("title.png");
+
+	// UI
+	uiTexID_ = TextureManager::Load("titleA.png");
+	uiColor_ = {1, 1, 1, 1};
+
+	//--------------------------------
+	// 生成と初期化
+	//--------------------------------
+
+	//フェードの生成と初期化
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialize();
+
+	//スプライトの生成と初期化
+	titleSprite_ = Sprite::Create(titleTexID_, {});
+	uiSprite_ = Sprite::Create(uiTexID_, {});
+
+	//--------------------------------
+	// フェード関連
+	//--------------------------------
+
 	// フェードの持続時間
 	float duration = 1.0f;
 	//フェードの開始
 	fade_->Start(Fade::Status::FadeIn, duration);
 
 	//デバッグ時にゲームシーンからスタートさせるためtrueに
-	finished_ = true;
+	//finished_ = true;
+
 }
 
 void TitleScene::Update() { 
+	//--------------------------------
+	// UIの更新
+	//--------------------------------
+
+	UpdateUI();	
+
 	//--------------------------------
 	// フェーズの切り替え
 	//--------------------------------
@@ -72,6 +111,18 @@ void TitleScene::Draw() {
 	/// </summary>
 
 	//--------------------------------
+	// タイトル描画
+	//--------------------------------
+
+	titleSprite_->Draw();
+
+	//--------------------------------
+	// UI描画
+	//--------------------------------
+
+	uiSprite_->Draw();
+
+	//--------------------------------
 	// フェードの描画
 	//--------------------------------
 
@@ -122,4 +173,26 @@ void TitleScene::ChangePhase() {
 	default:
 		break;
 	}
+}
+
+void TitleScene::UpdateUI() {
+
+	if (isIncreasing_) {
+		counter_ += 1.0f / 60.0f; // 1秒で60回呼び出されると仮定
+		if (counter_ >= kDuration) {
+			counter_ = kDuration;  // 上限に達したら固定
+			isIncreasing_ = false; // 減少に転じる
+		}
+	} else {
+		counter_ -= 1.0f / 60.0f; // 減少
+		if (counter_ <= 0.0f) {
+			counter_ = 0.0f;      // 下限に達したら固定
+			isIncreasing_ = true; // 増加に転じる
+		}
+	}
+
+	// ファードアウト
+	uiColor_.w = std::clamp((kDuration - counter_) / kDuration, 0.0f, 1.0f);
+	// 色変更オブジェクトに色の数値を設定する
+	uiSprite_->SetColor(uiColor_);
 }
