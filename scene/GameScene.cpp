@@ -23,6 +23,7 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
+
 	switch (phase_) {
 	case GameScene::Phase::kFadeIn:
 		//フェードの更新
