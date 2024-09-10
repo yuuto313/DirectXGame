@@ -6,21 +6,24 @@
 #include "MyMath.h"
 #include "ViewProjection.h"
 
-uint32_t Enemy::nextSerialNumber = 0;
 
 Enemy::Enemy()
 {
-	//シリアルナンバーを振る
-	serialNumber = nextSerialNumber;
-	//次の番号を加算
-	nextSerialNumber++;
+	
 }
 
 void Enemy::Initialize(const std::vector<Model*>& models)
 {
 	/*---------------------[ワールド変換データの初期化]-----------------------*/
+	//Nullポインタチェック
+	for (Model* model : models)
+	{
+		assert(model);
+	}
 
-	BaseCharacter::Initialize(models);
+	models_ = models;
+
+	worldTransform_.Initialize();
 	worldTransform_.translation_ = { 0.0f, 0.0f, 100.0f };
 
 	//パーツも
@@ -51,7 +54,6 @@ void Enemy::Update()
 	ImGui::End();
 
 	Move();
-	BaseCharacter::Update();
 	UpdateMatrix();
 }
 
@@ -82,20 +84,24 @@ void Enemy::UpdateMatrix()
 	worldTransformR_arm_.UpdateMatrix();
 }
 
-Vector3 Enemy::GetCenterCoordinate() const
+Vector3 Enemy::GetWorldPosition()
 {
-	//見た目上の中心オフセット
-	const Vector3 offset = {0.0f, 1.0f, 0.0f};
-	//ワールド座標に変換
-	Vector3 worldPos = Transform(offset, worldTransform_.matWorld_);
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+
+	// ワールド行列の平行移動成分を取得(ワールド座標)
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
 	return worldPos;
 }
 
-Vector3 Enemy::GetCenterPosition() const
+Vector3 Enemy::GetCenterCoordinate() const
 {
-	// ローカル座標でのオフセット
-	const Vector3 offset = {0.0f, 1.0f, 0.0f};
-	// ワールド座標に変換
+	//見た目上の中心オフセット
+	const Vector3 offset = { 0.0f, 1.0f, 0.0f };
+	//ワールド座標に変換
 	Vector3 worldPos = Transform(offset, worldTransform_.matWorld_);
 	return worldPos;
 }
