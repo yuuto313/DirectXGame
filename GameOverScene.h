@@ -8,7 +8,7 @@
 
 //--------------------------------
 // 仮実装
-// ゲームシーンができてからシーンマネージャに組み込む
+// titleSceneとほぼ同じ処理のため、変更したい場合は見比べながら
 //--------------------------------
 
 /// <summary>
@@ -27,6 +27,16 @@ public:
 	};
 
 	//-------------基本処理-------------//
+	
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
+	GameOverScene();
+
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
+	~GameOverScene();
 
 	/// <summary>
 	///	初期化
@@ -48,6 +58,11 @@ public:
 	/// </summary>
 	void ChangePhase();
 
+	/// <summary>
+	/// UIの色を更新
+	/// </summary>
+	void UpdateUI();
+
 	//-------------ゲッター・セッター-------------//
 
 	/// <summary>
@@ -65,6 +80,10 @@ private:
 	// フェード
 	std::unique_ptr<Fade> fade_;
 
+	//スプライト
+	Sprite* gameoverSprite_ = nullptr;
+	Sprite* uiSprite_ = nullptr;
+
 	//-------------メンバ変数-------------//
 
 	// 終了フラグ
@@ -72,5 +91,23 @@ private:
 
 	// 現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;
+
+	//ゲームオーバーのテクスチャハンドル
+	uint32_t gameoverTexID_ = 0;
+
+	//UIのテクスチャハンドル
+	uint32_t uiTexID_ = 0;
+
+	// 存続時間(消滅までの時間)<秒>
+	static inline const float kDuration = 3.0f;
+
+	// 経過時間カウント
+	float counter_ = 0.0f;
+
+	// 増加フラグ
+	bool isIncreasing_ = true; 
+
+	//UIの色
+	Vector4 uiColor_;
 
 };

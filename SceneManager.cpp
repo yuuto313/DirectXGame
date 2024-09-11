@@ -25,10 +25,20 @@ void SceneManager::ChangeScene() {
 	case Scene::kGame:
 		if (gameScene_->IsFinished()) {
 			// シーン変更
-			// ゲームオーバーかクリアに移行する予定なので仮実装
-			scene = Scene::kTitle;
+			scene = Scene::kGameOver;
 			// 旧シーンの解放
 			gameScene_.reset();
+			// 新シーンの生成と初期化
+			gameoverScene_ = std::make_unique<GameOverScene>();
+			gameoverScene_->Initialize();
+		}
+		break;
+	case Scene::kGameOver:
+		if (gameoverScene_->IsFinished()) {
+			// シーン変更
+			scene = Scene::kTitle;
+			// 旧シーンの解放
+			gameoverScene_.reset();
 			// 新シーンの生成と初期化
 			titleScene_ = std::make_unique<TitleScene>();
 			titleScene_->Initialize();
@@ -51,6 +61,10 @@ void SceneManager::UpdateScene() {
 		// ゲームシーンの更新
 		gameScene_->Update();
 		break;
+	case Scene::kGameOver:
+		//ゲームオーバーシーンの更新
+		gameoverScene_->Update();
+		break;
 	default:
 		break;
 	}
@@ -67,6 +81,10 @@ void SceneManager::DrawScene() {
 	case Scene::kGame:
 		// ゲームシーンの描画
 		gameScene_->Draw();
+		break;
+	case Scene::kGameOver:
+		//ゲームオーバーシーンの描画
+		gameoverScene_->Draw();
 		break;
 	default:
 		break;

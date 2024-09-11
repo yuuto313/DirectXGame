@@ -1,6 +1,7 @@
 #pragma once
 #include "GameScene.h"
 #include "TitleScene.h"
+#include "GameOverScene.h"
 
 //--------------------------------
 //ゲームオーバーやクリアなど追加の画面はここへ
@@ -19,7 +20,7 @@ public:
 		// ゲーム
 		kGame,
 		// ゲームオーバー
-
+		kGameOver,
 		// クリア
 
 	};
@@ -56,7 +57,7 @@ private:
 	std::unique_ptr<GameScene> gameScene_;
 
 	//ゲームオーバーシーン
-
+	std::unique_ptr<GameOverScene> gameoverScene_;
 	
 	//クリアシーン
 

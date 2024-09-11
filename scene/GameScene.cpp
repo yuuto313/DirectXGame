@@ -36,10 +36,25 @@ void GameScene::Update() {
 
 		break;
 	case GameScene::Phase::kPlay:
+
+		// ゲームオーバーシーンへの移行を確認するための仮実装
+		// 誤作動を防ぐため同次押し込みで遷移
+
+		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_RETURN)) {
+			// フェードアウト開始
+			float duration = 1.5f;
+			fade_->Start(Fade::Status::FadeOut, duration);
+			phase_ = Phase::kFadeOut;
+		}
+
 		break;
 	case GameScene::Phase::kFadeOut:
 		//フェードの更新
 		fade_->Update();
+
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
 
 		break;
 	default:
