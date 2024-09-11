@@ -16,6 +16,11 @@ void GameScene::Initialize() {
 
 	chainModel_.reset(Model::CreateFromOBJ("chain", true));
 
+	//-------------生成と初期化-------------//
+
+	//ビュープロジェクション
+	viewProjection_.Initialize();
+
 	// フェードの生成と初期化
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialize();
@@ -90,7 +95,9 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 
-	chain_->Draw()
+
+
+	chain_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

@@ -72,6 +72,9 @@ private: // メンバ変数
 	/// ゲームシーン用
 	/// </summary>
 	
+	//ビュープロジェクション
+	ViewProjection viewProjection_;
+
 	//-------------モデル-------------//
 
 	//鎖のモデル
