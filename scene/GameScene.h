@@ -19,11 +19,11 @@ public: // メンバ関数
 
 	//シーンのフェーズ
 	enum class Phase {
-		//フェードイン
+		// フェードイン
 		kFadeIn,
-		//ゲームプレイ
+		// ゲームプレイ
 		kPlay,
-		//フェードアウト
+		// フェードアウト
 		kFadeOut,
 	};
 
@@ -62,6 +62,12 @@ public: // メンバ関数
 	/// <returns></returns>
 	bool IsFinished() const { return finished_; }
 
+	/// <summary>
+	/// ポーズのフラグゲッター
+	/// </summary>
+	/// <returns></returns>
+	bool IsPaused() const { return pause_; }
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -79,5 +85,8 @@ private: // メンバ変数
 
 	//終了フラグ
 	bool finished_ = false;
+
+	//ボーズフラグ
+	bool pause_ = false;
 
 };

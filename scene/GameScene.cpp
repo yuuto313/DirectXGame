@@ -24,6 +24,7 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
+
 	switch (phase_) {
 	case GameScene::Phase::kFadeIn:
 		//フェードの更新
@@ -45,6 +46,18 @@ void GameScene::Update() {
 			float duration = 1.5f;
 			fade_->Start(Fade::Status::FadeOut, duration);
 			phase_ = Phase::kFadeOut;
+		}
+
+		//仮実装
+		XINPUT_STATE joyState;
+		Input::GetInstance()->GetJoystickState(0, joyState);
+		// AボタンorSPACEキーでメインフェーズ終了
+		if (input_->TriggerKey(DIK_TAB) || joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
+			if (pause_) {
+				pause_ = false;
+			} else {
+				pause_ = true;
+			}
 		}
 
 		break;

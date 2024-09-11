@@ -2,6 +2,7 @@
 #include "GameScene.h"
 #include "TitleScene.h"
 #include "GameOverScene.h"
+#include "MenuScene.h"
 
 //--------------------------------
 //ゲームオーバーやクリアなど追加の画面はここへ
@@ -17,6 +18,8 @@ public:
 		kUnknown = 0,
 		// タイトル
 		kTitle,
+		//メニュー(操作説明)
+		kMenu,
 		// ゲーム
 		kGame,
 		// ゲームオーバー
@@ -55,6 +58,9 @@ private:
 
 	// ゲームシーン
 	std::unique_ptr<GameScene> gameScene_;
+
+	//メニューシーン
+	std::unique_ptr<MenuScene> menuScene_;
 
 	//ゲームオーバーシーン
 	std::unique_ptr<GameOverScene> gameoverScene_;

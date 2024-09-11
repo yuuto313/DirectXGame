@@ -12,6 +12,7 @@ void SceneManager::ChangeScene() {
 	case Scene::kUnknown:
 		break;
 	case Scene::kTitle:
+		// タイトルシーンが終わったら
 		if (titleScene_->IsFinished()) {
 			// シーン変更
 			scene = Scene::kGame;
@@ -22,7 +23,18 @@ void SceneManager::ChangeScene() {
 			gameScene_->Initialize();
 		}
 		break;
+	case Scene::kMenu:
 	case Scene::kGame:
+		// ポーズのフラグが立ったら
+		if (gameScene_->IsPaused()) {
+			menuScene_ = std::make_unique<MenuScene>();
+			menuScene_->Initialize();
+		} else {
+			//解放
+			menuScene_.reset();
+		}
+		
+		// ゲームシーンが終わったら
 		if (gameScene_->IsFinished()) {
 			// シーン変更
 			scene = Scene::kGameOver;
@@ -33,7 +45,10 @@ void SceneManager::ChangeScene() {
 			gameoverScene_->Initialize();
 		}
 		break;
+	
+
 	case Scene::kGameOver:
+		// ゲームオーバーシーンが終わったら
 		if (gameoverScene_->IsFinished()) {
 			// シーン変更
 			scene = Scene::kTitle;
@@ -57,7 +72,13 @@ void SceneManager::UpdateScene() {
 		// タイトルシーンの更新
 		titleScene_->Update();
 		break;
+	case Scene::kMenu:
 	case Scene::kGame:
+		// メニューの更新
+		if (menuScene_) {
+			menuScene_->Update();
+		}
+	
 		// ゲームシーンの更新
 		gameScene_->Update();
 		break;
@@ -78,7 +99,13 @@ void SceneManager::DrawScene() {
 		// タイトルシーンの描画
 		titleScene_->Draw();
 		break;
+	case Scene::kMenu:
 	case Scene::kGame:
+		//メニューの描画
+		if (menuScene_) {
+			menuScene_->Draw();
+		}
+	
 		// ゲームシーンの描画
 		gameScene_->Draw();
 		break;
