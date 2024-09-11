@@ -132,12 +132,18 @@ void GameScene::Draw() {
 	switch (phase_) {
 	case GameScene::Phase::kFadeIn:
 	case GameScene::Phase::kFadeOut:
+		//--------------------------------
+		// フェードの描画
+		//--------------------------------
 
 		fade_->Draw();
 
 		break;
 	case GameScene::Phase::kPlay:
-
+		//--------------------------------
+		// UIの描画
+		//--------------------------------
+		
 		uiSprite_->Draw();
 
 		break;
