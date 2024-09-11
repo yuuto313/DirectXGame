@@ -17,13 +17,42 @@ void GameScene::Initialize() {
 	/// モデル読み込みここから
 	/// </summary>
 
+	//===================================================
 	//天球
+	//===================================================
+	
 	skydomeModel_.reset(Model::CreateFromOBJ("Skydome", true));
-
+	
+	//===================================================
 	//地面
+	//===================================================
+
 	groundModel_.reset(Model::CreateFromOBJ("ground", true));
 
+	//===================================================
+	//プレイヤー
+	//===================================================
 
+	modelPlayerBody_.reset(Model::CreateFromOBJ("float_Body", true));
+	modelPlayerHead_.reset(Model::CreateFromOBJ("float_Head", true));
+	modelPlayerL_arm_.reset(Model::CreateFromOBJ("float_L_arm", true));
+	modelPlayerR_arm_.reset(Model::CreateFromOBJ("float_R_arm", true));
+	modelPlayerWeapon_.reset(Model::CreateFromOBJ("player_Weapon", true));
+	modelHitEffect_.reset(Model::CreateFromOBJ("hitEffect", true));
+	modelShockWave_.reset(Model::Create());
+
+	//===================================================
+	//敵
+	//===================================================
+
+	modelEnemyBody_.reset(Model::CreateFromOBJ("enemy", true));
+	modelEnemyWeapon_.reset(Model::CreateFromOBJ("enemy_Weapon", true));
+
+	//===================================================
+	//鎖
+	//===================================================
+
+	modelChain_.reset(Model::CreateFromOBJ("chain", true));
 
 	/// <summary>
 	/// モデル読み込みここまで
@@ -73,6 +102,7 @@ void GameScene::Initialize() {
 	ground_ = std::make_unique<Ground>();
 	ground_->Initialize(groundModel_.get());
 
+
 	//===================================================
 	//天球
 	//===================================================
@@ -85,14 +115,6 @@ void GameScene::Initialize() {
 	//===================================================
 
 	//モデル
-	modelPlayerBody_.reset(Model::CreateFromOBJ("float_Body", true));
-	modelPlayerHead_.reset(Model::CreateFromOBJ("float_Head", true));
-	modelPlayerL_arm_.reset(Model::CreateFromOBJ("float_L_arm", true));
-	modelPlayerR_arm_.reset(Model::CreateFromOBJ("float_R_arm", true));
-	modelPlayerWeapon_.reset(Model::CreateFromOBJ("player_Weapon", true));
-	modelHitEffect_.reset(Model::CreateFromOBJ("hitEffect", true));
-	modelShockWave_.reset(Model::Create());
-
 	std::vector<Model*> playerModels = {
 		modelPlayerBody_.get(),
 		modelPlayerHead_.get(),
@@ -118,8 +140,6 @@ void GameScene::Initialize() {
 	//エネミー
 	//===================================================
 
-	modelEnemyBody_.reset(Model::CreateFromOBJ("enemy", true));
-	modelEnemyWeapon_.reset(Model::CreateFromOBJ("enemy_Weapon", true));
 	std::vector<Model*> enemyModels = {
 		modelEnemyBody_.get(),
 		modelEnemyWeapon_.get(),
@@ -132,6 +152,13 @@ void GameScene::Initialize() {
 		enemy->Initialize(enemyModels);
 		enemies_.push_back(std::move(enemy));
 	}
+
+	//===================================================
+	//鎖
+	//===================================================
+
+	chain_ = std::make_unique<Chain>();
+	chain_->Initilaize(modelChain_.get());
 
 	//===================================================
 	//衝突判定マネージャー
@@ -150,6 +177,8 @@ void GameScene::Initialize() {
 	float duration = 2.0f;
 	// フェードの開始
 	fade_->Start(Fade::Status::FadeIn, duration);
+
+	
 
 	/// <summary>
 	/// ゲームオブジェクトの初期化ここまで
@@ -187,6 +216,12 @@ void GameScene::Update()
 			//===================================================
 
 			skydome_->Update();
+
+			//===================================================
+			//鎖
+			//===================================================
+
+			chain_->Update();
 
 			//===================================================
 			//プレイヤー
@@ -311,6 +346,12 @@ void GameScene::Draw() {
 	skydome_->Draw(viewProjection_);
 
 	//===================================================
+	//鎖
+	//===================================================
+
+	chain_->Draw(viewProjection_);
+
+	//===================================================
 	//プレイヤー
 	//===================================================
 
@@ -325,15 +366,19 @@ void GameScene::Draw() {
 		enemy->Draw(viewProjection_);
 	}
 
+	
+
+
+	// 3Dオブジェクト描画後処理
+	Model::PostDraw();
+#pragma endregion
+
 	//===================================================
 	//ロックオン
 	//===================================================
 
 	lockOn_->Draw();
 
-	// 3Dオブジェクト描画後処理
-	Model::PostDraw();
-#pragma endregion
 
 #pragma region 前景スプライト描画
 	// 前景スプライト描画前処理
@@ -357,6 +402,8 @@ void GameScene::Draw() {
 	default:
 		break;
 	}
+
+	
 
 	// スプライト描画後処理
 	Sprite::PostDraw();

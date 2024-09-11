@@ -17,20 +17,14 @@ void Chain::Initilaize(Model* model) {
 
 }
 
-void Chain::Update() {
-	//--------------------------------
-	// ワールド行列の更新と転送
-	//--------------------------------
-
-	//worldTransform_.UpdateMatrix();
+void Chain::Update()
+{
+	//ワールド変換更新
+	worldTransform_.UpdateMatrix();
 
 }
 
-void Chain::Draw(const ViewProjection& viewProjection) { 
-	//--------------------------------
-	// モデルの描画
-	//--------------------------------
-
+void Chain::Draw(const ViewProjection& viewProjection)
+{ 
 	model_->Draw(worldTransform_,viewProjection); 
-
 }
