@@ -18,7 +18,7 @@ class Player : public Collider
 {
 public:
 
-	void Initialize(const std::vector<Model*>& models, ViewProjection* viewProjection);
+	void Initialize(const std::vector<Model*>& models);
 
 	void Update();
 

@@ -2,6 +2,7 @@
 #include <memory>
 #include <numbers>
 
+#include "DirectXCommon.h"
 #include "Enemy.h"
 #include "Sprite.h"
 
@@ -33,6 +34,8 @@ public:
 	bool ExistTarget() const { return target_ ? true : false; }
 
 private:
+	DirectXCommon* dxCommon_ = nullptr;
+
 	std::unique_ptr<Sprite> lockOnMark_;
 
 	//ロックオン対象
@@ -42,7 +45,7 @@ private:
 	// 最小距離
 	float minDistance_ = 10.0f;
 	// 最大距離
-	float maxDistance_ = 200.0f;
+	float maxDistance_ = 500.0f;
 	//角度範囲
 	float angleRange_ = 20.0f * kDegreeToRadian_;
 

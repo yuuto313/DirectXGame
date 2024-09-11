@@ -103,10 +103,14 @@ void GameScene::Initialize() {
 
 	//生成
 	player_ = std::make_unique<Player>();
-	player_->Initialize(playerModels,&viewProjection_);
+	player_->Initialize(playerModels);
 
 	//自キャラのワールドトランスフォームを追従カメラにセット
 	followCamera_->SetTarget(&player_->GetWorldTransform());
+	//プレイヤーにs追従カメラのビュープロジェクションをセット
+	player_->SetViewProjection(&followCamera_->GetViewProjection());
+	//ロックオンカメラにプレイヤーをセット
+	player_->SetLockOn(lockOn_.get());
 
 	//===================================================
 	//エネミー
@@ -120,8 +124,12 @@ void GameScene::Initialize() {
 		modelEnemyWeapon_.get()
 	};
 
-	enemy_ = std::make_unique<Enemy>();
-	enemy_->Initialize(enemyModels);
+	const int numEnemies = 1;
+	for (int i = 0; i < numEnemies; ++i) {
+		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>();
+		enemy->Initialize(enemyModels);
+		enemies_.push_back(std::move(enemy));
+	}
 
 	//===================================================
 	//衝突判定マネージャー
@@ -165,8 +173,10 @@ void GameScene::Update()
 	//敵
 	//===================================================
 
-	enemy_->Update();
-
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		enemy->Update();
+	}
 
 	//===================================================
 	//衝突判定
@@ -176,7 +186,10 @@ void GameScene::Update()
 	collisionManager_->Reset();
 	//衝突判定を取りたいオブジェクトを登録
 	collisionManager_->RegisterCollider(player_.get());
-	collisionManager_->RegisterCollider(enemy_.get());
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		collisionManager_->RegisterCollider(enemy.get());
+	}
 	collisionManager_->RegisterCollider(player_->GetHammer());
 	//衝突判定
 	collisionManager_->CheckAllCollisions();
@@ -207,6 +220,7 @@ void GameScene::Update()
 		viewProjection_.TransferMatrix();
 	} else {
 		// 追従カメラ
+		lockOn_->Update(enemies_,viewProjection_);
 		followCamera_->Update();
 		viewProjection_.matView = followCamera_->GetViewProjection().matView;
 		viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
@@ -269,7 +283,16 @@ void GameScene::Draw() {
 	//エネミー
 	//===================================================
 
-	enemy_->Draw(viewProjection_);
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		enemy->Draw(viewProjection_);
+	}
+
+	//===================================================
+	//ロックオン
+	//===================================================
+
+	lockOn_->Draw();
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
