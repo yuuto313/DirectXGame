@@ -20,7 +20,7 @@ public:
 
 	void Initialize(const std::vector<Model*>& models, ViewProjection* viewProjection);
 
-	void Upadate();
+	void Update();
 
 	void Draw();
 

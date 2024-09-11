@@ -65,7 +65,7 @@ void Player::Initialize(const std::vector<Model*>& models,ViewProjection* viewPr
 	UpdateMatrix();
 }
 
-void Player::Upadate()
+void Player::Update()
 {
 	UpdateImGui();
 

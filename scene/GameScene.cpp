@@ -107,8 +107,6 @@ void GameScene::Initialize() {
 	//自キャラのワールドトランスフォームを追従カメラにセット
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 
-
-
 	//===================================================
 	//エネミー
 	//===================================================
@@ -123,6 +121,13 @@ void GameScene::Initialize() {
 
 	enemy_ = std::make_unique<Enemy>();
 	enemy_->Initialize(enemyModels);
+
+	//===================================================
+	//衝突判定マネージャー
+	//===================================================
+
+	collisionManager_ = std::make_unique<CollisionManager>();
+
 
 	/// <summary>
 	/// ゲームオブジェクトの初期化ここまで
@@ -148,7 +153,36 @@ void GameScene::Update()
 
 	skydome_->Update();
 
-/*	//===================================================
+	//===================================================
+	//プレイヤー
+	//===================================================
+
+	player_->Update();
+
+
+	//===================================================
+	//敵
+	//===================================================
+
+	enemy_->Update();
+
+
+	//===================================================
+	//衝突判定
+	//===================================================
+
+	//リストのクリア
+	collisionManager_->Reset();
+	//衝突判定を取りたいオブジェクトを登録
+	collisionManager_->RegisterCollider(player_.get());
+	collisionManager_->RegisterCollider(enemy_.get());
+	collisionManager_->RegisterCollider(player_->GetHammer());
+	//衝突判定
+	collisionManager_->CheckAllCollisions();
+
+
+
+	//===================================================
 	//ビュープロジェクション
 	//===================================================
 
@@ -171,8 +205,12 @@ void GameScene::Update()
 		// ビュープロジェクション行列の転送
 		viewProjection_.TransferMatrix();
 	} else {
+		// 追従カメラ
+		followCamera_->Update();
+		viewProjection_.matView = followCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
+
 		// ビュープロジェクション行列の更新と転送
-		viewProjection_.UpdateMatrix();
 		viewProjection_.TransferMatrix();
 	}
 
