@@ -18,14 +18,14 @@ void GameScene::Initialize() {
 
 	//-------------生成と初期化-------------//
 
-	//ビュープロジェクション
+	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 
 	// フェードの生成と初期化
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialize();
 
-	//鎖の生成と初期化
+	// 鎖の生成と初期化
 	chain_ = std::make_unique<Chain>();
 	chain_->Initilaize(chainModel_.get());
 
@@ -94,9 +94,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-
-
-
+	
+	// 鎖のモデルを描画
 	chain_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
