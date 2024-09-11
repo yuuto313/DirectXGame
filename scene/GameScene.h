@@ -9,6 +9,7 @@
 #include "WorldTransform.h"
 
 #include "Fade.h"
+#include "Chain.h"
 
 /// <summary>
 /// ゲームシーン
@@ -71,8 +72,16 @@ private: // メンバ変数
 	/// ゲームシーン用
 	/// </summary>
 	
+	//-------------モデル-------------//
+
+	//鎖のモデル
+	std::unique_ptr<Model> chainModel_ = nullptr;
+
 	//フェード
 	std::unique_ptr<Fade> fade_;
+
+	//鎖
+	std::unique_ptr<Chain> chain_;
 
 	//現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;

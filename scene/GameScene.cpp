@@ -12,9 +12,18 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
-	// フェードの初期化
+	//-------------モデルの生成-------------//
+
+	chainModel_.reset(Model::CreateFromOBJ("chain", true));
+
+	// フェードの生成と初期化
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialize();
+
+	//鎖の生成と初期化
+	chain_ = std::make_unique<Chain>();
+	chain_->Initilaize(chainModel_.get());
+
 	// フェードの持続時間
 	float duration = 2.0f;
 	// フェードの開始
@@ -36,6 +45,13 @@ void GameScene::Update() {
 
 		break;
 	case GameScene::Phase::kPlay:
+
+		//--------------------------------
+		// 鎖の更新
+		//--------------------------------
+
+		chain_->Update();
+
 		break;
 	case GameScene::Phase::kFadeOut:
 		//フェードの更新
@@ -73,6 +89,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+
+	chain_->Draw()
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
