@@ -24,7 +24,8 @@ void Enemy::Initialize(const std::vector<Model*>& models)
 	models_ = models;
 
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = { 0.0f, 0.0f, 100.0f };
+	worldTransform_.translation_ = { 0.0f, 4.0f, 100.0f };
+
 
 	//パーツも
 	worldTransformBody_.Initialize();

@@ -11,6 +11,7 @@
 
 void LockOn::Initialize()
 {
+	dxCommon_ = DirectXCommon::GetInstance();
 
 	// レティクル用テクスチャ取得
 	uint32_t textureReticle = TextureManager::Load("./Resources/reticle.png");
@@ -84,10 +85,15 @@ void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies, const View
 
 void LockOn::Draw()
 {
+	Sprite::PreDraw(dxCommon_->GetCommandList());
+
 	if (target_)
 	{
 		lockOnMark_->Draw();
 	}
+
+	Sprite::PostDraw();
+
 }
 
 void LockOn::SearchLockOnTarget(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection)

@@ -12,7 +12,7 @@
 
 #include "ImGuiManager.h"
 
-void Player::Initialize(const std::vector<Model*>& models,ViewProjection* viewProjection)
+void Player::Initialize(const std::vector<Model*>& models)
 {
 	//Nullポインタチェック
 	for (Model* model : models)
@@ -23,7 +23,7 @@ void Player::Initialize(const std::vector<Model*>& models,ViewProjection* viewPr
 	//引数で受け取ったものを取得
 	models_ = models;
 
-	viewProjection_ = viewProjection;
+	//viewProjection_ = viewProjection;
 
 	//初期化
 	worldTransform_.Initialize();
@@ -65,7 +65,8 @@ void Player::Initialize(const std::vector<Model*>& models,ViewProjection* viewPr
 	UpdateMatrix();
 }
 
-void Player::Upadate()
+void Player::Update()
+
 {
 	UpdateImGui();
 
@@ -108,6 +109,8 @@ void Player::Upadate()
 	}
 
 	hammer_->Update();
+	UpdateShockWave();
+
 
 }
 
@@ -119,6 +122,8 @@ void Player::Draw()
 	models_[kModelIndexR_arm]->Draw(worldTransformR_arm_, *viewProjection_);
 	hammer_->Draw(*viewProjection_);
 	hammer_->DrawEffect(*viewProjection_);
+	DrawShockWave();
+
 }
 
 
@@ -287,6 +292,7 @@ void Player::BehaviorRootUpdate()
 	//攻撃ボタンを押したら
 	if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
 		behaviorRequest_ = Behavior::kAttack;
+
 	}
 
 	//自キャラの待機アニメーション
@@ -300,6 +306,9 @@ void Player::BehaviorAttackInitialize()
 {
 	AttackParameter_ = 0.0f;
 	hammer_->AttackAnimaitonInitialize();
+	//衝撃波を生成
+	GenerateShockWave();
+
 }
 
 
@@ -380,6 +389,55 @@ void Player::OnCollision()
 {
 	// ジャンプをリクエスト
 		behaviorRequest_ = Behavior::kJump;
+}
+
+void Player::GenerateShockWave()
+{
+	//ロックオンされているならロックオン対象の方向に向かって衝撃波を生成
+	if(lockOn_ && lockOn_->ExistTarget())
+	{
+		//ターゲットの座標
+		Vector3 targetPosition = lockOn_->GetTargetPosition();
+		//高さの調整
+		targetPosition.y -= 4.0f;
+		//ロックオンの方向ベクトルを取得
+		Vector3 velocity = targetPosition - worldTransform_.translation_;
+
+		//衝撃波を生成
+		std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
+		shockWave->Initialize(models_[kModelIndexShockWave],hammer_->GetWorldPosition(), velocity,viewProjection_);
+		shockWaves_.push_back(std::move(shockWave));
+		return;
+	}
+	
+	//ロックオンされていないならプレイヤーの前方向に向かって衝撃波を生成
+	Vector3 velocity = {0.0f,0.0f,1.0f};
+	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
+	std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
+	shockWave->Initialize(models_[kModelIndexShockWave], hammer_->GetWorldPosition(), velocity,viewProjection_);
+	shockWaves_.push_back(std::move(shockWave));
+}
+
+void Player::UpdateShockWave()
+{
+	//衝撃波を更新
+	for (const std::unique_ptr<ShockWave>& shockwave : shockWaves_)
+	{
+		shockwave->Update();
+	}
+
+	//無効な衝撃波を削除
+	shockWaves_.remove_if([](const std::unique_ptr<ShockWave>& shockwave) {
+		return !shockwave->IsActive();
+	});
+}
+
+void Player::DrawShockWave()
+{
+	for (const std::unique_ptr<ShockWave>& shockwave : shockWaves_)
+	{
+		shockwave->Draw(*viewProjection_);
+	}
 }
 
 Vector3 Player::GetWorldPosition()

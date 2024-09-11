@@ -1,12 +1,19 @@
 #pragma once
 
 #include "Audio.h"
+#include "CollisionManager.h"
+#include "DebugCamera.h"
 #include "DirectXCommon.h"
+#include "FollowCamera.h"
+#include "Ground.h"
 #include "Input.h"
 #include "Model.h"
+#include "Skydome.h"
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include "LockOn.h"
+#include "Player.h"
 
 #include "Fade.h"
 #include "Chain.h"
@@ -71,25 +78,77 @@ private: // メンバ変数
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
-	
+
+	//===================================================
 	//ビュープロジェクション
+	//===================================================
+
 	ViewProjection viewProjection_;
 
-	//-------------モデル-------------//
+	//===================================================
+	//デバッグカメラ
+	//===================================================
 
-	//鎖のモデル
-	std::unique_ptr<Model> chainModel_ = nullptr;
+	std::unique_ptr<DebugCamera> debugCamera_;
+	//デバッグカメラ切り替え
+	bool isDebugCameraActive_ = false;
 
-	//フェード
-	std::unique_ptr<Fade> fade_;
+	//===================================================
+	//追従カメラ
+	//===================================================
 
-	//鎖
-	std::unique_ptr<Chain> chain_;
+	std::unique_ptr<FollowCamera> followCamera_;
 
-	//現在のフェーズ
-	Phase phase_ = Phase::kFadeIn;
+	//===================================================
+	//ロックオンカメラ
+	//===================================================
 
-	//終了フラグ
-	bool finished_ = false;
+	std::unique_ptr<LockOn> lockOn_;
+
+	//===================================================
+	//天球
+	//===================================================
+
+	std::unique_ptr<Skydome> skydome_;
+	//モデル
+	std::unique_ptr<Model> skydomeModel_;
+
+	//===================================================
+	//地面
+	//===================================================
+
+	std::unique_ptr<Ground> ground_;
+	//モデル
+	std::unique_ptr<Model> groundModel_;
+
+	//===================================================
+	//プレイヤー
+	//===================================================
+
+	std::unique_ptr<Player> player_;
+	//モデル
+	std::unique_ptr<Model>modelPlayerBody_;
+	std::unique_ptr<Model>modelPlayerHead_;
+	std::unique_ptr<Model>modelPlayerL_arm_;
+	std::unique_ptr<Model>modelPlayerR_arm_;
+	std::unique_ptr<Model>modelPlayerWeapon_;
+	std::unique_ptr<Model>modelHitEffect_;
+	std::unique_ptr<Model>modelShockWave_;
+
+
+	//===================================================
+	//エネミー
+	//===================================================
+
+	std::list<std::unique_ptr<Enemy>> enemies_;
+	//モデル
+	std::unique_ptr<Model>modelEnemyBody_;
+	std::unique_ptr<Model>modelEnemyWeapon_;
+
+	//===================================================
+	//衝突マネージャー
+	//===================================================
+
+	std::unique_ptr<CollisionManager> collisionManager_;
 
 };

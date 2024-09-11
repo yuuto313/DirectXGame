@@ -5,7 +5,8 @@
 #include "cmath"
 
 // 三次元の回転
-Matrix4x4 MakeRotateXMatrix(float radian) {
+Matrix4x4 MakeRotateXMatrix(float radian){
+
 	Matrix4x4 m = {1, 0, 0, 0, 0, std::cos(radian), std::sin(radian), 0, 0, -std::sin(radian), std::cos(radian), 0, 0, 0, 0, 1};
 	return m;
 }
