@@ -33,6 +33,8 @@ public:
 	/// \return 
 	bool ExistTarget() const { return target_ ? true : false; }
 
+	const Enemy* GetTarget() const { return target_; }
+
 private:
 	DirectXCommon* dxCommon_ = nullptr;
 

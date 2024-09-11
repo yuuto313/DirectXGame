@@ -4,6 +4,7 @@
 #include <optional>
 
 #include "Hammer.h"
+#include "ShockWave.h"
 
 enum class Behavior
 {
@@ -27,6 +28,8 @@ public:
 	/// \brief ワールド変換データの更新
 	void UpdateMatrix();
 
+	/*---------------------[動作]-----------------------*/
+
 	/// \brief 移動
 	void Move();
 
@@ -36,11 +39,17 @@ public:
 	/// \brief 攻撃
 	void Attack();
 
+	/// \brief 衝突を検出したら呼び出されるコールバック関数
+	void OnCollision()override;
 
 	/// \brief ターゲットに体を向ける
 	void TurnToTarget();
 
+	/*---------------------[ImGui]-----------------------*/
+
 	void UpdateImGui();
+
+	/*---------------------[振る舞い]-----------------------*/
 
 	void InitializeFloatingGimick();
 
@@ -59,15 +68,22 @@ public:
 	/// \brief 攻撃行動更新
 	void BehaviorAttackUpdate();
 
-
 	/// \brief ジャンプ行動初期化
 	void BehaviorJumpInitialize();
 
 	/// \brief ジャンプ行動更新
 	void BehaviorJumpUpdate();
 
-	/// \brief 衝突を検出したら呼び出されるコールバック関数
-	void OnCollision()override;
+	/*---------------------[衝撃波]-----------------------*/
+
+	/// \brief 衝撃波の生成
+	void GenerateShockWave();
+
+	/// \brief 衝撃波の更新
+	void UpdateShockWave();
+
+	/// \brief 衝撃波の描画
+	void DrawShockWave();
 
 	/*---------------------[アクセッサ]-----------------------*/
 
@@ -88,6 +104,10 @@ public:
 	/// \return 
 	Hammer* GetHammer() { return hammer_.get(); }
 
+	//衝撃波のポインタ取得
+	std::list<std::unique_ptr<ShockWave>>& GetShockWaves() { return shockWaves_; }
+	
+
 	/* セッター */
 	//カメラのセット
 	void SetViewProjection(const ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
@@ -105,6 +125,7 @@ private:
 	const int kModelIndexR_arm = 3;
 	const int kModelindexWeapon = 4;
 	const int kModelIndexEffect = 5;
+	const int kModelIndexShockWave = 6;
 
 	//ワールド変換データ
 	WorldTransform worldTransform_;
@@ -118,6 +139,9 @@ private:
 
 	//ハンマー
 	std::unique_ptr<Hammer> hammer_;
+
+	//衝撃波
+	std::list<std::unique_ptr<ShockWave>> shockWaves_;
 
 	//カメラ
 	const ViewProjection* viewProjection_ = nullptr;

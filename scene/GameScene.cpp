@@ -91,6 +91,7 @@ void GameScene::Initialize() {
 	modelPlayerR_arm_.reset(Model::CreateFromOBJ("float_R_arm", true));
 	modelPlayerWeapon_.reset(Model::CreateFromOBJ("player_Weapon", true));
 	modelHitEffect_.reset(Model::CreateFromOBJ("hitEffect", true));
+	modelShockWave_.reset(Model::Create());
 
 	std::vector<Model*> playerModels = {
 		modelPlayerBody_.get(),
@@ -98,7 +99,8 @@ void GameScene::Initialize() {
 		modelPlayerL_arm_.get(),
 		modelPlayerR_arm_.get(),
 		modelPlayerWeapon_.get(),
-		modelHitEffect_.get()
+		modelHitEffect_.get(),
+		modelShockWave_.get(),
 	};
 
 	//生成
@@ -185,12 +187,17 @@ void GameScene::Update()
 	//リストのクリア
 	collisionManager_->Reset();
 	//衝突判定を取りたいオブジェクトを登録
-	collisionManager_->RegisterCollider(player_.get());
-	for (const std::unique_ptr<Enemy>& enemy : enemies_)
+	collisionManager_->RegisterCollider(player_.get());			//プレイヤー
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)		
 	{
-		collisionManager_->RegisterCollider(enemy.get());
+		collisionManager_->RegisterCollider(enemy.get());		//エネミー
 	}
-	collisionManager_->RegisterCollider(player_->GetHammer());
+	collisionManager_->RegisterCollider(player_->GetHammer());	//プレイヤーのハンマー
+	for(const std::unique_ptr<ShockWave>& shockWave : player_->GetShockWaves())		//プレイヤーの衝撃波
+	{
+		collisionManager_->RegisterCollider(shockWave.get());
+	}
+
 	//衝突判定
 	collisionManager_->CheckAllCollisions();
 

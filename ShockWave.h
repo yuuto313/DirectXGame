@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "ShockWaveConfig.h"
 #include "WorldTransform.h"
+#include "ViewProjection.h"
 
 class ShockWave : public Collider
 {
@@ -10,7 +11,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(Model* model,Vector3 velocity);
+	void Initialize(Model* model,Vector3 position,Vector3 velocity,const ViewProjection* viewProjection);
 
 	/// <summary>
 	/// 更新
@@ -20,7 +21,7 @@ public:
 	/// <summary>
 	/// 描画
 	/// </summary>
-	void Draw();
+	void Draw(const ViewProjection& viewProjection);
 
 	void OnCollision() override;
 
@@ -38,6 +39,8 @@ public: // アクセッサ
 private: // メンバ変数
 	//ワールド変換データ
 	WorldTransform worldTransform_;
+
+	const ViewProjection* viewProjection_ = nullptr;
 
 	Model* model_ = nullptr;
 
