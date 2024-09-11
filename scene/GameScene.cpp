@@ -2,6 +2,7 @@
 #include "TextureManager.h"
 #include <cassert>
 
+
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {}
@@ -11,9 +12,62 @@ void GameScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+
+	//-------------モデルの生成-------------//
+
+	chainModel_.reset(Model::CreateFromOBJ("chain", true));
+
+	//-------------生成と初期化-------------//
+
+	// ビュープロジェクションの初期化
+	viewProjection_.Initialize();
+
+	// フェードの生成と初期化
+	fade_ = std::make_unique<Fade>();
+	fade_->Initialize();
+
+	// 鎖の生成と初期化
+	chain_ = std::make_unique<Chain>();
+	chain_->Initilaize(chainModel_.get());
+
+	// フェードの持続時間
+	float duration = 2.0f;
+	// フェードの開始
+	fade_->Start(Fade::Status::FadeIn,duration);
+
 }
 
-void GameScene::Update() {}
+void GameScene::Update() {
+
+	switch (phase_) {
+	case GameScene::Phase::kFadeIn:
+		//フェードの更新
+		fade_->Update();
+
+		if (fade_->IsFinished()){
+			//プレイフェーズへ
+			phase_ = Phase::kPlay;
+		}
+
+		break;
+	case GameScene::Phase::kPlay:
+
+		//--------------------------------
+		// 鎖の更新
+		//--------------------------------
+
+		chain_->Update();
+
+		break;
+	case GameScene::Phase::kFadeOut:
+		//フェードの更新
+		fade_->Update();
+
+		break;
+	default:
+		break;
+	}
+}
 
 void GameScene::Draw() {
 
@@ -41,6 +95,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+	
+	// 鎖のモデルを描画
+	chain_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -53,6 +110,21 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+
+	// フェードの描画
+	switch (phase_) {
+	case GameScene::Phase::kFadeIn:
+	case GameScene::Phase::kFadeOut:
+
+		fade_->Draw();
+
+		break;
+	case GameScene::Phase::kPlay:
+
+		break;
+	default:
+		break;
+	}
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
