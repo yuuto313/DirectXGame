@@ -75,6 +75,14 @@ private: // メンバ変数
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
+	//現在のフェーズ
+	Phase phase_ = Phase::kFadeIn;
+
+	
+
+	//終了フラグ
+	bool finished_ = false;
+
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
@@ -150,5 +158,11 @@ private: // メンバ変数
 	//===================================================
 
 	std::unique_ptr<CollisionManager> collisionManager_;
+
+	//===================================================
+	//フェード
+	//===================================================
+
+	std::unique_ptr<Fade> fade_;
 
 };

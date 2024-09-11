@@ -109,11 +109,15 @@
     <ClCompile Include="2d\ImGuiManager.cpp" />
     <ClCompile Include="base\DirectXCommon.cpp" />
     <ClCompile Include="base\WinApp.cpp" />
+    <ClCompile Include="Chain.cpp" />
+    <ClCompile Include="ClearScene.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="Easing.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Fade.cpp" />
     <ClCompile Include="FollowCamera.cpp" />
+    <ClCompile Include="GameOverScene.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="Hammer.cpp" />
     <ClCompile Include="HitEffect.cpp" />
@@ -121,9 +125,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyMath.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
     <ClCompile Include="ShockWave.cpp" />
     <ClCompile Include="Skydome.cpp" />
+    <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="WorldTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -151,13 +157,17 @@
     <ClInclude Include="base\StringUtility.h" />
     <ClInclude Include="base\TextureManager.h" />
     <ClInclude Include="base\WinApp.h" />
+    <ClInclude Include="Chain.h" />
+    <ClInclude Include="ClearScene.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CollisionConfig.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="CollisionTypeIdDef.h" />
     <ClInclude Include="Easing.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Fade.h" />
     <ClInclude Include="FollowCamera.h" />
+    <ClInclude Include="GameOverScene.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="Hammer.h" />
     <ClInclude Include="HitEffect.h" />
@@ -169,10 +179,12 @@
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="MyMath.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="ShockWave.h" />
     <ClInclude Include="ShockWaveConfig.h" />
     <ClInclude Include="Skydome.h" />
+    <ClInclude Include="TitleScene.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">
