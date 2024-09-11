@@ -12,7 +12,7 @@
 
 #include "ImGuiManager.h"
 
-void Player::Initialize(const std::vector<Model*>& models,ViewProjection* viewProjection)
+void Player::Initialize(const std::vector<Model*>& models)
 {
 	//Nullポインタチェック
 	for (Model* model : models)
@@ -22,8 +22,6 @@ void Player::Initialize(const std::vector<Model*>& models,ViewProjection* viewPr
 
 	//引数で受け取ったものを取得
 	models_ = models;
-
-	viewProjection_ = viewProjection;
 
 	//初期化
 	worldTransform_.Initialize();

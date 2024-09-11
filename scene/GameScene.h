@@ -115,7 +115,7 @@ private: // メンバ変数
 	//エネミー
 	//===================================================
 
-	std::unique_ptr<Enemy> enemy_;
+	std::list<std::unique_ptr<Enemy>> enemies_;
 	//モデル
 	std::unique_ptr<Model>modelEnemyBody_;
 	std::unique_ptr<Model>modelEnemyWeapon_;

@@ -122,6 +122,7 @@
     <ClCompile Include="MyMath.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
+    <ClCompile Include="ShockWave.cpp" />
     <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="WorldTransform.cpp" />
   </ItemGroup>
@@ -169,6 +170,8 @@
     <ClInclude Include="MyMath.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="scene\GameScene.h" />
+    <ClInclude Include="ShockWave.h" />
+    <ClInclude Include="ShockWaveConfig.h" />
     <ClInclude Include="Skydome.h" />
   </ItemGroup>
   <ItemGroup>
