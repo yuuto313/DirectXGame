@@ -3,6 +3,7 @@
 #include <numbers>
 
 #include "DirectXCommon.h"
+
 #include "Enemy.h"
 #include "Sprite.h"
 
@@ -48,6 +49,7 @@ private:
 	float minDistance_ = 10.0f;
 	// 最大距離
 	float maxDistance_ = 500.0f;
+
 	//角度範囲
 	float angleRange_ = 20.0f * kDegreeToRadian_;
 

@@ -21,6 +21,7 @@ void FollowCamera::Follow()
 	ImGui::Begin("Camera");
 	ImGui::SliderFloat3("rotation", &viewProjection_.rotation_.x, 0.0f, 6.28f);
 	ImGui::SliderFloat3("translate", &viewProjection_.translation_.x, 0.0f, 6.28f);
+
 	ImGui::End();
 
 		//追従対象がいれば
@@ -41,6 +42,7 @@ void FollowCamera::Follow()
 
 	// 追従対象からカメラまでのオフセット
 	Vector3 offset = {0.0f, 7.0f, -20.0f};
+
 
 	// 回転行列を求める
 	Matrix4x4 rotateXMatrix = MakeRotateXMatrix(viewProjection_.rotation_.x); // X軸の回転

@@ -23,6 +23,8 @@ void Player::Initialize(const std::vector<Model*>& models)
 	//引数で受け取ったものを取得
 	models_ = models;
 
+	//viewProjection_ = viewProjection;
+
 	//初期化
 	worldTransform_.Initialize();
 	worldTransformBody_.Initialize();
@@ -64,6 +66,7 @@ void Player::Initialize(const std::vector<Model*>& models)
 }
 
 void Player::Update()
+
 {
 	UpdateImGui();
 
@@ -108,6 +111,7 @@ void Player::Update()
 	hammer_->Update();
 	UpdateShockWave();
 
+
 }
 
 void Player::Draw()
@@ -119,6 +123,7 @@ void Player::Draw()
 	hammer_->Draw(*viewProjection_);
 	hammer_->DrawEffect(*viewProjection_);
 	DrawShockWave();
+
 }
 
 
@@ -287,7 +292,7 @@ void Player::BehaviorRootUpdate()
 	//攻撃ボタンを押したら
 	if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
 		behaviorRequest_ = Behavior::kAttack;
-		
+
 	}
 
 	//自キャラの待機アニメーション
@@ -303,6 +308,7 @@ void Player::BehaviorAttackInitialize()
 	hammer_->AttackAnimaitonInitialize();
 	//衝撃波を生成
 	GenerateShockWave();
+
 }
 
 

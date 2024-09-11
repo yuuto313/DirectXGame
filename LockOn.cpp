@@ -93,6 +93,7 @@ void LockOn::Draw()
 	}
 
 	Sprite::PostDraw();
+
 }
 
 void LockOn::SearchLockOnTarget(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection)

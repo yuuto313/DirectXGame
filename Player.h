@@ -23,6 +23,7 @@ public:
 
 	void Update();
 
+
 	void Draw();
 
 	/// \brief ワールド変換データの更新
@@ -42,6 +43,7 @@ public:
 	/// \brief 衝突を検出したら呼び出されるコールバック関数
 	void OnCollision()override;
 
+
 	/// \brief ターゲットに体を向ける
 	void TurnToTarget();
 
@@ -50,6 +52,7 @@ public:
 	void UpdateImGui();
 
 	/*---------------------[振る舞い]-----------------------*/
+
 
 	void InitializeFloatingGimick();
 
@@ -126,6 +129,7 @@ private:
 	const int kModelindexWeapon = 4;
 	const int kModelIndexEffect = 5;
 	const int kModelIndexShockWave = 6;
+
 
 	//ワールド変換データ
 	WorldTransform worldTransform_;
