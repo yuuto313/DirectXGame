@@ -1,10 +1,11 @@
 #pragma once
 
 /// <summary>
-/// 3次元ベクトル
+/// 4次元ベクトル
 /// </summary>
-struct Vector3 final {
+struct Vector4 final {
 	float x;
 	float y;
 	float z;
+	float w;
 };
