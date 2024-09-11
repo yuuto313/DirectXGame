@@ -2,16 +2,30 @@
 #include "TextureManager.h"
 #include <cassert>
 
-
 GameScene::GameScene() {}
 
-GameScene::~GameScene() {}
+GameScene::~GameScene() {
+	//解放処理
+	delete uiSprite_;
+}
 
 void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+
+	//--------------------------------
+	// テクスチャ読み込み
+	//--------------------------------
+
+	uiTexID_ = TextureManager::Load("operationR.png");
+
+	//--------------------------------
+	// 生成と初期化
+	//--------------------------------
+
+	uiSprite_ = Sprite::Create(uiTexID_, {});
 
 	// フェードの初期化
 	fade_ = std::make_unique<Fade>();
@@ -123,6 +137,8 @@ void GameScene::Draw() {
 
 		break;
 	case GameScene::Phase::kPlay:
+
+		uiSprite_->Draw();
 
 		break;
 	default:

@@ -77,16 +77,22 @@ private: // メンバ変数
 	/// ゲームシーン用
 	/// </summary>
 	
-	//フェード
+	// フェード
 	std::unique_ptr<Fade> fade_;
 
-	//現在のフェーズ
+	// 現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;
 
-	//終了フラグ
+	// 終了フラグ
 	bool finished_ = false;
 
-	//ボーズフラグ
+	// ボーズフラグ
 	bool pause_ = false;
+
+	// 操作説明UI
+	Sprite* uiSprite_ = nullptr;
+
+	// UIテクスチャ
+	uint32_t uiTexID_ = 0;
 
 };
