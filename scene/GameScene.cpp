@@ -17,16 +17,18 @@ void GameScene::Initialize() {
 	/// </summary>
 
 	//天球
-	skydomeModel_.reset(Model::CreateFromOBJ("Skydome",true));
+	skydomeModel_.reset(Model::CreateFromOBJ("Skydome", true));
 
 	//地面
 	groundModel_.reset(Model::CreateFromOBJ("ground", true));
 
+
+
 	/// <summary>
 	/// モデル読み込みここまで
 	/// </summary>
-	
-	
+
+
 
 	/// <summary>
 	/// ゲームオブジェクトの初期化ここから
@@ -61,6 +63,8 @@ void GameScene::Initialize() {
 	lockOn_ = std::make_unique<LockOn>();
 	lockOn_->Initialize();
 
+	followCamera_->SetLockOn(lockOn_.get());
+
 	//===================================================
 	//地面
 	//===================================================
@@ -74,6 +78,51 @@ void GameScene::Initialize() {
 
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Initialize(skydomeModel_.get());
+
+	//===================================================
+	//プレイヤー
+	//===================================================
+
+	//モデル
+	modelPlayerBody_.reset(Model::CreateFromOBJ("float_Body", true));
+	modelPlayerHead_.reset(Model::CreateFromOBJ("float_Head", true));
+	modelPlayerL_arm_.reset(Model::CreateFromOBJ("float_L_arm", true));
+	modelPlayerR_arm_.reset(Model::CreateFromOBJ("float_R_arm", true));
+	modelPlayerWeapon_.reset(Model::CreateFromOBJ("player_Weapon", true));
+	modelHitEffect_.reset(Model::CreateFromOBJ("hitEffect", true));
+
+	std::vector<Model*> playerModels = {
+		modelPlayerBody_.get(),
+		modelPlayerHead_.get(),
+		modelPlayerL_arm_.get(),
+		modelPlayerR_arm_.get(),
+		modelPlayerWeapon_.get(),
+		modelHitEffect_.get()
+	};
+
+	//生成
+	player_ = std::make_unique<Player>();
+	player_->Initialize(playerModels,&viewProjection_);
+
+	//自キャラのワールドトランスフォームを追従カメラにセット
+	followCamera_->SetTarget(&player_->GetWorldTransform());
+
+
+
+	//===================================================
+	//エネミー
+	//===================================================
+
+	modelEnemyBody_.reset(Model::CreateFromOBJ("enemy", true));
+	modelEnemyWeapon_.reset(Model::CreateFromOBJ("enemy_Weapon", true));
+	std::vector<Model*> enemyModels = {
+		modelEnemyBody_.get(),
+		modelEnemyWeapon_.get(),
+		modelEnemyWeapon_.get()
+	};
+
+	enemy_ = std::make_unique<Enemy>();
+	enemy_->Initialize(enemyModels);
 
 	/// <summary>
 	/// ゲームオブジェクトの初期化ここまで
@@ -99,8 +148,7 @@ void GameScene::Update()
 
 	skydome_->Update();
 
-
-	//===================================================
+/*	//===================================================
 	//ビュープロジェクション
 	//===================================================
 
@@ -171,6 +219,18 @@ void GameScene::Draw() {
 	//===================================================
 
 	skydome_->Draw(viewProjection_);
+
+	//===================================================
+	//プレイヤー
+	//===================================================
+
+	player_->Draw();
+
+	//===================================================
+	//エネミー
+	//===================================================
+
+	enemy_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
