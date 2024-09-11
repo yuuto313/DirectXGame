@@ -139,17 +139,6 @@ void GameScene::Initialize() {
 
 	collisionManager_ = std::make_unique<CollisionManager>();
 
-	//===================================================
-	//フェードの初期化
-	//===================================================
-
-
-	fade_ = std::make_unique<Fade>();
-	fade_->Initialize();
-	// フェードの持続時間
-	float duration = 2.0f;
-	// フェードの開始
-	fade_->Start(Fade::Status::FadeIn, duration);
 
 	/// <summary>
 	/// ゲームオブジェクトの初期化ここまで
@@ -159,121 +148,132 @@ void GameScene::Initialize() {
 
 void GameScene::Update()
 {
+	/// <summary>
+	/// ゲームオブジェクトの更新ここから
+	/// </summary>
+
+	//===================================================
+	//地面
+	//===================================================
+
+	ground_->Update();
+
+	//===================================================
+	//天球
+	//===================================================
+
+	skydome_->Update();
+
+	//===================================================
+	//プレイヤー
+	//===================================================
+
+	player_->Update();
+
+
+	//===================================================
+	//敵
+	//===================================================
+
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		enemy->Update();
+	}
+
+	//===================================================
+	//衝突判定
+	//===================================================
+
+	//リストのクリア
+	collisionManager_->Reset();
+	//衝突判定を取りたいオブジェクトを登録
+	collisionManager_->RegisterCollider(player_.get());			//プレイヤー
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)		
+	{
+		collisionManager_->RegisterCollider(enemy.get());		//エネミー
+	}
+	collisionManager_->RegisterCollider(player_->GetHammer());	//プレイヤーのハンマー
+	for(const std::unique_ptr<ShockWave>& shockWave : player_->GetShockWaves())		//プレイヤーの衝撃波
+	{
+		collisionManager_->RegisterCollider(shockWave.get());
+	}
+
+	//衝突判定
+	collisionManager_->CheckAllCollisions();
+
+
+
+	//===================================================
+	//ビュープロジェクション
+	//===================================================
+
+	/*---------------------[カメラ]-----------------------*/
+
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_P)) {
+		if (isDebugCameraActive_) {
+			isDebugCameraActive_ = false;
+		} else {
+			isDebugCameraActive_ = true;
+		}
+	}
+#endif
+	
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+		// ビュープロジェクション行列の転送
+		viewProjection_.TransferMatrix();
+	} else {
+		// 追従カメラ
+		lockOn_->Update(enemies_,viewProjection_);
+		followCamera_->Update();
+		viewProjection_.matView = followCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
+
+	// フェードの初期化
+	fade_ = std::make_unique<Fade>();
+	fade_->Initialize();
+	// フェードの持続時間
+	float duration = 2.0f;
+	// フェードの開始
+	fade_->Start(Fade::Status::FadeIn,duration);
+
+}
+
+void GameScene::Update() {
+
 	switch (phase_) {
 	case GameScene::Phase::kFadeIn:
 		//フェードの更新
 		fade_->Update();
 
-		if (fade_->IsFinished()) {
+		if (fade_->IsFinished()){
 			//プレイフェーズへ
 			phase_ = Phase::kPlay;
 		}
 
 		break;
-	case GameScene::Phase::kPlay:	//メインフェーズ
-
-		/// <summary>
-		/// ゲームオブジェクトの更新ここから
-		/// </summary>
-
-		//===================================================
-		//地面
-		//===================================================
-
-		ground_->Update();
-
-		//===================================================
-		//天球
-		//===================================================
-
-		skydome_->Update();
-
-		//===================================================
-		//プレイヤー
-		//===================================================
-
-		player_->Update();
-
-
-		//===================================================
-		//敵
-		//===================================================
-
-		for (const std::unique_ptr<Enemy>& enemy : enemies_)
-		{
-			enemy->Update();
-		}
-
-		//===================================================
-		//衝突判定
-		//===================================================
-
-		//リストのクリア
-		collisionManager_->Reset();
-		//衝突判定を取りたいオブジェクトを登録
-		collisionManager_->RegisterCollider(player_.get());			//プレイヤー
-		for (const std::unique_ptr<Enemy>& enemy : enemies_)
-		{
-			collisionManager_->RegisterCollider(enemy.get());		//エネミー
-		}
-		collisionManager_->RegisterCollider(player_->GetHammer());	//プレイヤーのハンマー
-		for (const std::unique_ptr<ShockWave>& shockWave : player_->GetShockWaves())		//プレイヤーの衝撃波
-		{
-			collisionManager_->RegisterCollider(shockWave.get());
-		}
-
-		//衝突判定
-		collisionManager_->CheckAllCollisions();
-
-
-
-		//===================================================
-		//ビュープロジェクション
-		//===================================================
-
-		/*---------------------[カメラ]-----------------------*/
-
-		#ifdef _DEBUG
-		if (input_->TriggerKey(DIK_P)) {
-			if (isDebugCameraActive_) {
-				isDebugCameraActive_ = false;
-			} else {
-				isDebugCameraActive_ = true;
-			}
-		}
-		#endif
-
-		if (isDebugCameraActive_) {
-			debugCamera_->Update();
-			viewProjection_.matView = debugCamera_->GetViewProjection().matView;
-			viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
-			// ビュープロジェクション行列の転送
-			viewProjection_.TransferMatrix();
-		} else {
-			// 追従カメラ
-			lockOn_->Update(enemies_, viewProjection_);
-			followCamera_->Update();
-			viewProjection_.matView = followCamera_->GetViewProjection().matView;
-			viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
-			// ビュープロジェクション行列の更新と転送
-			viewProjection_.TransferMatrix();
-		}
-
-		/// <summary>
-		/// ゲームオブジェクトの更新ここまで
-		/// </summary>
-
+	case GameScene::Phase::kPlay:
 		break;
 	case GameScene::Phase::kFadeOut:
 		//フェードの更新
 		fade_->Update();
 
-		
+		// ビュープロジェクション行列の更新と転送
+		viewProjection_.TransferMatrix();
+	}
+
+	/// <summary>
+	/// ゲームオブジェクトの更新ここまで
+	/// </summary>
+}
+
 		break;
 	default:
 		break;
 	}
-
 }
 
 void GameScene::Draw() {
