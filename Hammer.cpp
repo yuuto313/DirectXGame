@@ -10,7 +10,7 @@
 #include "Player.h"
 #include "CollisionTypeIdDef.h"
 
-void Hammer::Initialize(std::vector<Model*> models,Player* player)
+void Hammer::Initialize(std::vector<Model*> models,Player* player, float damage)
 {
 	//引数で受け取ってメンバ変数に記録する
 	models_ = models;
@@ -19,6 +19,8 @@ void Hammer::Initialize(std::vector<Model*> models,Player* player)
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = { 0.0f, 4.0f, 0.0f };
+
+	SetAttackPower(damage);
 	
 
 	/*---------------------[種別IDの設定]-----------------------*/

@@ -1,4 +1,6 @@
 #pragma once
+#include <chrono>
+
 #include "Model.h"
 #include "WorldTransform.h"
 #include <optional>
@@ -53,6 +55,12 @@ public:
 
 	/// \brief ターゲットに体を向ける
 	void TurnToTarget();
+
+	/// \brief スキルの初期化
+	void SkillInitialize();
+
+	/// \brief スキルの更新
+	void SkillUpdate();
 
 	/*---------------------[ImGui]-----------------------*/
 
@@ -212,5 +220,17 @@ private:
 
 	//攻撃モーション
 	uint16_t AttackCycle_;
+
+	//スキルを発動した時間を記録
+	std::chrono::steady_clock::time_point lastUpdateTime_;
+	float skillDuration_; // 効果の持続時間（秒）
+	float skillTimer_;
+	bool skillActive_ = false;
+	enum class EffectType { None, SpeedUp, AttackUp } currentEffect_ = EffectType::None;
+
+	// 感情ゲージ
+	float emotionGauge_;
+	// 感情ゲージ消費量
+	float emotionGaugeCost_; 
 
 };

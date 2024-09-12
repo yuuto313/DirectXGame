@@ -11,7 +11,7 @@ class Hammer final : public Collider
 {
 
 public:	//メンバ関数
-	void Initialize(std::vector<Model*> models,Player* player);
+	void Initialize(std::vector<Model*> models,Player* player, float damage);
 
 	/// \brief 更新
 	void Update();

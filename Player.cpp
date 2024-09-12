@@ -5,6 +5,7 @@
 #include <Input.h>
 #include <cmath>
 #include <numbers>
+#include <random>
 
 #include "CollisionConfig.h"
 #include "CollisionTypeIdDef.h"
@@ -192,7 +193,7 @@ void Player::InitializeHammer()
 	//ハンマーの初期化
 	hammer_ = std::make_unique<Hammer>();
 	std::vector<Model*> hammerModels = { models_[kModelindexWeapon], models_[kModelIndexEffect] };
-	hammer_->Initialize(hammerModels, this);
+	hammer_->Initialize(hammerModels, this,GetAttackPower());
 	hammer_->SetParent(worldTransformBody_);
 }
 
@@ -201,6 +202,10 @@ void Player::InitializeStatus()
 	SetHP(kInitialHp);
 	speed_ = kInitialSpeed;
 	SetAttackPower(kInitialAttackPower);
+	skillDuration_ = kInitialSkillDuration;
+	skillTimer_ = 0.0f;
+	emotionGauge_ = kInitialEmotionGauge;
+	emotionGaugeCost_ = kInitialEmotionGaugeCost;
 }
 
 
@@ -231,6 +236,10 @@ void Player::Attack()
 		worldTransformL_arm_.rotation_.x = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
 		worldTransformR_arm_.rotation_.x = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
 	}
+	else
+	{
+		behaviorRequest_ = Behavior::kRoot;
+	}
 }
 
 void Player::TurnToTarget()
@@ -243,10 +252,80 @@ void Player::TurnToTarget()
 	worldTransform_.rotation_.y = std::atan2(sub.x, sub.z);
 }
 
+void Player::SkillInitialize()
+{
+	// スキルがアクティブなら何もしない
+	if(skillActive_)
+	{
+		return;
+	}
+
+	// スキルのゲージを消費
+	emotionGauge_ -= emotionGaugeCost_;
+	if(emotionGauge_ < 0.0f)
+	{
+		emotionGauge_ = 0.0f;
+		return;
+	}
+
+	// スキルの効果を初期化
+	skillActive_ = true;
+	// ランダムな効果を選択するための乱数生成器
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, 1);
+
+	// ランダムに0または1を生成
+	int random = dis(gen);
+
+	if (random == 0) {
+		// 移動速度アップ
+		speed_ *= 2.0f; // 1.2倍に増加
+		currentEffect_ = EffectType::SpeedUp;
+	} else {
+		// 攻撃力アップ
+		SetAttackPower(GetAttackPower() * 2.0f); // 1.5倍に増加
+		hammer_->SetAttackPower(GetAttackPower());
+		currentEffect_ = EffectType::AttackUp;
+	}
+
+	skillTimer_ = skillDuration_;
+	skillActive_ = true;
+	lastUpdateTime_ = std::chrono::steady_clock::now();
+}
+
+void Player::SkillUpdate()
+{
+	// スキルがアクティブじゃないなら何もしない
+	if (!skillActive_)
+	{
+		return;
+	}
+
+	auto now = std::chrono::steady_clock::now();
+	std::chrono::duration<float> elapsed = now - lastUpdateTime_;
+	skillTimer_ -= elapsed.count();
+	lastUpdateTime_ = now;
+
+	if (skillTimer_ <= 0.0f) {
+		// 効果の持続時間が終了したら元に戻す
+		if (currentEffect_ == EffectType::SpeedUp) {
+			speed_ = kInitialSpeed;
+		} else if (currentEffect_ == EffectType::AttackUp) {
+			SetAttackPower(kInitialAttackPower);
+			hammer_->SetAttackPower(GetAttackPower());
+		}
+		skillActive_ = false;
+		currentEffect_ = EffectType::None;
+	}
+}
+
 void Player::UpdateImGui() {
 	ImGui::Begin("Floating Model");
 	float hp = GetHP();
 	ImGui::Text("HP %f", hp, 0.0f, 100.0f);
+	ImGui::Text("emotionGauge %f", emotionGauge_);
+	ImGui::Text("AttackPower %f", GetAttackPower());
 	ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("Head Translation", &worldTransformHead_.translation_.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("ArmL Translation", &worldTransformL_arm_.translation_.x, -20.0f, 20.0f);
@@ -321,6 +400,8 @@ void Player::BehaviorRootUpdate()
 {
 	XINPUT_STATE joyState;
 	Input::GetInstance()->GetJoystickState(0, joyState);
+	XINPUT_STATE preJoyState;
+	Input::GetInstance()->GetJoystickStatePrevious(0, preJoyState);
 
 	if ((float)joyState.Gamepad.sThumbLX != 0.0f || (float)joyState.Gamepad.sThumbLY != 0.0f)
 	{
@@ -342,6 +423,15 @@ void Player::BehaviorRootUpdate()
 		behaviorRequest_ = Behavior::kAttack;
 
 	}
+
+	//スキルボタンを押したら
+	if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) && !(preJoyState.Gamepad.wButtons & XINPUT_GAMEPAD_X))
+	{
+		SkillInitialize();
+	}
+
+	//スキルの更新
+	SkillUpdate();
 
 	//自キャラの待機アニメーション
 	UpdateFloatingGimick();
@@ -447,7 +537,7 @@ void Player::GenerateShockWave()
 
 		//衝撃波を生成
 		std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
-		shockWave->Initialize(models_[kModelIndexShockWave],hammer_->GetWorldPosition(), velocity,viewProjection_);
+		shockWave->Initialize(models_[kModelIndexShockWave],hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
 		shockWaves_.push_back(std::move(shockWave));
 		return;
 	}
@@ -456,7 +546,7 @@ void Player::GenerateShockWave()
 	Vector3 velocity = {0.0f,0.0f,1.0f};
 	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 	std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
-	shockWave->Initialize(models_[kModelIndexShockWave], hammer_->GetWorldPosition(), velocity,viewProjection_);
+	shockWave->Initialize(models_[kModelIndexShockWave], hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
 	shockWaves_.push_back(std::move(shockWave));
 }
 

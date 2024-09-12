@@ -11,7 +11,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(Model* model,Vector3 position,Vector3 velocity,const ViewProjection* viewProjection);
+	void Initialize(Model* model,Vector3 position,Vector3 velocity,const ViewProjection* viewProjection, float damage);
 
 	/// <summary>
 	/// 更新

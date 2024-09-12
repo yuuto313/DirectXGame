@@ -6,7 +6,7 @@
 #include "MyMath.h"
 #include "ShockWaveConfig.h"
 
-void ShockWave::Initialize(Model* model, Vector3 position, Vector3 velocity,const ViewProjection* viewProjection)
+void ShockWave::Initialize(Model* model, Vector3 position, Vector3 velocity,const ViewProjection* viewProjection,float damage)
 {
 	//Nullチェック
 	assert(model);
@@ -24,7 +24,7 @@ void ShockWave::Initialize(Model* model, Vector3 position, Vector3 velocity,cons
 	SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kShockWave));
 
 	//ステータスの初期化
-	SetAttackPower(kShockWaveDamage);
+	SetAttackPower(damage);
 	moveSpeed_ = kShockWaveMoveSpeed;
 
 }
