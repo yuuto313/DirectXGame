@@ -7,6 +7,7 @@
 #include <numbers>
 
 #include "CollisionConfig.h"
+#include "CollisionTypeIdDef.h"
 #include "Easing.h"
 #include "LockOn.h"
 
@@ -42,9 +43,9 @@ void Player::Initialize(const std::vector<Model*>& models)
 	floatingCycle_ = 30;
 	AttackCycle_ = 30;
 
-	//衝突属性を設定
-	SetCollisionAttribute(kCollisionAttributePlayer);
-	SetCollisionMask(kCollisionAttributeEnemy);
+	/*---------------------[種別IDの設定]-----------------------*/
+
+	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayer));
 
 	//ワールド変換データを調整したので更新
 	UpdateMatrix();
@@ -101,7 +102,6 @@ void Player::Update()
 	hammer_->Update();
 	UpdateShockWave();
 
-
 }
 
 void Player::Draw()
@@ -119,7 +119,6 @@ void Player::Draw()
 	hammer_->Draw(*viewProjection_);
 	hammer_->DrawEffect(*viewProjection_);
 	DrawShockWave();
-
 }
 
 
@@ -271,6 +270,27 @@ void Player::UpdateImGui() {
 	ImGui::End();
 }
 
+void Player::OnCollision(Collider* other)
+{
+	//衝突相手の種別IDを取得
+	uint32_t typeID = other->GetTypeID();
+	//衝突相手が敵ならダメージを受ける
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy))
+	{
+		//ダメージを受ける
+		TakeDamage(10.0f);
+	}
+
+	if (hp_ <= 0)
+	{
+		//HPを0にする
+		hp_ = 0;
+		//生存フラグを降ろす
+		isAlive_ = false;
+	}
+	
+}
+
 void Player::InitializeFloatingGimick()
 {
 	floatingParameter_ = 0.0f;
@@ -420,16 +440,7 @@ void Player::BehaviorJumpUpdate()
 
 }
 
-void Player::OnCollision()
-{
-	if(hp_ <= 0)
-	{
-		//HPを0にする
-		hp_ = 0;
-		//生存フラグを降ろす
-		isAlive_ = false;
-	}
-}
+
 
 void Player::TakeDamage(float damage)
 {
@@ -503,5 +514,14 @@ Vector3 Player::GetWorldPosition()
 	worldPos.y = worldTransform_.matWorld_.m[3][1];
 	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
+	return worldPos;
+}
+
+Vector3 Player::GetCenterPosition() const
+{
+	// ローカル座標でのオフセット
+	const Vector3 offset = { 0.0f, 1.0f, 0.0f };
+	// ワールド座標に変換
+	Vector3 worldPos = Transform(offset, worldTransform_.matWorld_);
 	return worldPos;
 }

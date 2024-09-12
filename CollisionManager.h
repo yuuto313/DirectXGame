@@ -1,22 +1,27 @@
 #pragma once
-#include "Collider.h"
 #include <list>
-#include "MyMath.h"
+#include <memory>
 
-class CollisionManager {
-public:
-	//リセット
+#include "Collider.h"
+#include "Model.h"
+
+class CollisionManager
+{
+public:	
+	/// \brief リストのリセット
 	void Reset();
-	// コライダーの登録
-	void RegisterCollider(Collider* collider);
-	// コライダーの解除
-	void UnregisterCollider(Collider* collider);
-	// 全てのコライダー間の衝突判定を行う
-	void CheckAllCollisions();
+
+	/// \brief コライダー２つの衝突判定と応答
+	/// \param colliderA 
+	/// \param colliderB 
+	void CheckCollisionPair(Collider* colliderA,Collider* colliderB);
+
+	/// \brief 全ての当たり判定チェック
+	void CheckAllCollision();
+
+	void AddCollider(Collider* collider);
 
 private:
-	// コライダー同士の衝突判定
-	void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
-	// コライダーリスト
+	//コライダー
 	std::list<Collider*> colliders_;
 };

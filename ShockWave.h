@@ -23,11 +23,13 @@ public:
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection);
 
-	void OnCollision() override;
+	void OnCollision(Collider* other) override;
 
 public: // アクセッサ
 
-	Vector3 GetWorldPosition() override;
+	Vector3 GetCenterPosition() const override;
+
+	Vector3 GetWorldPosition();
 
 	float GetDamage() { return damage_; };
 

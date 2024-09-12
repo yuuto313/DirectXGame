@@ -59,9 +59,18 @@ void ShockWave::Draw(const ViewProjection& viewProjection)
 	model_->Draw(worldTransform_, viewProjection);
 }
 
-void ShockWave::OnCollision()
+void ShockWave::OnCollision(Collider* other)
 {
 	isActive_ = false;
+}
+
+Vector3 ShockWave::GetCenterPosition() const
+{
+	// ローカル座標でのオフセット
+	const Vector3 offset = { 0.0f, 1.0f, 0.0f };
+	// ワールド座標に変換
+	Vector3 worldPos = Transform(offset, worldTransform_.matWorld_);
+	return worldPos;
 }
 
 Vector3 ShockWave::GetWorldPosition()

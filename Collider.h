@@ -1,41 +1,39 @@
 #pragma once
-#include <cstdint>
-
+#include "Model.h"
 #include "Vector3.h"
+#include "WorldTransform.h"
 
 class Collider
 {
 public:
-	//半径を取得
-	float GetRadius() { return radius_; }
+	virtual ~Collider() = default;
+
+	//半径の取得
+	float GetCollisionRadius() { return collisionRadius_; }
 	//半径を設定
-	void SetRadius(float radius) { radius_ = radius; }
+	void SetCollisionRadius(float radius) { collisionRadius_ = radius; }
 
-	//衝突時に呼ばれる関数
-	virtual void OnCollision();
+	/// \brief 衝突時に呼ばれる関数
+	virtual void OnCollision([[maybe_unused]]Collider* other) {}
 
-	virtual Vector3 GetWorldPosition() = 0;
+	/// \brief 中心座標を取得
+	/// \return 
+	virtual Vector3 GetCenterPosition() const = 0;
 
-	// 衝突属性（自分）を取得
-	uint32_t GetCollisionAttribute() { return collisionAttribute_; }
-
-	// 衝突属性（自分）を設定
-	uint32_t SetCollisionAttribute(const uint32_t& collisionAttribute) { return collisionAttribute_ = collisionAttribute; }
-
-	// 衝突マスク（相手）を取得
-	uint32_t GetCollisionMask() { return collisionMask_; }
-
-	// 衝突マスク（相手）を設定
-	uint32_t SetCollisionMask(const uint32_t& collisionMask) { return collisionMask_ = collisionMask; }
+	//種別IDの取得const
+	uint32_t GetTypeID() const { return typeID_; }
+	//種別IDの設定
+	void SetTypeID(uint32_t typeID) { typeID_ = typeID; }
 
 private:
 	//衝突半径
-	float radius_ = 1.0f;
+	float collisionRadius_ = 1.5f;
 
-	// 衝突属性
-	uint32_t collisionAttribute_ = 0xffffffff;
+	WorldTransform worldTransform_;
 
-	// 衝突マスク(自分)
-	uint32_t collisionMask_ = 0xffffffff;
+	//種別ID
+	uint32_t typeID_ = 0u;
+
+	
 
 };

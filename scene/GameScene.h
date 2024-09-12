@@ -62,6 +62,8 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+	void CheckAllCollision();
+
 	//-------------ゲッター・セッター-------------//
 
 	/// <summary>

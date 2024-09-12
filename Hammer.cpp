@@ -8,6 +8,7 @@
 #include "Enemy.h"
 #include "MyMath.h"
 #include "Player.h"
+#include "CollisionTypeIdDef.h"
 
 void Hammer::Initialize(std::vector<Model*> models,Player* player)
 {
@@ -22,8 +23,9 @@ void Hammer::Initialize(std::vector<Model*> models,Player* player)
 
 	/*---------------------[種別IDの設定]-----------------------*/
 
-	SetCollisionAttribute(kCollisionAttributeHammer);
-	SetCollisionMask(kCollisionAttributeEnemy);
+	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon));
+	Collider::SetCollisionRadius(3.0f);
+
 }
 
 void Hammer::Update()
@@ -68,22 +70,37 @@ void Hammer::DrawEffect(const ViewProjection& viewProjection)
 	}
 }
 
-void Hammer::OnCollision()
+void Hammer::ClearContactlog()
 {
+	contactlog_.Clear();
 }
+
 
 void Hammer::OnCollision(Collider* other)
 {
-	// 敵のポインタを取得
-	Enemy* enemy = static_cast<Enemy*>(other);
+	//衝突相手の種別IDを取得
+	uint32_t typeID = other->GetTypeID();
+	//衝突相手が敵なら
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy)) {
+		// 敵のポインタを取得
+		Enemy* enemy = static_cast<Enemy*>(other);
+		uint32_t serialNumber = enemy->GetSerialNumber();
 
-	// 敵の位置にエフェクトを発生
-	auto newHitEffect = std::make_unique<HitEffect>();
-	newHitEffect->Initialize(models_[kIndexModelEffect],enemy->GetWorldPosition());
-	hitEffects_.push_back(std::move(newHitEffect));
-	
+		//接触履歴があれば何もせずに抜ける
+		if (contactlog_.LogCheck(serialNumber))
+		{
+			return;
+		}
+
+		//接触履歴に追加
+		contactlog_.Add(serialNumber);
+
+		// 敵の位置にエフェクトを発生
+		auto newHitEffect = std::make_unique<HitEffect>();
+		newHitEffect->Initialize(models_[kIndexModelEffect], enemy->GetWorldPosition());
+		hitEffects_.push_back(std::move(newHitEffect));
+	}
 }
-
 
 void Hammer::AttackAnimaitonInitialize()
 {

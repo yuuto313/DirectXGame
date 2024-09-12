@@ -1,5 +1,6 @@
 #pragma once
 #include "Collider.h"
+#include "Contactlog.h"
 #include "Model.h"
 #include "HitEffect.h"
 
@@ -19,11 +20,11 @@ public:	//メンバ関数
 
 	void DrawEffect(const ViewProjection& viewProjection);
 
+	void ClearContactlog();
+
 	/*---------------------[衝突判定]-----------------------*/
 
-	void OnCollision() override;
-
-	void OnCollision(Collider* other);
+	void OnCollision(Collider* other)override;
 
 	/*---------------------[攻撃]-----------------------*/
 
@@ -49,9 +50,9 @@ public: // アクセッサ
 
 	void SetParent(WorldTransform& worldTransform) { worldTransform_.parent_ = &worldTransform; }
 
-	Vector3 GetCenterPosition() const;
+	Vector3 GetCenterPosition() const override;
 
-	Vector3 GetWorldPosition() override;
+	Vector3 GetWorldPosition();
 
 private:
 	//モデルデータ
@@ -69,6 +70,9 @@ private:
 
 	//エネミーのポインタ
 	Enemy* enemy_ = nullptr;
+
+	//
+	Contactlog contactlog_;
 
 	/*---------------------[ヒットエフェクト]-----------------------*/
 

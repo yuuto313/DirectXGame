@@ -19,17 +19,23 @@ public:
 	void UpdateMatrix();
 
 	/// \brief ワールド座標を取得
-	Vector3 GetWorldPosition() override;
+	Vector3 GetWorldPosition();
 
 	/// \brief モデルの中心座標を取得
 	Vector3 GetCenterCoordinate() const;
+
+	Vector3 GetCenterPosition() const override;
+
+	/// \brief シリアルナンバーの取得
+	/// \return 
+	uint32_t GetSerialNumber() const { return serialNumber; }
 
 	/// \brief ワールド変換データの初期化
 	void InitializeWorldTransform();
 
 public:
 	//// \brief 衝突時に呼び出される関数
-	void OnCollision() override;
+	void OnCollision(Collider* other) override;
 
 	//ダメージを受ける
 	void TakeDamage(float damage);
@@ -91,5 +97,9 @@ private:
 	//攻撃力
 	float attackPower_;
 
+	uint32_t serialNumber = 0;
+
+	//次のシリアルナンバー
+	static uint32_t nextSerialNumber;
 
 };

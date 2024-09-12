@@ -61,7 +61,7 @@ public:
 	/*---------------------[接触]-----------------------*/
 
 	/// \brief 衝突を検出したら呼び出されるコールバック関数
-	void OnCollision()override;
+	void OnCollision(Collider* other) override;
 
 	//// \brief ダメージを受ける
 	void TakeDamage(float damage);
@@ -109,7 +109,9 @@ public:
 	//ワールド変換データの取得
 	WorldTransform& GetWorldTransform() { return worldTransform_; }
 
-	Vector3 GetWorldPosition() override;
+	Vector3 GetWorldPosition();
+
+	Vector3 GetCenterPosition() const override;
 
 	//現在の行動状態の取得
 	Behavior GetBehavior() { return behavior_; }

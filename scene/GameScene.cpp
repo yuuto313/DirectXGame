@@ -243,24 +243,7 @@ void GameScene::Update()
 			//衝突判定
 			//===================================================
 
-			//リストのクリア
-			collisionManager_->Reset();
-			//衝突判定を取りたいオブジェクトを登録
-			collisionManager_->RegisterCollider(player_.get());			//プレイヤー
-			for (const std::unique_ptr<Enemy>& enemy : enemies_)
-			{
-				collisionManager_->RegisterCollider(enemy.get());		//エネミー
-			}
-			collisionManager_->RegisterCollider(player_->GetHammer());	//プレイヤーのハンマー
-			for (const std::unique_ptr<ShockWave>& shockWave : player_->GetShockWaves())		//プレイヤーの衝撃波
-			{
-				collisionManager_->RegisterCollider(shockWave.get());
-			}
-
-			//衝突判定
-			collisionManager_->CheckAllCollisions();
-
-
+			CheckAllCollision();
 
 			//===================================================
 			//ビュープロジェクション
@@ -409,4 +392,26 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::CheckAllCollision()
+{
+	//衝突マネージャーのリセット
+	collisionManager_->Reset();
+
+	//コライダーをリストに登録
+	collisionManager_->AddCollider(player_.get());
+
+	//コライダーリストに登録(ハンマー)
+	collisionManager_->AddCollider(player_->GetHammer());
+
+	//敵全てについて
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		//コライダーをリストに登録
+		collisionManager_->AddCollider(enemy.get());
+	}
+
+	//衝突判定と応答
+	collisionManager_->CheckAllCollision();
 }

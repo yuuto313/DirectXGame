@@ -10,7 +10,10 @@
 
 Enemy::Enemy()
 {
-	
+	//シリアルナンバーを振る
+	serialNumber = nextSerialNumber;
+	//次の番号を加算
+	nextSerialNumber++;
 }
 
 void Enemy::Initialize(const std::vector<Model*>& models)
@@ -30,9 +33,9 @@ void Enemy::Initialize(const std::vector<Model*>& models)
 	//ステータスの初期化
 	InitializeStatus();
 
-	//衝突属性を設定
-	SetCollisionAttribute(kCollisionAttributeEnemy);
-	SetCollisionMask(kCollisionAttributePlayer | kCollisionAttributeHammer);
+	/*---------------------[種別IDの設定]-----------------------*/
+
+	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemy));
 }
 
 void Enemy::Update()
@@ -99,6 +102,15 @@ Vector3 Enemy::GetCenterCoordinate() const
 	return worldPos;
 }
 
+Vector3 Enemy::GetCenterPosition() const
+{
+	// ローカル座標でのオフセット
+	const Vector3 offset = { 0.0f, 1.0f, 0.0f };
+	// ワールド座標に変換
+	Vector3 worldPos = Transform(offset, worldTransform_.matWorld_);
+	return worldPos;
+}
+
 void Enemy::InitializeWorldTransform()
 {
 	worldTransform_.Initialize();
@@ -118,7 +130,7 @@ void Enemy::InitializeWorldTransform()
 	worldTransformR_arm_.parent_ = &worldTransformBody_;
 }
 
-void Enemy::OnCollision()
+void Enemy::OnCollision(Collider* other)
 {
 	if (hp_ <= 0)
 	{
@@ -128,6 +140,7 @@ void Enemy::OnCollision()
 		isAlive_ = false;
 	}
 }
+
 
 void Enemy::TakeDamage(float damage)
 {
