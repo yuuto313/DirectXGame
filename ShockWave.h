@@ -23,7 +23,7 @@ public:
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection);
 
-	void OnCollision(Collider* other) override;
+	void OnCollision([[maybe_unused]]Collider* other) override;
 
 public: // アクセッサ
 
@@ -31,7 +31,6 @@ public: // アクセッサ
 
 	Vector3 GetWorldPosition();
 
-	float GetDamage() { return damage_; };
 
 	/// <summary>
 	/// ショックウェーブの有効無効

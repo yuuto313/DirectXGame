@@ -25,6 +25,13 @@ public:
 	//種別IDの設定
 	void SetTypeID(uint32_t typeID) { typeID_ = typeID; }
 
+	float GetHP() { return hp_; }
+	void SetHP(float hp) { hp_ = hp; }
+	float GetAttackPower() { return attackPower_; }
+	void SetAttackPower(float attackPower) { attackPower_ = attackPower; }
+
+	void TakeDamage(float damage) { hp_ -= damage; }
+
 private:
 	//衝突半径
 	float collisionRadius_ = 1.5f;
@@ -34,6 +41,12 @@ private:
 	//種別ID
 	uint32_t typeID_ = 0u;
 
-	
+	/*---------------------[ステータス]-----------------------*/
+
+	//HP
+	float hp_ = 100.0f;
+
+	//攻撃力
+	float attackPower_ = 10.0f;
 
 };

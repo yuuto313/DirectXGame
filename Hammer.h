@@ -35,14 +35,8 @@ public:	//メンバ関数
 
 	/*---------------------[ステータス]-----------------------*/
 
-	float GetHp() { return hp_; }
-	void SetHp(float hp) { hp_ = hp; }
-
 	float GetSpeed() { return speed_; }
 	void SetSpeed(float speed) { speed_ = speed; }
-
-	float GetAttackPower() { return attackPower_; }
-	void SetAttackPower(float attackPower) { attackPower_ = attackPower; }
 
 public: // アクセッサ
 	const Vector3& GetRotaion() const { return worldTransform_.rotation_; }
@@ -89,14 +83,8 @@ private:
 
 	/*---------------------[ステータス]-----------------------*/
 
-	//HP
-	float hp_;
-
 	//速さ
 	float speed_;
-
-	//攻撃力
-	float attackPower_;
 
 };
 

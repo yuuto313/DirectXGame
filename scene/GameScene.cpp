@@ -412,6 +412,12 @@ void GameScene::CheckAllCollision()
 		collisionManager_->AddCollider(enemy.get());
 	}
 
+	//衝撃波の登録
+	for (const std::unique_ptr<ShockWave>& shockWave : player_->GetShockWaves())
+	{
+		collisionManager_->AddCollider(shockWave.get());
+	}
+
 	//衝突判定と応答
 	collisionManager_->CheckAllCollision();
 }

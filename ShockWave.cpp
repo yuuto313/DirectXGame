@@ -2,7 +2,9 @@
 
 #include <assert.h>
 
+#include "CollisionTypeIdDef.h"
 #include "MyMath.h"
+#include "ShockWaveConfig.h"
 
 void ShockWave::Initialize(Model* model, Vector3 position, Vector3 velocity,const ViewProjection* viewProjection)
 {
@@ -18,6 +20,13 @@ void ShockWave::Initialize(Model* model, Vector3 position, Vector3 velocity,cons
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	isActive_ = true;
+
+	SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kShockWave));
+
+	//ステータスの初期化
+	SetAttackPower(kShockWaveDamage);
+	moveSpeed_ = kShockWaveMoveSpeed;
+
 }
 
 void ShockWave::Update()
@@ -59,9 +68,17 @@ void ShockWave::Draw(const ViewProjection& viewProjection)
 	model_->Draw(worldTransform_, viewProjection);
 }
 
-void ShockWave::OnCollision(Collider* other)
+void ShockWave::OnCollision([[maybe_unused]] Collider* other)
 {
-	isActive_ = false;
+	//衝突相手の種別IDを取得
+	uint32_t typeID = other->GetTypeID();
+	//衝突相手がプレイヤー以外なら消す
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy))
+	{
+		//ダメージを受ける
+		isActive_ = false;
+	}
+	
 }
 
 Vector3 ShockWave::GetCenterPosition() const

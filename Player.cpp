@@ -198,9 +198,9 @@ void Player::InitializeHammer()
 
 void Player::InitializeStatus()
 {
-	hp_ = kInitialHp;
+	SetHP(kInitialHp);
 	speed_ = kInitialSpeed;
-	attackPower_ = kInitialAttackPower;
+	SetAttackPower(kInitialAttackPower);
 }
 
 
@@ -245,7 +245,8 @@ void Player::TurnToTarget()
 
 void Player::UpdateImGui() {
 	ImGui::Begin("Floating Model");
-	ImGui::SliderFloat("HP", &hp_, 0.0f, 100.0f);
+	float hp = GetHP();
+	ImGui::Text("HP %f", hp, 0.0f, 100.0f);
 	ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("Head Translation", &worldTransformHead_.translation_.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("ArmL Translation", &worldTransformL_arm_.translation_.x, -20.0f, 20.0f);
@@ -278,15 +279,7 @@ void Player::OnCollision(Collider* other)
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy))
 	{
 		//ダメージを受ける
-		TakeDamage(10.0f);
-	}
-
-	if (hp_ <= 0)
-	{
-		//HPを0にする
-		hp_ = 0;
-		//生存フラグを降ろす
-		isAlive_ = false;
+		TakeDamage(other->GetAttackPower());
 	}
 	
 }
@@ -437,21 +430,6 @@ void Player::BehaviorJumpUpdate()
 	}
 
 	UpdateMatrix();
-
-}
-
-
-
-void Player::TakeDamage(float damage)
-{
-	// HPが0以下なら何もしない
-	if (!isAlive_)
-	{
-		return;
-	}
-
-	// ダメージを受けてHPを減少
-	hp_ -= damage;
 
 }
 

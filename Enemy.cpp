@@ -7,6 +7,8 @@
 #include "MyMath.h"
 #include "ViewProjection.h"
 
+uint32_t Enemy::nextSerialNumber = 0;
+
 
 Enemy::Enemy()
 {
@@ -36,12 +38,14 @@ void Enemy::Initialize(const std::vector<Model*>& models)
 	/*---------------------[種別IDの設定]-----------------------*/
 
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemy));
+
 }
 
 void Enemy::Update()
 {
 	ImGui::Begin("Enemy");
-	ImGui::SliderFloat("HP", &hp_, 0.0f, 100.0f);
+	float hp = GetHP();
+	ImGui::Text("HP %f",hp, 0.0f, 100.0f);
 	ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("ArmL Translation",&worldTransformL_arm_.translation_.x,-20.0f,20.0f);
 	ImGui::SliderFloat3("ArmR Translation",&worldTransformR_arm_.translation_.x,-20.0f,20.0f);
@@ -132,20 +136,23 @@ void Enemy::InitializeWorldTransform()
 
 void Enemy::OnCollision(Collider* other)
 {
-	if (hp_ <= 0)
+	//衝突相手の種別IDを取得
+	uint32_t typeID = other->GetTypeID();
+	//衝突相手が敵ならダメージを受ける
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kHammer))
 	{
-		//HPを0にする
-		hp_ = 0;
-		//生存フラグを降ろす
-		isAlive_ = false;
+		//ダメージを受ける
+		TakeDamage(other->GetAttackPower());
 	}
-}
 
-
-void Enemy::TakeDamage(float damage)
-{
-	//ダメージを受ける
-	hp_ -= damage;
+	//衝突相手の種別IDを取得
+	typeID = other->GetTypeID();
+	//衝突相手が敵ならダメージを受ける
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kShockWave))
+	{
+		//ダメージを受ける
+		TakeDamage(other->GetAttackPower());
+	}
 }
 
 void Enemy::InitializeStatus()
@@ -154,12 +161,12 @@ void Enemy::InitializeStatus()
 	isAlive_ = true;
 
 	//HP
-	hp_ = kInitialHp;
+	SetHP(kInitialHp);
 
 	//速さ
 	speed_ = kInitialSpeed;
 	moveSpeed = { speed_,0.0f,0.0f };
 
 	//攻撃力
-	attackPower_ = kInitialAttackPower;
+	SetAttackPower(kInitialAttackPower);
 }

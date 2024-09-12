@@ -63,8 +63,6 @@ public:
 	/// \brief 衝突を検出したら呼び出されるコールバック関数
 	void OnCollision(Collider* other) override;
 
-	//// \brief ダメージを受ける
-	void TakeDamage(float damage);
 
 	/*---------------------[振る舞い]-----------------------*/
 
@@ -143,14 +141,8 @@ public:
 
 	/*---------------------[ステータス]-----------------------*/
 
-	float GetHp() { return hp_; }
-	void SetHp(float hp) { hp_ = hp; }
-
 	float GetSpeed() { return speed_; }
 	void SetSpeed(float speed) { speed_ = speed; }
-
-	float GetAttackPower() { return attackPower_; }
-	void SetAttackPower(float attackPower) { attackPower_ = attackPower; }
 
 private:
 	const int kModelIndexBody = 0;
@@ -194,14 +186,8 @@ private:
 	//生存フラグ
 	bool isAlive_ = true;
 
-	//HP
-	float hp_;
-
 	//速さ
 	float speed_;
-
-	//攻撃力
-	float attackPower_ ;
 
 	/*---------------------[移動]-----------------------*/
 

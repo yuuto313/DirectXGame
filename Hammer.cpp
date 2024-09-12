@@ -107,6 +107,7 @@ void Hammer::AttackAnimaitonInitialize()
 	AttackParameter_ = 0;
 	AttackCycle_ = player_->GetAttackCycle();
 	worldTransform_.rotation_ = {};
+	ClearContactlog();
 }
 
 

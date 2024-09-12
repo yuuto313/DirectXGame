@@ -37,9 +37,6 @@ public:
 	//// \brief 衝突時に呼び出される関数
 	void OnCollision(Collider* other) override;
 
-	//ダメージを受ける
-	void TakeDamage(float damage);
-
 	/*---------------------[ステータス]-----------------------*/
 
 	//ステータスの初期化
@@ -48,10 +45,6 @@ public:
 	//生存フラグ
 	bool IsAlive() { return isAlive_; }
 
-	//HP
-	float GetHp() { return hp_; }
-	void SetHp(float hp) { hp_ = hp; }
-
 	//速さ
 	float GetSpeed() { return speed_; }
 	void SetSpeed(float speed)
@@ -59,11 +52,6 @@ public:
 		speed_ = speed;
 		moveSpeed = { speed_,0.0f,0.0f };
 	}
-
-	//攻撃力
-	float GetAttackPower() { return attackPower_; }
-	void SetAttackPower(float attackPower) { attackPower_ = attackPower; }
-
 
 private:
 	const int kModelIndexBody = 0;
@@ -88,14 +76,9 @@ private:
 	//生存フラグ
 	bool isAlive_ = true;
 
-	//HP
-	float hp_;
 
 	//速さ
 	float speed_;
-
-	//攻撃力
-	float attackPower_;
 
 	uint32_t serialNumber = 0;
 
