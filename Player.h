@@ -29,6 +29,17 @@ public:
 	/// \brief ワールド変換データの更新
 	void UpdateMatrix();
 
+	/*---------------------[初期化用関数]-----------------------*/
+
+	/// \brief ワールド変換データの初期化
+	void InitializeWorldTransform();
+
+	/// \brief ハンマーの初期化
+	void InitializeHammer();
+
+	/// \brief ステータスの初期化
+	void InitializeStatus();	
+	
 	/*---------------------[動作]-----------------------*/
 
 	/// \brief 移動
@@ -40,16 +51,20 @@ public:
 	/// \brief 攻撃
 	void Attack();
 
-	/// \brief 衝突を検出したら呼び出されるコールバック関数
-	void OnCollision()override;
-
-
 	/// \brief ターゲットに体を向ける
 	void TurnToTarget();
 
 	/*---------------------[ImGui]-----------------------*/
 
 	void UpdateImGui();
+
+	/*---------------------[接触]-----------------------*/
+
+	/// \brief 衝突を検出したら呼び出されるコールバック関数
+	void OnCollision()override;
+
+	//// \brief ダメージを受ける
+	void TakeDamage(float damage);
 
 	/*---------------------[振る舞い]-----------------------*/
 
@@ -109,7 +124,10 @@ public:
 
 	//衝撃波のポインタ取得
 	std::list<std::unique_ptr<ShockWave>>& GetShockWaves() { return shockWaves_; }
-	
+
+	/// \brief 生存確認
+	/// \return 
+	bool IsAlive() { return isAlive_; }
 
 	/* セッター */
 	//カメラのセット
@@ -120,6 +138,17 @@ public:
 
 	//次の振る舞いリクエスト
 	void SetBehaviorRequest(Behavior behavior) { behaviorRequest_ = behavior; }
+
+	/*---------------------[ステータス]-----------------------*/
+
+	float GetHp() { return hp_; }
+	void SetHp(float hp) { hp_ = hp; }
+
+	float GetSpeed() { return speed_; }
+	void SetSpeed(float speed) { speed_ = speed; }
+
+	float GetAttackPower() { return attackPower_; }
+	void SetAttackPower(float attackPower) { attackPower_ = attackPower; }
 
 private:
 	const int kModelIndexBody = 0;
@@ -158,16 +187,28 @@ private:
 	//次の振る舞いリクエスト
 	std::optional<Behavior> behaviorRequest_ = std::nullopt;
 
+	/*---------------------[ステータス]-----------------------*/
+
+	//生存フラグ
+	bool isAlive_ = true;
+
+	//HP
+	float hp_;
+
+	//速さ
+	float speed_;
+
+	//攻撃力
+	float attackPower_ ;
+
 	/*---------------------[移動]-----------------------*/
 
 	//速度
 	Vector3 velocity_ = {};
 
-	//速さ
-	float speed = 0.3f;
+	/*---------------------[モーション]-----------------------*/
 
-	/*---------------------[浮遊]-----------------------*/
-
+	/* 浮遊 */
 	//浮遊ギミックの媒介変数
 	float floatingParameter_;
 
@@ -177,8 +218,7 @@ private:
 	// 浮遊移動のサイクル
 	uint16_t floatingCycle_;
 
-	/*---------------------[攻撃]-----------------------*/
-
+	/* 攻撃 */
 	//攻撃ギミックの媒介変数
 	float AttackParameter_;
 

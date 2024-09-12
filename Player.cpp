@@ -11,6 +11,7 @@
 #include "LockOn.h"
 
 #include "ImGuiManager.h"
+#include "PlayerStatusConfig.h"
 
 void Player::Initialize(const std::vector<Model*>& models)
 {
@@ -23,33 +24,16 @@ void Player::Initialize(const std::vector<Model*>& models)
 	//引数で受け取ったものを取得
 	models_ = models;
 
-	//viewProjection_ = viewProjection;
+	//ワールド変換の初期化
+	InitializeWorldTransform();
 
-	//初期化
-	worldTransform_.Initialize();
-	worldTransformBody_.Initialize();
-
-	worldTransformHead_.Initialize();
-	worldTransformHead_.translation_ = {0.0f, 4.0f, 0.0f};
-
-	worldTransformL_arm_.Initialize();
-	worldTransformL_arm_.translation_ = {-0.625f, 3.75f, 0.0f};
-
-	worldTransformR_arm_.Initialize();
-	worldTransformR_arm_.translation_ = {0.625f, 3.75f, 0.0f};
-
-	//パーツ同士の親子関係
-	worldTransformBody_.parent_ = &worldTransform_;
-	worldTransformHead_.parent_ = &worldTransformBody_;
-	worldTransformL_arm_.parent_ = &worldTransformBody_;
-	worldTransformR_arm_.parent_ = &worldTransformBody_;
+	//ステータスの初期化
+	InitializeStatus();
 
 	//ハンマーの初期化
-	hammer_ = std::make_unique<Hammer>();
-	std::vector<Model*> hammerModels = {models_[kModelindexWeapon], models_[kModelIndexEffect]};
-	hammer_->Initialize(hammerModels, this);
-	hammer_->SetParent(worldTransformBody_);
+	InitializeHammer();
 
+	//振る舞いの初期化
 	InitializeFloatingGimick();
 
 	behavior_ = Behavior::kRoot;
@@ -62,12 +46,18 @@ void Player::Initialize(const std::vector<Model*>& models)
 	SetCollisionAttribute(kCollisionAttributePlayer);
 	SetCollisionMask(kCollisionAttributeEnemy);
 
+	//ワールド変換データを調整したので更新
 	UpdateMatrix();
 }
 
 void Player::Update()
-
 {
+	//生存フラグが降りていたら何もしない
+	if(!isAlive_)
+	{
+		return;
+	}
+
 	UpdateImGui();
 
 	if (behaviorRequest_)
@@ -116,6 +106,12 @@ void Player::Update()
 
 void Player::Draw()
 {
+	//生存フラグが降りていたら何もしない
+	if(!isAlive_)
+	{
+		return;
+	}
+
 	models_[kModelIndexBody]->Draw(worldTransformBody_, *viewProjection_);
 	models_[kModelIndexHead]->Draw(worldTransformHead_, *viewProjection_);
 	models_[kModelIndexL_arm]->Draw(worldTransformL_arm_, *viewProjection_);
@@ -135,7 +131,7 @@ void Player::Move()
 	if (Input::GetInstance()->GetJoystickState(0,joyState))
 	{
 		//速さ
-		// float speed = 0.3f;
+		// float speed_ = 0.3f;
 
 		//移動量
 		velocity_ = {
@@ -148,7 +144,7 @@ void Player::Move()
 		//0除算にならないようにする
 		if (Length(velocity_) > 0.0f)
 		{
-			velocity_ = Multiply(speed, Normalize(velocity_));
+			velocity_ = Multiply(speed_, Normalize(velocity_));
 		}
 
 		//移動ベクトルをカメラの角度だけ回転させる　
@@ -168,6 +164,44 @@ void Player::UpdateMatrix()
 	worldTransformL_arm_.UpdateMatrix();
 	worldTransformR_arm_.UpdateMatrix();
 
+}
+
+void Player::InitializeWorldTransform()
+{
+	//初期化
+	worldTransform_.Initialize();
+	worldTransformBody_.Initialize();
+
+	worldTransformHead_.Initialize();
+	worldTransformHead_.translation_ = { 0.0f, 4.0f, 0.0f };
+
+	worldTransformL_arm_.Initialize();
+	worldTransformL_arm_.translation_ = { -0.625f, 3.75f, 0.0f };
+
+	worldTransformR_arm_.Initialize();
+	worldTransformR_arm_.translation_ = { 0.625f, 3.75f, 0.0f };
+
+	//パーツ同士の親子関係
+	worldTransformBody_.parent_ = &worldTransform_;
+	worldTransformHead_.parent_ = &worldTransformBody_;
+	worldTransformL_arm_.parent_ = &worldTransformBody_;
+	worldTransformR_arm_.parent_ = &worldTransformBody_;
+}
+
+void Player::InitializeHammer()
+{
+	//ハンマーの初期化
+	hammer_ = std::make_unique<Hammer>();
+	std::vector<Model*> hammerModels = { models_[kModelindexWeapon], models_[kModelIndexEffect] };
+	hammer_->Initialize(hammerModels, this);
+	hammer_->SetParent(worldTransformBody_);
+}
+
+void Player::InitializeStatus()
+{
+	hp_ = kInitialHp;
+	speed_ = kInitialSpeed;
+	attackPower_ = kInitialAttackPower;
 }
 
 
@@ -212,6 +246,7 @@ void Player::TurnToTarget()
 
 void Player::UpdateImGui() {
 	ImGui::Begin("Floating Model");
+	ImGui::SliderFloat("HP", &hp_, 0.0f, 100.0f);
 	ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("Head Translation", &worldTransformHead_.translation_.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("ArmL Translation", &worldTransformL_arm_.translation_.x, -20.0f, 20.0f);
@@ -336,10 +371,10 @@ void Player::BehaviorAttackUpdate()
 			worldTransform_.rotation_.y = std::atan2(sub.x, sub.z);
 
 			//閾値を超える速さなら修正する
-			if (speed > distance - threshold)
+			if (speed_ > distance - threshold)
 			{
 
-				speed = distance - threshold;
+				speed_ = distance - threshold;
 			}
 		}
 
@@ -387,8 +422,26 @@ void Player::BehaviorJumpUpdate()
 
 void Player::OnCollision()
 {
-	// ジャンプをリクエスト
-		behaviorRequest_ = Behavior::kJump;
+	if(hp_ <= 0)
+	{
+		//HPを0にする
+		hp_ = 0;
+		//生存フラグを降ろす
+		isAlive_ = false;
+	}
+}
+
+void Player::TakeDamage(float damage)
+{
+	// HPが0以下なら何もしない
+	if (!isAlive_)
+	{
+		return;
+	}
+
+	// ダメージを受けてHPを減少
+	hp_ -= damage;
+
 }
 
 void Player::GenerateShockWave()
