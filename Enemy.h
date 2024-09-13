@@ -45,6 +45,10 @@ public:
 	//生存フラグ
 	bool IsAlive() { return isAlive_; }
 
+	//攻撃可能のフラグ
+	bool GetCanAttack() { return canAttack_; }
+	void SetCanAttack(bool canAttack) { canAttack_ = canAttack; }
+
 	//速さ
 	float GetSpeed() { return speed_; }
 	void SetSpeed(float speed)
@@ -76,7 +80,6 @@ private:
 	//生存フラグ
 	bool isAlive_ = true;
 
-
 	//速さ
 	float speed_;
 
@@ -84,5 +87,8 @@ private:
 
 	//次のシリアルナンバー
 	static uint32_t nextSerialNumber;
+
+	//攻撃可能のフラグ
+	bool canAttack_ = false;
 
 };

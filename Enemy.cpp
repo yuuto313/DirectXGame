@@ -136,6 +136,12 @@ void Enemy::InitializeWorldTransform()
 
 void Enemy::OnCollision(Collider* other)
 {
+	//攻撃可能でなければ早期リターン
+	if (!canAttack_) 
+	{
+		return;
+	}
+
 	//衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手がプレイヤー以外なら消す

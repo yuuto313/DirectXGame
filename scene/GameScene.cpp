@@ -253,6 +253,9 @@ void GameScene::Update()
 				enemy->Update();
 			}
 
+			//敵に攻撃可能か判定
+			CheckCanAttackEnemy();
+
 			//===================================================
 			//衝突判定
 			//===================================================
@@ -442,4 +445,23 @@ void GameScene::CheckAllCollision()
 
 	//衝突判定と応答
 	collisionManager_->CheckAllCollision();
+}
+
+void GameScene::CheckCanAttackEnemy()
+{
+	//鎖が全て生存しているか
+	for(const std::unique_ptr<Chain>& chain : chain_)
+	{
+		if (chain->IsAlive())
+		{
+			return;
+		}
+	}
+
+	//全ての鎖が破壊されていたら
+	//攻撃可能
+	for(const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		enemy->SetCanAttack(true);
+	}
 }

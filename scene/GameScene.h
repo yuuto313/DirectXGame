@@ -64,6 +64,9 @@ public: // メンバ関数
 
 	void CheckAllCollision();
 
+	//敵に攻撃可能か判定するフラグ
+	void CheckCanAttackEnemy();
+
 	//-------------ゲッター・セッター-------------//
 
 	/// <summary>
@@ -79,8 +82,6 @@ private: // メンバ変数
 
 	//現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;
-
-	
 
 	//終了フラグ
 	bool finished_ = false;

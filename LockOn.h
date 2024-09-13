@@ -2,6 +2,7 @@
 #include <memory>
 #include <numbers>
 
+#include "Chain.h"
 #include "DirectXCommon.h"
 
 #include "Enemy.h"
@@ -43,6 +44,7 @@ private:
 
 	//ロックオン対象
 	const Enemy* target_ = nullptr;
+	const Chain* chain_ = nullptr;
 
 	const float kDegreeToRadian_ = std::numbers::pi_v<float> / 180.0f;
 	// 最小距離

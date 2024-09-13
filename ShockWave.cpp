@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "CollisionTypeIdDef.h"
+#include "Enemy.h"
 #include "MyMath.h"
 #include "ShockWaveConfig.h"
 
@@ -75,17 +76,26 @@ void ShockWave::OnCollision([[maybe_unused]] Collider* other)
 	//衝突相手がプレイヤー以外なら消す
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy))
 	{
+		//消す
+		isActive_ = false;
+
+		// 敵のポインタを取得
+		Enemy* enemy = static_cast<Enemy*>(other);
+		if(!enemy->GetCanAttack())
+		{
+			return;
+		}
+
 		//ダメージを与える
 		other->TakeDamage(GetAttackPower());
-		//ダメージを受ける
-		isActive_ = false;
+		
 	}
 
 	if(typeID == static_cast<uint32_t>(CollisionTypeIdDef::kChain))
 	{
 		//ダメージを与える
 		other->TakeDamage(GetAttackPower());
-		//ダメージを受ける
+		//消す
 		isActive_ = false;
 	}
 	
