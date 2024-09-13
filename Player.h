@@ -7,6 +7,7 @@
 
 #include "Hammer.h"
 #include "ShockWave.h"
+#include "Sprite.h"
 
 enum class Behavior
 {
@@ -20,6 +21,7 @@ class LockOn;
 class Player : public Collider
 {
 public:
+	~Player();
 
 	void Initialize(const std::vector<Model*>& models);
 
@@ -40,7 +42,10 @@ public:
 	void InitializeHammer();
 
 	/// \brief ステータスの初期化
-	void InitializeStatus();	
+	void InitializeStatus();
+
+	/// \brief UIの初期化
+	void InitializeUI();
 	
 	/*---------------------[動作]-----------------------*/
 
@@ -61,6 +66,12 @@ public:
 
 	/// \brief スキルの更新
 	void SkillUpdate();
+
+	/// \brief スキルの描画
+	void UpdateUI();
+
+	//// \brief スキルの描画
+	void DrawUI();
 
 	/*---------------------[ImGui]-----------------------*/
 
@@ -198,6 +209,36 @@ private:
 
 	//速さ
 	float speed_;
+
+	/*---------------------[UI]-----------------------*/
+	
+
+	Sprite* playerSpriteUI_ = nullptr;
+	uint32_t playerTexUI_ = 0;
+
+	Sprite* playerSpriteHP_ = nullptr;
+	uint32_t playerTexHP_ = 0;
+
+	Sprite* playerSpriteMP_ = nullptr;
+	uint32_t playerTexMP_ = 0;
+
+	Sprite* playerSkillSpPU_ = nullptr;
+	uint32_t playerSkillTexPU_ = 0;
+
+	Sprite* playerSkillSpPD_ = nullptr;
+	uint32_t playerSkillTexPD_ = 0;
+
+	Sprite* playerSkillSpSU_ = nullptr;
+	uint32_t playerSkillTexSU_ = 0;
+
+	Sprite* playerSkillSpSD_ = nullptr;
+	uint32_t playerSkillTexSD_ = 0;
+
+	//Hpバーの大きさの初期値
+	Vector2 hpUiInitialize_;
+
+	//感情ゲージの大きさの初期値
+	Vector2 emotionGaugeUiInitilalize_;
 
 	/*---------------------[移動]-----------------------*/
 
