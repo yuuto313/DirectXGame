@@ -31,7 +31,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="model"></param>
-	void Initilaize(Model* model);
+	void Initilaize(Model* model, Vector3 position);
 
 	/// <summary>
 	/// 更新

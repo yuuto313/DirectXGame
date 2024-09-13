@@ -159,7 +159,7 @@ private: // メンバ変数
 	//鎖
 	//===================================================
 
-	std::unique_ptr<Chain> chain_;
+	std::list<std::unique_ptr<Chain>> chain_;
 	//モデル
 	std::unique_ptr<Model>modelChain_;
 

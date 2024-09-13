@@ -157,9 +157,20 @@ void GameScene::Initialize() {
 	//鎖
 	//===================================================
 
-	chain_ = std::make_unique<Chain>();
-	chain_->Initilaize(modelChain_.get());
+	const int numChains = 3;
+	std::array<Vector3, numChains> chainPositions = {
+		Vector3{10.0f, 0.0f, 10.0f},
+		Vector3{20.0f, 0.0f, 10.0f},
+		Vector3{15.0f, 0.0f, 20.0f}
+	};
 
+	for (int i = 0; i < numChains; ++i) {
+		std::unique_ptr<Chain> chain = std::make_unique<Chain>();
+		chain->Initilaize(modelChain_.get(),chainPositions[i]);
+		chain_.push_back(std::move(chain));
+	}
+
+	
 	//===================================================
 	//衝突判定マネージャー
 	//===================================================
@@ -221,7 +232,10 @@ void GameScene::Update()
 			//鎖
 			//===================================================
 
-			chain_->Update();
+			for(const std::unique_ptr<Chain>& chain : chain_)
+			{
+				chain->Update();
+			}
 
 			//===================================================
 			//プレイヤー
@@ -332,7 +346,10 @@ void GameScene::Draw() {
 	//鎖
 	//===================================================
 
-	chain_->Draw(viewProjection_);
+	for(const std::unique_ptr<Chain>& chain : chain_)
+	{
+		chain->Draw(viewProjection_);
+	}
 
 	//===================================================
 	//プレイヤー
@@ -418,7 +435,10 @@ void GameScene::CheckAllCollision()
 		collisionManager_->AddCollider(shockWave.get());
 	}
 
-	collisionManager_->AddCollider(chain_.get());
+	for(const std::unique_ptr<Chain>& chain : chain_)
+	{
+		collisionManager_->AddCollider(chain.get());
+	}
 
 	//衝突判定と応答
 	collisionManager_->CheckAllCollision();

@@ -18,7 +18,7 @@ Chain::Chain()
 
 Chain::~Chain() {}
 
-void Chain::Initilaize(Model* model) {
+void Chain::Initilaize(Model* model,Vector3 position) {
 	//nullポインタチェック
 	assert(model);
 
@@ -27,7 +27,7 @@ void Chain::Initilaize(Model* model) {
 
 	//ワールド変換初期化
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = { 5.0f,0.0f,5.0f };
+	worldTransform_.translation_ = position;
 
 	//種別IDの設定
 	SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kChain));
