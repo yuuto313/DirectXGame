@@ -57,6 +57,7 @@ void GameScene::Initialize() {
 	modelPlayerWeapon_.reset(Model::CreateFromOBJ("player_Weapon", true));
 	modelHitEffect_.reset(Model::CreateFromOBJ("hitEffect", true));
 	modelShockWave_.reset(Model::CreateFromOBJ("wave", true));
+	modelAttackRange_.reset(Model::CreateFromOBJ("attackRange", true));
 
 	//===================================================
 	//敵
@@ -141,6 +142,7 @@ void GameScene::Initialize() {
 		modelPlayerWeapon_.get(),
 		modelHitEffect_.get(),
 		modelShockWave_.get(),
+		modelAttackRange_.get(),
 	};
 
 	//生成

@@ -173,6 +173,7 @@ private:
 	const int kModelindexWeapon = 4;
 	const int kModelIndexEffect = 5;
 	const int kModelIndexShockWave = 6;
+	const int kModelIndexAttackRange = 7;
 
 
 	//ワールド変換データ
@@ -181,6 +182,7 @@ private:
 	WorldTransform worldTransformHead_;
 	WorldTransform worldTransformL_arm_;
 	WorldTransform worldTransformR_arm_;
+	WorldTransform worldTransformAttackRange_;
 
 	//モデル
 	std::vector<Model*> models_;

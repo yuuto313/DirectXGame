@@ -162,6 +162,7 @@ private: // メンバ変数
 	std::unique_ptr<Model>modelPlayerWeapon_;
 	std::unique_ptr<Model>modelHitEffect_;
 	std::unique_ptr<Model>modelShockWave_;
+	std::unique_ptr<Model>modelAttackRange_;
 
 
 	//===================================================

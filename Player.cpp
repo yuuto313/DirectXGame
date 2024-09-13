@@ -132,6 +132,7 @@ void Player::Draw()
 	models_[kModelIndexHead]->Draw(worldTransformHead_, *viewProjection_);
 	models_[kModelIndexL_arm]->Draw(worldTransformL_arm_, *viewProjection_);
 	models_[kModelIndexR_arm]->Draw(worldTransformR_arm_, *viewProjection_);
+	models_[kModelIndexAttackRange]->Draw(worldTransformAttackRange_, *viewProjection_);
 	hammer_->Draw(*viewProjection_);
 	hammer_->DrawEffect(*viewProjection_);
 	DrawShockWave();
@@ -169,6 +170,10 @@ void Player::Move()
 		worldTransform_.translation_ += velocity_;
 	}
 
+	//移動制限
+	worldTransform_.translation_.x = std::clamp(worldTransform_.translation_.x, -400.0f, 400.0f);
+	worldTransform_.translation_.z = std::clamp(worldTransform_.translation_.z, -400.0f, 400.0f);
+
 }
 
 void Player::UpdateMatrix()
@@ -178,6 +183,7 @@ void Player::UpdateMatrix()
 	worldTransformHead_.UpdateMatrix();
 	worldTransformL_arm_.UpdateMatrix();
 	worldTransformR_arm_.UpdateMatrix();
+	worldTransformAttackRange_.UpdateMatrix();
 
 }
 
@@ -196,11 +202,14 @@ void Player::InitializeWorldTransform()
 	worldTransformR_arm_.Initialize();
 	worldTransformR_arm_.translation_ = { 0.0f, 0.0f, 0.0f };
 
+	worldTransformAttackRange_.Initialize();
+
 	//パーツ同士の親子関係
 	worldTransformBody_.parent_ = &worldTransform_;
 	worldTransformHead_.parent_ = &worldTransformBody_;
 	worldTransformL_arm_.parent_ = &worldTransformBody_;
 	worldTransformR_arm_.parent_ = &worldTransformBody_;
+	worldTransformAttackRange_.parent_ = &worldTransform_;
 }
 
 void Player::InitializeHammer()
