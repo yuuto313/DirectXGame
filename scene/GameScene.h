@@ -215,4 +215,31 @@ private: // メンバ変数
 	// UIテクスチャ
 	uint32_t uiTexID_ = 0;
 
+
+	//===================================================
+	// Player UI
+	//===================================================
+
+	Sprite* playerSpriteUI_ = nullptr;
+    uint32_t playerTexUI_ = 0;
+
+	Sprite* playerSpriteHP_ = nullptr;
+	uint32_t playerTexHP_ = 0;
+
+	Sprite* playerSpriteMP_ = nullptr;
+	uint32_t playerTexMP_ = 0;
+
+	Sprite* playerSkillSpPU_ = nullptr;
+	uint32_t playerSkillTexPU_ = 0;
+
+	Sprite* playerSkillSpPD_ = nullptr;
+	uint32_t playerSkillTexPD_ = 0;
+
+	Sprite* playerSkillSpSU_ = nullptr;
+	uint32_t playerSkillTexSU_ = 0;
+
+	Sprite* playerSkillSpSD_ = nullptr;
+	uint32_t playerSkillTexSD_ = 0;
+
+
 };
