@@ -18,7 +18,7 @@ Chain::Chain()
 
 Chain::~Chain() {}
 
-void Chain::Initilaize(Model* model,Vector3 position) {
+void Chain::Initilaize(Model* model, Vector3 position) {
 	//nullポインタチェック
 	assert(model);
 
@@ -28,6 +28,9 @@ void Chain::Initilaize(Model* model,Vector3 position) {
 	//ワールド変換初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
+	worldTransform_.scale_ = { 2.0f,2.0f,2.0f };
+
+	worldTransform_.UpdateMatrix();
 
 	//種別IDの設定
 	SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kChain));
@@ -113,7 +116,7 @@ void Chain::OnCollision([[maybe_unused]] Collider* other)
 Vector3 Chain::GetCenterPosition() const
 {
 	// ローカル座標でのオフセット
-	const Vector3 offset = { 0.0f, 1.0f, 0.0f };
+	const Vector3 offset = { 0.0f, 8.0f, 0.0f };
 	// ワールド座標に変換
 	Vector3 worldPos = Transform(offset, worldTransform_.matWorld_);
 	return worldPos;

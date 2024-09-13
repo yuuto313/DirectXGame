@@ -159,9 +159,9 @@ void GameScene::Initialize() {
 
 	const int numChains = 3;
 	std::array<Vector3, numChains> chainPositions = {
-		Vector3{10.0f, 0.0f, 10.0f},
-		Vector3{20.0f, 0.0f, 10.0f},
-		Vector3{15.0f, 0.0f, 20.0f}
+		Vector3{-100.0f, 0.0f, -100.0f},
+		Vector3{100.0f, 0.0f, -100.0f},
+		Vector3{0.0f, 0.0f, 200.0f}
 	};
 
 	for (int i = 0; i < numChains; ++i) {
@@ -270,6 +270,13 @@ void GameScene::Update()
 
 			CheckAllCollision();
 
+
+			//===================================================
+			//終了条件
+			//===================================================
+
+			CheckEndCondition();
+
 			//===================================================
 			//ビュープロジェクション
 			//===================================================
@@ -306,6 +313,10 @@ void GameScene::Update()
 		case GameScene::Phase::kFadeOut:
 			//フェードの更新
 			fade_->Update();
+			if(fade_->IsFinished()) {
+				//終了フラグを立てる
+				finished_ = true;
+			}
 			break;
 		}
 
@@ -478,5 +489,17 @@ void GameScene::CheckCanAttackEnemy()
 
 void GameScene::CheckEndCondition()
 {
-	
+	//敵が全滅しているか
+	for(const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		if (enemy->IsAlive())
+		{
+			return;
+		}
+	}
+
+	//全滅していたら
+	//ゲームクリア
+	phase_ = Phase::kFadeOut;
+	fade_->Start(Fade::Status::FadeOut, 2.0f);
 }

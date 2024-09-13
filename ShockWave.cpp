@@ -2,18 +2,21 @@
 
 #include <assert.h>
 
+#include "Chain.h"
 #include "CollisionTypeIdDef.h"
 #include "Enemy.h"
 #include "MyMath.h"
 #include "ShockWaveConfig.h"
 
-void ShockWave::Initialize(Model* model, Vector3 position, Vector3 velocity,const ViewProjection* viewProjection,float damage)
+void ShockWave::Initialize(std::vector<Model*> models, Vector3 position, Vector3 velocity,const ViewProjection* viewProjection,float damage)
 {
 	//Nullチェック
-	assert(model);
+	for(auto& model : models) {
+		assert(model);
+	}
 
 	//引数で受け取ってメンバ変数に記録する
-	model_ = model;
+	models_ = models;
 	velocity_ = velocity;
 
 	viewProjection_ = viewProjection;
@@ -32,70 +35,96 @@ void ShockWave::Initialize(Model* model, Vector3 position, Vector3 velocity,cons
 
 void ShockWave::Update()
 {
-	//有効でない場合は何もしない
-	if (!isActive_)
-	{
-		return;
+	if (isActive_) {
+		//移動方向を正規化
+		Vector3 move = Normalize(velocity_);
+		//移動速度を設定する
+		move = Multiply(moveSpeed_, move);
+
+		//移動
+		worldTransform_.translation_ += move;
+		//移動した距離を記録
+		distanceTraveled_ += Length(move);
+		//ワールド行列の更新
+		worldTransform_.UpdateMatrix();
+
+		if(distanceTraveled_ >= kMaxRange_)
+		{
+			isActive_ = false;
+		}
+
 	}
 
-	//移動方向を正規化
-	Vector3 move = Normalize(velocity_);
-	//移動速度を設定する
-	move = Multiply(moveSpeed_, move);
-
-	//移動
-	worldTransform_.translation_ += move;
-	//移動した距離を記録
-	distanceTraveled_ += Length(move);
-
-	//ワールド行列の更新
-	worldTransform_.UpdateMatrix();
-
-	if(distanceTraveled_ >= kMaxRange_)
-	{
-		isActive_ = false;
+	for (auto& hitEffect : hitEffects_) {
+		hitEffect->Update();
 	}
+
+	//生存時間が０以下のヒットエフェクトを削除
+	hitEffects_.remove_if([](const std::unique_ptr<HitEffect>& hitEffect) {
+		return hitEffect->GetLifeTime() <= 0;
+	});
 
 }
 
 void ShockWave::Draw(const ViewProjection& viewProjection)
 {
-	//有効でない場合は何もしない
+	if (isActive_) {
+		models_[kModelIndexWave]->Draw(worldTransform_, viewProjection);
+	}
+	for(auto& hitEffect : hitEffects_) {
+		hitEffect->Draw(viewProjection);
+	}
+}
+
+void ShockWave::OnCollision([[maybe_unused]] Collider* other)
+{
+	//アクティブでないなら何もしない
 	if(!isActive_)
 	{
 		return;
 	}
 
-	model_->Draw(worldTransform_, viewProjection);
-}
-
-void ShockWave::OnCollision([[maybe_unused]] Collider* other)
-{
 	//衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
-	//衝突相手がプレイヤー以外なら消す
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy))
-	{
-		//消す
-		isActive_ = false;
+	//衝突相手が敵なら
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy)) {
 
 		// 敵のポインタを取得
 		Enemy* enemy = static_cast<Enemy*>(other);
-		if(!enemy->GetCanAttack())
+
+		if (!enemy->IsAlive())
 		{
 			return;
 		}
 
+		// 敵の位置にエフェクトを発生
+		auto newHitEffect = std::make_unique<HitEffect>();
+		newHitEffect->Initialize(models_[kModelIndexEffect], enemy->GetWorldPosition(),Vector3(7.0f,7.0f,7.0f));
+		hitEffects_.push_back(std::move(newHitEffect));
+
 		//ダメージを与える
 		other->TakeDamage(GetAttackPower());
-		
+		isActive_ = false;
 	}
 
-	if(typeID == static_cast<uint32_t>(CollisionTypeIdDef::kChain))
-	{
+	//衝突相手が敵なら
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kChain)) {
+
+		// 敵のポインタを取得
+		Chain* chain = static_cast<Chain*>(other);
+		
+		if (!chain->IsAlive())
+		{
+			return;
+		}
+
+		// 敵の位置にエフェクトを発生
+		auto newHitEffect = std::make_unique<HitEffect>();
+		newHitEffect->Initialize(models_[kModelIndexEffect], chain->GetCenterPosition(),Vector3(7.0f,7.0f,7.0f));
+		hitEffects_.push_back(std::move(newHitEffect));
+
 		//ダメージを与える
 		other->TakeDamage(GetAttackPower());
-		//消す
 		isActive_ = false;
 	}
 	
@@ -121,4 +150,17 @@ Vector3 ShockWave::GetWorldPosition()
 	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
 	return worldPos;
+}
+
+bool ShockWave::IsActive() const
+{
+	if(!hitEffects_.empty()){
+		// ヒットエフェクトが存在している間はアクティブ
+		for(auto& hitEffect : hitEffects_) {
+			if (hitEffect->GetLifeTime() > 0) {
+				return true;
+			}
+		}
+	}
+	return isActive_;
 }

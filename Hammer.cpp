@@ -101,6 +101,11 @@ void Hammer::OnCollision(Collider* other)
 		//接触履歴に追加
 		contactlog_.Add(serialNumber);
 
+		if(!enemy->IsAlive())
+		{
+			return;
+		}
+
 		// 敵の位置にエフェクトを発生
 		auto newHitEffect = std::make_unique<HitEffect>();
 		newHitEffect->Initialize(models_[kIndexModelEffect], enemy->GetWorldPosition());
@@ -125,6 +130,11 @@ void Hammer::OnCollision(Collider* other)
 
 		//接触履歴に追加
 		contactlogChain_.Add(serialNumber);
+
+		if(!chain->IsAlive())
+		{
+			return;
+		}
 
 		// 敵の位置にエフェクトを発生
 		auto newHitEffect = std::make_unique<HitEffect>();

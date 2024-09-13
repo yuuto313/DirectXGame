@@ -5,7 +5,7 @@
 #include "MyMath.h"
 
 
-void HitEffect::Initialize(Model* model,Vector3 position, float lifeTime)
+void HitEffect::Initialize(Model* model,Vector3 position, Vector3 scale, float lifeTime)
 {
 	//Nullポインタチェック
 	assert(model);
@@ -16,7 +16,7 @@ void HitEffect::Initialize(Model* model,Vector3 position, float lifeTime)
 	//初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	worldTransform_.scale_ = { 2.0f,2.0f,2.0f };
+	worldTransform_.scale_ = scale;
 	worldTransform_.UpdateMatrix();
 
 	//生存時間の設定

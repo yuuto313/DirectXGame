@@ -1,5 +1,6 @@
 #pragma once
 #include "Collider.h"
+#include "HitEffect.h"
 #include "Model.h"
 #include "ShockWaveConfig.h"
 #include "WorldTransform.h"
@@ -11,7 +12,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(Model* model,Vector3 position,Vector3 velocity,const ViewProjection* viewProjection, float damage);
+	void Initialize(std::vector<Model*> model,Vector3 position,Vector3 velocity,const ViewProjection* viewProjection, float damage);
 
 	/// <summary>
 	/// 更新
@@ -35,7 +36,7 @@ public: // アクセッサ
 	/// <summary>
 	/// ショックウェーブの有効無効
 	/// </summary>
-	bool IsActive() const { return isActive_; }
+	bool IsActive() const;
 
 private: // メンバ変数
 	//ワールド変換データ
@@ -43,7 +44,7 @@ private: // メンバ変数
 
 	const ViewProjection* viewProjection_ = nullptr;
 
-	Model* model_ = nullptr;
+	std::vector<Model*> models_;
 
 	//存在しているかどうか
 	bool isActive_ = false;
@@ -60,9 +61,15 @@ private: // メンバ変数
 	//ダメージ
 	float damage_ = kShockWaveDamage;
 
+	//ヒットエフェクトのリスト
+	std::list<std::unique_ptr<HitEffect>> hitEffects_;
+
 private: // 静的メンバ変数
 	//最大移動距離
 	const float kMaxRange_ = kShockWaveRange;
+
+	const int kModelIndexWave = 0;
+	const int kModelIndexEffect = 1;
 
 };
 

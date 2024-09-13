@@ -6,7 +6,7 @@ class HitEffect
 {
 public: //メンバ関数
 	/// \brief 
-	void Initialize(Model* model,Vector3 position, float lifeTime = defaultLfeTime_);
+	void Initialize(Model* model,Vector3 position,Vector3 scale = defaultScale_ ,float lifeTime = defaultLfeTime_);
 	/// \brief 
 	void Update();
 	/// \brief 
@@ -34,6 +34,9 @@ private: //メンバ変数
 
 	//生存時間のデフォルト値
 	static inline float defaultLfeTime_ = 30.0f;
+
+	//大きさのデフォルト値
+	static inline Vector3 defaultScale_ = { 2.0f,2.0f,2.0f };
 
 	//周期
 	float cycle_ = 0.0f;	

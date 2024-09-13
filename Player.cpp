@@ -550,6 +550,11 @@ void Player::BehaviorJumpUpdate()
 
 void Player::GenerateShockWave()
 {
+	std::vector<Model*> models = {
+		models_[kModelIndexShockWave],
+		models_[kModelIndexEffect],
+	};
+
 	//ロックオンされているならロックオン対象の方向に向かって衝撃波を生成
 	if((lockOn_ && lockOn_->ExistTarget()) || (lockOn_ && lockOn_->ExistChain()) )
 	{
@@ -562,7 +567,7 @@ void Player::GenerateShockWave()
 
 		//衝撃波を生成
 		std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
-		shockWave->Initialize(models_[kModelIndexShockWave],hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
+		shockWave->Initialize(models,hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
 		shockWaves_.push_back(std::move(shockWave));
 		return;
 	}
@@ -571,7 +576,7 @@ void Player::GenerateShockWave()
 	Vector3 velocity = {0.0f,0.0f,1.0f};
 	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 	std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
-	shockWave->Initialize(models_[kModelIndexShockWave], hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
+	shockWave->Initialize(models, hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
 	shockWaves_.push_back(std::move(shockWave));
 }
 
