@@ -30,10 +30,10 @@ Player::~Player()
 void Player::Initialize(const std::vector<Model*>& models)
 {
 	//Nullポインタチェック
-	for (Model* model : models)
-	{
-		assert(model);
-	}
+	//for (Model* model : models)
+	//{
+	//	assert(model);
+	//}
 
 	//引数で受け取ったものを取得
 	models_ = models;
@@ -75,7 +75,7 @@ void Player::Update()
 		return;
 	}
 
-	UpdateImGui();
+	//UpdateImGui();
 
 	if (behaviorRequest_)
 	{
@@ -432,35 +432,35 @@ void Player::DrawUI()
 
 }
 
-void Player::UpdateImGui() {
-	ImGui::Begin("Floating Model");
-	float hp = GetHP();
-	ImGui::Text("HP %f", hp, 0.0f, 100.0f);
-	ImGui::Text("emotionGauge %f", emotionGauge_);
-	ImGui::Text("AttackPower %f", GetAttackPower());
-	ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
-	ImGui::SliderFloat3("Head Translation", &worldTransformHead_.translation_.x, -20.0f, 20.0f);
-	ImGui::SliderFloat3("ArmL Translation", &worldTransformL_arm_.translation_.x, -20.0f, 20.0f);
-	ImGui::SliderAngle("ArmL Rotation", &worldTransformL_arm_.rotation_.x);
-	ImGui::SliderFloat3("ArmR Translation", &worldTransformR_arm_.translation_.x, -20.0f, 20.0f);
-	ImGui::SliderAngle("ArmR Rotation", &worldTransformR_arm_.rotation_.x);
-	int cycle = static_cast<int>(floatingCycle_);
-	ImGui::SliderInt("Cycle", &cycle, 0, 600);
-	floatingCycle_ = static_cast<uint16_t>(cycle);
-	ImGui::SliderFloat("Amplitude", &floatingAmplitude_, 0.0f, 10.0f);
-	int attackCycle = static_cast<int>(AttackCycle_);
-	ImGui::SliderInt("Attack Cycle", &attackCycle, 0, 600);
-	AttackCycle_ = static_cast<uint16_t>(attackCycle);
-
-
-	bool attack = false;
-	ImGui::Checkbox("attack", &attack);
-	if (attack) {
-		behaviorRequest_ = Behavior::kAttack;
-	}
-
-	ImGui::End();
-}
+//void Player::UpdateImGui() {
+//	ImGui::Begin("Floating Model");
+//	float hp = GetHP();
+//	ImGui::Text("HP %f", hp, 0.0f, 100.0f);
+//	ImGui::Text("emotionGauge %f", emotionGauge_);
+//	ImGui::Text("AttackPower %f", GetAttackPower());
+//	ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
+//	ImGui::SliderFloat3("Head Translation", &worldTransformHead_.translation_.x, -20.0f, 20.0f);
+//	ImGui::SliderFloat3("ArmL Translation", &worldTransformL_arm_.translation_.x, -20.0f, 20.0f);
+//	ImGui::SliderAngle("ArmL Rotation", &worldTransformL_arm_.rotation_.x);
+//	ImGui::SliderFloat3("ArmR Translation", &worldTransformR_arm_.translation_.x, -20.0f, 20.0f);
+//	ImGui::SliderAngle("ArmR Rotation", &worldTransformR_arm_.rotation_.x);
+//	int cycle = static_cast<int>(floatingCycle_);
+//	ImGui::SliderInt("Cycle", &cycle, 0, 600);
+//	floatingCycle_ = static_cast<uint16_t>(cycle);
+//	ImGui::SliderFloat("Amplitude", &floatingAmplitude_, 0.0f, 10.0f);
+//	int attackCycle = static_cast<int>(AttackCycle_);
+//	ImGui::SliderInt("Attack Cycle", &attackCycle, 0, 600);
+//	AttackCycle_ = static_cast<uint16_t>(attackCycle);
+//
+//
+//	bool attack = false;
+//	ImGui::Checkbox("attack", &attack);
+//	if (attack) {
+//		behaviorRequest_ = Behavior::kAttack;
+//	}
+//
+//	ImGui::End();
+//}
 
 void Player::OnCollision(Collider* other)
 {
