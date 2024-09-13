@@ -296,7 +296,7 @@ void GameScene::Update()
 		// ゲームオーバーシーンへの移行を確認するための仮実装
 		//===================================================
 
-		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_RETURN) || !player_->IsAlive()) {
+		if (input_->PushKey(DIK_O) || !player_->IsAlive()) {
 			// フェードアウト開始
 			float duration = 1.5f;
 			fade_->Start(Fade::Status::FadeOut, duration);
@@ -307,7 +307,7 @@ void GameScene::Update()
 		// クリアシーンへの移行を確認するための仮実装
 		//===================================================
 		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-			if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_B) || !enemy->IsAlive()) {
+			if (input_->PushKey(DIK_I) || !enemy->IsAlive()) {
 				// フェードアウト開始
 				float duration = 1.5f;
 				fade_->Start(Fade::Status::FadeOut, duration);
