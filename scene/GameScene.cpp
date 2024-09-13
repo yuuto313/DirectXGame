@@ -7,6 +7,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	//解放処理
 	delete uiSprite_;
+	
 }
 
 void GameScene::Initialize() {
@@ -27,6 +28,7 @@ void GameScene::Initialize() {
 	//--------------------------------
 
 	uiSprite_ = Sprite::Create(uiTexID_, {});
+
 
 	/// <summary>
 	/// モデル読み込みここから
@@ -54,7 +56,7 @@ void GameScene::Initialize() {
 	modelPlayerR_arm_.reset(Model::CreateFromOBJ("float_R_arm", true));
 	modelPlayerWeapon_.reset(Model::CreateFromOBJ("player_Weapon", true));
 	modelHitEffect_.reset(Model::CreateFromOBJ("hitEffect", true));
-	modelShockWave_.reset(Model::Create());
+	modelShockWave_.reset(Model::CreateFromOBJ("wave", true));
 
 	//===================================================
 	//敵
@@ -455,6 +457,13 @@ void GameScene::Draw() {
 		//--------------------------------
 		
 		uiSprite_->Draw();
+
+		//===================================================
+	    // Player UI
+	    //===================================================
+
+		player_->DrawUI();
+
 
 		break;
 	default:

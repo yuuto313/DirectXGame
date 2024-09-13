@@ -14,6 +14,18 @@
 
 #include "ImGuiManager.h"
 #include "PlayerStatusConfig.h"
+#include "TextureManager.h"
+
+Player::~Player()
+{
+	delete playerSpriteUI_;
+	delete playerSpriteHP_;
+	delete playerSpriteMP_;
+	delete playerSkillSpPU_;
+	delete playerSkillSpPD_;
+	delete playerSkillSpSU_;
+	delete playerSkillSpSD_;
+}
 
 void Player::Initialize(const std::vector<Model*>& models)
 {
@@ -31,6 +43,9 @@ void Player::Initialize(const std::vector<Model*>& models)
 
 	//ステータスの初期化
 	InitializeStatus();
+
+	//UIの初期化
+	InitializeUI();
 
 	//ハンマーの初期化
 	InitializeHammer();
@@ -102,7 +117,7 @@ void Player::Update()
 
 	hammer_->Update();
 	UpdateShockWave();
-
+	UpdateUI();
 }
 
 void Player::Draw()
@@ -173,13 +188,13 @@ void Player::InitializeWorldTransform()
 	worldTransformBody_.Initialize();
 
 	worldTransformHead_.Initialize();
-	worldTransformHead_.translation_ = { 0.0f, 4.0f, 0.0f };
+	worldTransformHead_.translation_ = { 0.0f, 0.0f, 0.0f };
 
 	worldTransformL_arm_.Initialize();
-	worldTransformL_arm_.translation_ = { -0.625f, 3.75f, 0.0f };
+	worldTransformL_arm_.translation_ = { 0.0f, 0.0f, 0.0f };
 
 	worldTransformR_arm_.Initialize();
-	worldTransformR_arm_.translation_ = { 0.625f, 3.75f, 0.0f };
+	worldTransformR_arm_.translation_ = { 0.0f, 0.0f, 0.0f };
 
 	//パーツ同士の親子関係
 	worldTransformBody_.parent_ = &worldTransform_;
@@ -206,6 +221,44 @@ void Player::InitializeStatus()
 	skillTimer_ = 0.0f;
 	emotionGauge_ = kInitialEmotionGauge;
 	emotionGaugeCost_ = kInitialEmotionGaugeCost;
+}
+
+void Player::InitializeUI()
+{
+	//===================================================
+	// Player UI
+	//===================================================
+
+	playerTexUI_ = TextureManager::Load("playerUI/playerUI.png");
+	playerSpriteUI_ = Sprite::Create(playerTexUI_, {});
+
+	playerTexHP_ = TextureManager::Load("playerUI/playerHP.png");
+	playerSpriteHP_ = Sprite::Create(playerTexHP_, {});
+
+	playerTexMP_ = TextureManager::Load("playerUI/playerMP.png");
+	playerSpriteMP_ = Sprite::Create(playerTexMP_, {});
+
+	//HPばーの初期サイズを記録しておく
+	hpUiInitialize_ = playerSpriteHP_->GetSize();
+
+	//感情ゲージの初期サイズを記録しておく
+	emotionGaugeUiInitilalize_ = playerSpriteMP_->GetSize();
+
+	//===================================================
+	// Player Skill UI 
+	//===================================================
+
+	playerSkillTexPU_ = TextureManager::Load("playerUI/sPowerUP.png");
+	playerSkillSpPU_ = Sprite::Create(playerSkillTexPU_, {});
+
+	playerSkillTexPD_ = TextureManager::Load("playerUI/sPowerDOWN.png");
+	playerSkillSpPD_ = Sprite::Create(playerSkillTexPD_, {});
+
+	playerSkillTexSU_ = TextureManager::Load("playerUI/sSpeedUP.png");
+	playerSkillSpSU_ = Sprite::Create(playerSkillTexSU_, {});
+
+	playerSkillTexSD_ = TextureManager::Load("playerUI/sSpeedDOWN.png");
+	playerSkillSpSD_ = Sprite::Create(playerSkillTexSD_, {});
 }
 
 
@@ -318,6 +371,43 @@ void Player::SkillUpdate()
 		skillActive_ = false;
 		currentEffect_ = EffectType::None;
 	}
+}
+
+void Player::UpdateUI()
+{
+	// HPに応じてスプライトの大きさを変更
+	float hpRatio = static_cast<float>(GetHP()) / kInitialHp;
+	float newWidth = hpUiInitialize_.x * hpRatio; // 初期幅にHPの割合を掛ける
+	playerSpriteHP_->SetSize({ newWidth,hpUiInitialize_.y  }); // 高さは固定
+
+	// 感情ゲージに応じてスプライトの大きさを変更
+	float emotionGaugeRatio = emotionGauge_ / kInitialEmotionGauge;
+	float newWidthEmotionGauge = emotionGaugeUiInitilalize_.x * emotionGaugeRatio; // 初期幅に感情ゲージの割合を掛ける
+	playerSpriteMP_->SetSize({ newWidthEmotionGauge,emotionGaugeUiInitilalize_.y }); // 高さは固定
+
+	
+
+}
+
+void Player::DrawUI()
+{
+	playerSpriteUI_->Draw();
+	playerSpriteHP_->Draw();
+	playerSpriteMP_->Draw();
+	//スキルのアクティブ状態に応じてスプライトの種類を変更
+	if(skillActive_)
+	{
+		switch (currentEffect_)
+		{
+		case EffectType::SpeedUp:
+			playerSkillSpSU_->Draw();
+			break;
+		case EffectType::AttackUp:
+			playerSkillSpPU_->Draw();
+			break;
+		}
+	}
+	
 }
 
 void Player::UpdateImGui() {
