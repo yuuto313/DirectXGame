@@ -50,10 +50,10 @@ void Chain::Update()
 		return;
 	}
 
-	ImGui::Begin("Chain");
-	ImGui::Text("hp %f", GetHP());
-	ImGui::Text("hit Count %d", hitCount_);
-	ImGui::End();
+	//ImGui::Begin("Chain");
+	//ImGui::Text("hp %f", GetHP());
+	//ImGui::Text("hit Count %d", hitCount_);
+	//ImGui::End();
 
 	//浮遊アニメーション
 	floatAnimation();

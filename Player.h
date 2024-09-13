@@ -153,7 +153,7 @@ public:
 	/* セッター */
 	//カメラのセット
 	void SetViewProjection(const ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
-	
+
 	//ロックオンのセット
 	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }
 
@@ -276,6 +276,6 @@ private:
 	// 感情ゲージ
 	float emotionGauge_;
 	// 感情ゲージ消費量
-	float emotionGaugeCost_; 
+	float emotionGaugeCost_;
 
 };

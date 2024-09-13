@@ -11,9 +11,9 @@
 void ShockWave::Initialize(std::vector<Model*> models, Vector3 position, Vector3 velocity,const ViewProjection* viewProjection,float damage)
 {
 	//Nullチェック
-	for(auto& model : models) {
-		assert(model);
-	}
+	//for(auto& model : models) {
+	//	assert(model);
+	//}
 
 	//引数で受け取ってメンバ変数に記録する
 	models_ = models;

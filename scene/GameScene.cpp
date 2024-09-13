@@ -7,7 +7,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	//解放処理
 	delete uiSprite_;
-	
+
 }
 
 void GameScene::Initialize() {
@@ -30,16 +30,48 @@ void GameScene::Initialize() {
 	uiSprite_ = Sprite::Create(uiTexID_, {});
 
 
+	// Player UI
+	//===================================================
+
+	playerTexUI_ = TextureManager::Load("playerUI/playerUI.png");
+	playerSpriteUI_ = Sprite::Create(playerTexUI_, {});
+
+	playerTexHP_ = TextureManager::Load("playerUI/playerHP.png");
+	playerSpriteHP_ = Sprite::Create(playerTexHP_, {});
+
+	playerTexMP_ = TextureManager::Load("playerUI/playerMP.png");
+	playerSpriteMP_ = Sprite::Create(playerTexMP_, {});
+
+	//===================================================
+	// Player Skill UI 
+	//===================================================
+
+	playerSkillTexPU_ = TextureManager::Load("playerUI/sPowerUP.png");
+	playerSkillSpPU_ = Sprite::Create(playerSkillTexPU_, {});
+
+	playerSkillTexPD_ = TextureManager::Load("playerUI/sPowerDOWN.png");
+	playerSkillSpPD_ = Sprite::Create(playerSkillTexPD_, {});
+
+	playerSkillTexSU_ = TextureManager::Load("playerUI/sSpeedUP.png");
+	playerSkillSpSU_ = Sprite::Create(playerSkillTexSU_, {});
+
+	playerSkillTexSD_ = TextureManager::Load("playerUI/sSpeedDOWN.png");
+	playerSkillSpSD_ = Sprite::Create(playerSkillTexSD_, {});
+
+
 	/// <summary>
 	/// モデル読み込みここから
 	/// </summary>
 
 	//===================================================
 	//天球
+	modelEnemyBarrier_.reset(Model::CreateFromOBJ("barrier", true));
+	modelEnemyHPBarBack_.reset(Model::CreateFromOBJ("enemyGaugeBar", true));
+	modelEnemyHPBar_.reset(Model::CreateFromOBJ("enemyGaugeHP", true));
 	//===================================================
-	
+
 	skydomeModel_.reset(Model::CreateFromOBJ("skydome", true));
-	
+
 	//===================================================
 	//地面
 	//===================================================
@@ -65,9 +97,6 @@ void GameScene::Initialize() {
 
 	modelEnemyBody_.reset(Model::CreateFromOBJ("enemy", true));
 	modelEnemyWeapon_.reset(Model::CreateFromOBJ("enemy_Weapon", true));
-	modelEnemyBarrier_.reset(Model::CreateFromOBJ("barrier", true));
-	modelEnemyHPBarBack_.reset(Model::CreateFromOBJ("enemyGaugeBar", true));
-	modelEnemyHPBar_.reset(Model::CreateFromOBJ("enemyGaugeHP", true));
 
 	//===================================================
 	//鎖
@@ -136,7 +165,10 @@ void GameScene::Initialize() {
 	//===================================================
 
 	//モデル
-	std::vector<Model*> playerModels = {
+		modelEnemyWeapon_.get(),
+		modelEnemyBarrier_.get(),
+		modelEnemyHPBar_.get(),
+		modelEnemyHPBarBack_.get(),
 		modelPlayerBody_.get(),
 		modelPlayerHead_.get(),
 		modelPlayerL_arm_.get(),
@@ -165,10 +197,7 @@ void GameScene::Initialize() {
 	std::vector<Model*> enemyModels = {
 		modelEnemyBody_.get(),
 		modelEnemyWeapon_.get(),
-		modelEnemyWeapon_.get(),
-		modelEnemyBarrier_.get(),
-		modelEnemyHPBar_.get(),
-		modelEnemyHPBarBack_.get(),
+		modelEnemyWeapon_.get()
 	};
 
 	const int numEnemies = 1;
@@ -192,11 +221,11 @@ void GameScene::Initialize() {
 
 	for (int i = 0; i < numChains; ++i) {
 		std::unique_ptr<Chain> chain = std::make_unique<Chain>();
-		chain->Initilaize(modelChain_.get(),chainPositions[i]);
+		chain->Initilaize(modelChain_.get(), chainPositions[i]);
 		chain_.push_back(std::move(chain));
 	}
 
-	
+
 	//===================================================
 	//衝突判定マネージャー
 	//===================================================
@@ -218,6 +247,13 @@ void GameScene::Initialize() {
 	/// <summary>
 	/// ゲームオブジェクトの初期化ここまで
 	/// </summary>
+	/// 
+	
+	//BGM
+
+	gameBGM_ = audio_->LoadWave("doom-133866.mp3");
+	gameBGMHandle_ = audio_->PlayWave(gameBGM_, true);
+	
 
 }
 
@@ -275,13 +311,13 @@ void GameScene::Update()
 		// 鎖
 		//===================================================
 
-		for(const std::unique_ptr<Chain>& chain : chain_)
+		for (const std::unique_ptr<Chain>& chain : chain_)
 		{
 			chain->Update();
 		}
-		for(const std::unique_ptr<Chain>& chain : chain_)
+		for (const std::unique_ptr<Chain>& chain : chain_)
 		{
-			if(chain->IsAlive())
+			if (chain->IsAlive())
 			{
 				break;
 			}
@@ -333,27 +369,27 @@ void GameScene::Update()
 		}
 #endif
 
-			if (isDebugCameraActive_) {
-				debugCamera_->Update();
-				viewProjection_.matView = debugCamera_->GetViewProjection().matView;
-				viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
-				// ビュープロジェクション行列の転送
-				viewProjection_.TransferMatrix();
-			} else {
-				// 追従カメラ
-				lockOn_->Update(enemies_,chain_, viewProjection_);
-				followCamera_->Update();
+		if (isDebugCameraActive_) {
+			debugCamera_->Update();
+			viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+			viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+			// ビュープロジェクション行列の転送
+			viewProjection_.TransferMatrix();
+		} else {
+			// 追従カメラ
+			lockOn_->Update(enemies_, chain_, viewProjection_);
+			followCamera_->Update();
 
-				viewProjection_.matView = followCamera_->GetViewProjection().matView;
-				viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
-				// ビュープロジェクション行列の更新と転送
-				viewProjection_.TransferMatrix();
-			}
-			break;
+			viewProjection_.matView = followCamera_->GetViewProjection().matView;
+			viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
+			// ビュープロジェクション行列の更新と転送
+			viewProjection_.TransferMatrix();
+		}
+		break;
 	case GameScene::Phase::kFadeOutGameOver:
 		//フェードの更新
 		fade_->Update();
-
+		audio_->StopWave(gameBGMHandle_);
 		//フェードアウトが終わったらゲームオーバーのフラグを立てる
 		if (fade_->IsFinished()) {
 			finished_ = true;
@@ -363,7 +399,7 @@ void GameScene::Update()
 	case GameScene::Phase::kFadeOutClear:
 		//フェードの更新
 		fade_->Update();
-
+		audio_->StopWave(gameBGMHandle_);
 		//フェードアウトが終わったらクリアのフラグを立てる
 		if (fade_->IsFinished()) {
 			isCleared_ = true;
@@ -372,9 +408,9 @@ void GameScene::Update()
 		break;
 	}
 
-		/// <summary>
-		/// ゲームオブジェクトの更新ここまで
-		/// </summary>
+	/// <summary>
+	/// ゲームオブジェクトの更新ここまで
+	/// </summary>
 
 }
 
@@ -422,7 +458,7 @@ void GameScene::Draw() {
 	//鎖
 	//===================================================
 
-	for(const std::unique_ptr<Chain>& chain : chain_)
+	for (const std::unique_ptr<Chain>& chain : chain_)
 	{
 		chain->Draw(viewProjection_);
 	}
@@ -442,7 +478,7 @@ void GameScene::Draw() {
 		enemy->Draw(viewProjection_);
 	}
 
-	
+
 
 
 	// 3Dオブジェクト描画後処理
@@ -487,8 +523,8 @@ void GameScene::Draw() {
 		}
 
 		//===================================================
-	    // Player UI
-	    //===================================================
+		// Player UI
+		//===================================================
 
 		player_->DrawUI();
 
@@ -498,7 +534,7 @@ void GameScene::Draw() {
 		break;
 	}
 
-	
+
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -530,7 +566,7 @@ void GameScene::CheckAllCollision()
 		collisionManager_->AddCollider(shockWave.get());
 	}
 
-	for(const std::unique_ptr<Chain>& chain : chain_)
+	for (const std::unique_ptr<Chain>& chain : chain_)
 	{
 		collisionManager_->AddCollider(chain.get());
 	}
@@ -542,7 +578,7 @@ void GameScene::CheckAllCollision()
 void GameScene::CheckCanAttackEnemy()
 {
 	//鎖が全て生存しているか
-	for(const std::unique_ptr<Chain>& chain : chain_)
+	for (const std::unique_ptr<Chain>& chain : chain_)
 	{
 		if (chain->IsAlive())
 		{
@@ -552,7 +588,7 @@ void GameScene::CheckCanAttackEnemy()
 
 	//全ての鎖が破壊されていたら
 	//攻撃可能
-	for(const std::unique_ptr<Enemy>& enemy : enemies_)
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)
 	{
 		enemy->SetCanAttack(true);
 	}
@@ -561,13 +597,12 @@ void GameScene::CheckCanAttackEnemy()
 
 void GameScene::CheckEndCondition()
 {
-	if(CheackGameClear())
+	if (CheackGameClear())
 	{
 		//ゲームクリア
 		phase_ = Phase::kFadeOutClear;
 		fade_->Start(Fade::Status::FadeOut, 2.0f);
-	}
-	else if(CheackGameOver())
+	} else if (CheackGameOver())
 	{
 		//ゲームオーバー
 		phase_ = Phase::kFadeOutGameOver;
@@ -578,20 +613,20 @@ void GameScene::CheckEndCondition()
 bool GameScene::CheackGameClear()
 {
 	//敵が全滅しているか
-	for(const std::unique_ptr<Enemy>& enemy : enemies_)
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)
 	{
 		if (enemy->IsAlive())
 		{
 			return false;
 		}
-		
+
 	}
 	return true;
 }
 
 bool GameScene::CheackGameOver()
 {
-	if(player_->IsAlive())
+	if (player_->IsAlive())
 	{
 		return false;
 	}
