@@ -72,6 +72,11 @@ public: // メンバ関数
 	//終了条件をチェック
 	void CheckEndCondition();
 
+	///ゲームクリア条件をチェック
+	bool CheackGameClear();
+	///ゲームオーバー条件をチェック
+	bool CheackGameOver();
+
 	//-------------ゲッター・セッター-------------//
 
 	/// <summary>

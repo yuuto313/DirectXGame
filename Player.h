@@ -133,6 +133,8 @@ public:
 	//衝撃波のポインタ取得
 	std::list<std::unique_ptr<ShockWave>>& GetShockWaves() { return shockWaves_; }
 
+	float GetEmotionGauge() { return emotionGauge_; }
+
 	/// \brief 生存確認
 	/// \return 
 	bool IsAlive() { return isAlive_; }

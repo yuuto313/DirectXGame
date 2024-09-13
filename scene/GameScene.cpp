@@ -196,7 +196,6 @@ void GameScene::Initialize() {
 	//フェード
 	//===================================================
 
-
 	// フェードの初期化
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialize();
@@ -204,8 +203,6 @@ void GameScene::Initialize() {
 	float duration = 2.0f;
 	// フェードの開始
 	fade_->Start(Fade::Status::FadeIn, duration);
-
-	
 
 	/// <summary>
 	/// ゲームオブジェクトの初期化ここまで
@@ -249,22 +246,21 @@ void GameScene::Update()
 		// 鎖
 		//===================================================
 
-			for(const std::unique_ptr<Chain>& chain : chain_)
+		for(const std::unique_ptr<Chain>& chain : chain_)
+		{
+			chain->Update();
+		}
+		for(const std::unique_ptr<Chain>& chain : chain_)
+		{
+			if(chain->IsAlive())
 			{
-				chain->Update();
+				break;
 			}
-			for(const std::unique_ptr<Chain>& chain : chain_)
-			{
-				if(chain->IsAlive())
-				{
-					break;
-				}
-			}
-			
+		}
 
-			//===================================================
-			//プレイヤー
-			//===================================================
+		//===================================================
+		//プレイヤー
+		//===================================================
 
 		player_->Update();
 
@@ -276,25 +272,25 @@ void GameScene::Update()
 			enemy->Update();
 		}
 
-			//敵に攻撃可能か判定
-			CheckCanAttackEnemy();
+		//敵に攻撃可能か判定
+		CheckCanAttackEnemy();
 
-			//===================================================
-			//衝突判定
-			//===================================================
+		//===================================================
+		//衝突判定
+		//===================================================
 
 		CheckAllCollision();
 
 
-			//===================================================
-			//終了条件
-			//===================================================
+		//===================================================
+		//終了条件
+		//===================================================
 
-			CheckEndCondition();
+		CheckEndCondition();
 
-			//===================================================
-			//ビュープロジェクション
-			//===================================================
+		//===================================================
+		//ビュープロジェクション
+		//===================================================
 
 		/*---------------------[カメラ]-----------------------*/
 
@@ -325,15 +321,27 @@ void GameScene::Update()
 				viewProjection_.TransferMatrix();
 			}
 			break;
-		case GameScene::Phase::kFadeOut:
-			//フェードの更新
-			fade_->Update();
-			if(fade_->IsFinished()) {
-				//終了フラグを立てる
-				finished_ = true;
-			}
-			break;
+	case GameScene::Phase::kFadeOutGameOver:
+		//フェードの更新
+		fade_->Update();
+
+		//フェードアウトが終わったらゲームオーバーのフラグを立てる
+		if (fade_->IsFinished()) {
+			finished_ = true;
 		}
+
+		break;
+	case GameScene::Phase::kFadeOutClear:
+		//フェードの更新
+		fade_->Update();
+
+		//フェードアウトが終わったらクリアのフラグを立てる
+		if (fade_->IsFinished()) {
+			isCleared_ = true;
+		}
+
+		break;
+	}
 
 		/// <summary>
 		/// ゲームオブジェクトの更新ここまで
@@ -514,17 +522,39 @@ void GameScene::CheckCanAttackEnemy()
 
 void GameScene::CheckEndCondition()
 {
+	if(CheackGameClear())
+	{
+		//ゲームクリア
+		phase_ = Phase::kFadeOutClear;
+		fade_->Start(Fade::Status::FadeOut, 2.0f);
+	}
+	else if(CheackGameOver())
+	{
+		//ゲームオーバー
+		phase_ = Phase::kFadeOutGameOver;
+		fade_->Start(Fade::Status::FadeOut, 2.0f);
+	}
+}
+
+bool GameScene::CheackGameClear()
+{
 	//敵が全滅しているか
 	for(const std::unique_ptr<Enemy>& enemy : enemies_)
 	{
 		if (enemy->IsAlive())
 		{
-			return;
+			return false;
 		}
+		
 	}
+	return true;
+}
 
-	//全滅していたら
-	//ゲームクリア
-	phase_ = Phase::kFadeOut;
-	fade_->Start(Fade::Status::FadeOut, 2.0f);
+bool GameScene::CheackGameOver()
+{
+	if(player_->IsAlive())
+	{
+		return false;
+	}
+	return true;
 }
