@@ -15,6 +15,7 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
+
 	//--------------------------------
 	// テクスチャ読み込み
 	//--------------------------------
@@ -27,32 +28,274 @@ void GameScene::Initialize() {
 
 	uiSprite_ = Sprite::Create(uiTexID_, {});
 
+	/// <summary>
+	/// モデル読み込みここから
+	/// </summary>
+
+	//===================================================
+	//天球
+	//===================================================
+	
+	skydomeModel_.reset(Model::CreateFromOBJ("Skydome", true));
+	
+	//===================================================
+	//地面
+	//===================================================
+
+	groundModel_.reset(Model::CreateFromOBJ("ground", true));
+
+	//===================================================
+	//プレイヤー
+	//===================================================
+
+	modelPlayerBody_.reset(Model::CreateFromOBJ("float_Body", true));
+	modelPlayerHead_.reset(Model::CreateFromOBJ("float_Head", true));
+	modelPlayerL_arm_.reset(Model::CreateFromOBJ("float_L_arm", true));
+	modelPlayerR_arm_.reset(Model::CreateFromOBJ("float_R_arm", true));
+	modelPlayerWeapon_.reset(Model::CreateFromOBJ("player_Weapon", true));
+	modelHitEffect_.reset(Model::CreateFromOBJ("hitEffect", true));
+	modelShockWave_.reset(Model::Create());
+
+	//===================================================
+	//敵
+	//===================================================
+
+	modelEnemyBody_.reset(Model::CreateFromOBJ("enemy", true));
+	modelEnemyWeapon_.reset(Model::CreateFromOBJ("enemy_Weapon", true));
+
+	//===================================================
+	//鎖
+	//===================================================
+
+	modelChain_.reset(Model::CreateFromOBJ("chain", true));
+
+	/// <summary>
+	/// モデル読み込みここまで
+	/// </summary>
+
+
+
+	/// <summary>
+	/// ゲームオブジェクトの初期化ここから
+	/// </summary>
+
+
+	//===================================================
+	//ビュープロジェクション
+	//===================================================
+
+	viewProjection_.Initialize();
+	viewProjection_.translation_ = Vector3(0.0f, 10.0f, -10.0f);
+
+	//===================================================
+	//デバッグカメラ
+	//===================================================
+
+	debugCamera_ = std::make_unique<DebugCamera>(WinApp::kWindowWidth, WinApp::kWindowHeight);
+
+	//===================================================
+	//追従カメラ
+	//===================================================
+
+	followCamera_ = std::make_unique<FollowCamera>();
+	followCamera_->Initialize();
+
+
+	//===================================================
+	//ロックオンカメラ
+	//===================================================
+
+	lockOn_ = std::make_unique<LockOn>();
+	lockOn_->Initialize();
+
+	followCamera_->SetLockOn(lockOn_.get());
+
+	//===================================================
+	//地面
+	//===================================================
+
+	ground_ = std::make_unique<Ground>();
+	ground_->Initialize(groundModel_.get());
+
+
+	//===================================================
+	//天球
+	//===================================================
+
+	skydome_ = std::make_unique<Skydome>();
+	skydome_->Initialize(skydomeModel_.get());
+
+	//===================================================
+	//プレイヤー
+	//===================================================
+
+	//モデル
+	std::vector<Model*> playerModels = {
+		modelPlayerBody_.get(),
+		modelPlayerHead_.get(),
+		modelPlayerL_arm_.get(),
+		modelPlayerR_arm_.get(),
+		modelPlayerWeapon_.get(),
+		modelHitEffect_.get(),
+		modelShockWave_.get(),
+	};
+
+	//生成
+	player_ = std::make_unique<Player>();
+	player_->Initialize(playerModels);
+
+	//自キャラのワールドトランスフォームを追従カメラにセット
+	followCamera_->SetTarget(&player_->GetWorldTransform());
+	//プレイヤーにs追従カメラのビュープロジェクションをセット
+	player_->SetViewProjection(&followCamera_->GetViewProjection());
+	//ロックオンカメラにプレイヤーをセット
+	player_->SetLockOn(lockOn_.get());
+
+	//===================================================
+	//エネミー
+	//===================================================
+
+	std::vector<Model*> enemyModels = {
+		modelEnemyBody_.get(),
+		modelEnemyWeapon_.get(),
+		modelEnemyWeapon_.get()
+	};
+
+	const int numEnemies = 1;
+	for (int i = 0; i < numEnemies; ++i) {
+		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>();
+		enemy->Initialize(enemyModels);
+		enemies_.push_back(std::move(enemy));
+	}
+
+	//===================================================
+	//鎖
+	//===================================================
+
+	chain_ = std::make_unique<Chain>();
+	chain_->Initilaize(modelChain_.get());
+
+	//===================================================
+	//衝突判定マネージャー
+	//===================================================
+
+	collisionManager_ = std::make_unique<CollisionManager>();
+
+	//===================================================
+	//フェード
+	//===================================================
+
+
 	// フェードの初期化
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialize();
 	// フェードの持続時間
 	float duration = 2.0f;
 	// フェードの開始
-	fade_->Start(Fade::Status::FadeIn,duration);
+	fade_->Start(Fade::Status::FadeIn, duration);
+
+	
+
+	/// <summary>
+	/// ゲームオブジェクトの初期化ここまで
+	/// </summary>
 
 }
 
-void GameScene::Update() {
 
-	switch (phase_) {
-	case GameScene::Phase::kFadeIn:
-		//フェードの更新
-		fade_->Update();
+void GameScene::Update()
+{
+		switch (phase_) {
+		case GameScene::Phase::kFadeIn:
+			//フェードの更新
+			fade_->Update();
 
-		if (fade_->IsFinished()){
-			//プレイフェーズへ
-			phase_ = Phase::kPlay;
-		}
+			if (fade_->IsFinished()) {
+				//プレイフェーズへ
+				phase_ = Phase::kPlay;
+			}
 
-		break;
-	case GameScene::Phase::kPlay:
 
-		// ゲームオーバーシーンへの移行を確認するための仮実装
+			break;
+		case GameScene::Phase::kPlay:
+
+			/// <summary>
+			/// ゲームオブジェクトの更新ここから
+			/// </summary>
+
+			//===================================================
+			//地面
+			//===================================================
+
+			ground_->Update();
+
+			//===================================================
+			//天球
+			//===================================================
+
+			skydome_->Update();
+
+			//===================================================
+			//鎖
+			//===================================================
+
+			chain_->Update();
+
+			//===================================================
+			//プレイヤー
+			//===================================================
+
+			player_->Update();
+
+
+			//===================================================
+			//敵
+			//===================================================
+
+			for (const std::unique_ptr<Enemy>& enemy : enemies_)
+			{
+				enemy->Update();
+			}
+
+			//===================================================
+			//衝突判定
+			//===================================================
+
+			CheckAllCollision();
+
+			//===================================================
+			//ビュープロジェクション
+			//===================================================
+
+			/*---------------------[カメラ]-----------------------*/
+
+		#ifdef _DEBUG
+			if (input_->TriggerKey(DIK_P)) {
+				if (isDebugCameraActive_) {
+					isDebugCameraActive_ = false;
+				} else {
+					isDebugCameraActive_ = true;
+				}
+			}
+		#endif
+
+			if (isDebugCameraActive_) {
+				debugCamera_->Update();
+				viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+				viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+				// ビュープロジェクション行列の転送
+				viewProjection_.TransferMatrix();
+			} else {
+				// 追従カメラ
+				lockOn_->Update(enemies_, viewProjection_);
+				followCamera_->Update();
+				viewProjection_.matView = followCamera_->GetViewProjection().matView;
+				viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
+				// ビュープロジェクション行列の更新と転送
+				viewProjection_.TransferMatrix();
+			}
+  
+      // ゲームオーバーシーンへの移行を確認するための仮実装
 
 		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_RETURN)) {
 			// フェードアウト開始
@@ -85,8 +328,9 @@ void GameScene::Update() {
 			}
 		}
 
-		break;
-	case GameScene::Phase::kFadeOutGameOver:
+  
+			break;
+		case GameScene::Phase::kFadeOutGameOver:
 		//フェードの更新
 		fade_->Update();
 
@@ -109,7 +353,13 @@ void GameScene::Update() {
 	default:
 		break;
 	}
+
+		/// <summary>
+		/// ゲームオブジェクトの更新ここまで
+		/// </summary>
+
 }
+
 
 void GameScene::Draw() {
 
@@ -138,9 +388,52 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 
+	//===================================================
+	//地面
+	//===================================================
+
+	ground_->Draw(viewProjection_);
+
+	//===================================================
+	//天球
+	//===================================================
+
+	skydome_->Draw(viewProjection_);
+
+	//===================================================
+	//鎖
+	//===================================================
+
+	chain_->Draw(viewProjection_);
+
+	//===================================================
+	//プレイヤー
+	//===================================================
+
+	player_->Draw();
+
+	//===================================================
+	//エネミー
+	//===================================================
+
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		enemy->Draw(viewProjection_);
+	}
+
+	
+
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
+
+	//===================================================
+	//ロックオン
+	//===================================================
+
+	lockOn_->Draw();
+
 
 #pragma region 前景スプライト描画
 	// 前景スプライト描画前処理
@@ -174,8 +467,38 @@ void GameScene::Draw() {
 		break;
 	}
 
+	
+
 	// スプライト描画後処理
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::CheckAllCollision()
+{
+	//衝突マネージャーのリセット
+	collisionManager_->Reset();
+
+	//コライダーをリストに登録
+	collisionManager_->AddCollider(player_.get());
+
+	//コライダーリストに登録(ハンマー)
+	collisionManager_->AddCollider(player_->GetHammer());
+
+	//敵全てについて
+	for (const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		//コライダーをリストに登録
+		collisionManager_->AddCollider(enemy.get());
+	}
+
+	//衝撃波の登録
+	for (const std::unique_ptr<ShockWave>& shockWave : player_->GetShockWaves())
+	{
+		collisionManager_->AddCollider(shockWave.get());
+	}
+
+	//衝突判定と応答
+	collisionManager_->CheckAllCollision();
 }
