@@ -166,6 +166,7 @@ void GameScene::Initialize() {
 	for (int i = 0; i < numEnemies; ++i) {
 		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>();
 		enemy->Initialize(enemyModels,player_.get());
+		enemy->SetSpeed(0.2f);
 		enemies_.push_back(std::move(enemy));
 	}
 

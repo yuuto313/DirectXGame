@@ -39,6 +39,10 @@ void Enemy::Initialize(const std::vector<Model*>& models,const Player* player)
 	//ステータスの初期化
 	InitializeStatus();
 
+	//ダメージを調整
+	float damage = 5.0f;
+	SetAttackPower(damage);
+
 	/*---------------------[種別IDの設定]-----------------------*/
 
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemy));
@@ -58,7 +62,19 @@ void Enemy::Update()
 	ImGui::End();
 
 	Move();
-	GenerateShockWave();
+	
+	if (!isShot_) {
+		isShot_ = true;
+		GenerateShockWave();
+	} else {
+		timer_--;
+		if (timer_ <= 0) {
+			isShot_ = false;
+			timer_ = kCoolTimer_;
+		}
+	}
+
+	
 	UpdateShockWave();
 
 	TurnToTarget();

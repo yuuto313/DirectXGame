@@ -31,6 +31,13 @@ public: // アクセッサ
 
 	Vector3 GetWorldPosition();
 
+	/// <summary>
+	/// 移動速度セッター
+	/// </summary>
+	/// <param name="distanceTraveled"></param>
+	void SetMoveSpeed(const float ShockWaveMoveSpeed) { 
+		moveSpeed_ = ShockWaveMoveSpeed;
+	}
 
 	/// <summary>
 	/// ショックウェーブの有効無効

@@ -112,4 +112,13 @@ private:
 	//次のシリアルナンバー
 	static uint32_t nextSerialNumber;
 
+	//衝撃波発射フラグ
+	bool isShot_ = false;
+
+	//タイマー
+	const float kCoolTimer_ = 30.0f;
+	float timer_ = kCoolTimer_;
+
+
+
 };
