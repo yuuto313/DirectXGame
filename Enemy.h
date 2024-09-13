@@ -43,7 +43,7 @@ public:
 	void InitializeStatus();
 
 	//生存フラグ
-	bool IsAlive() { return isAlive_; }
+	bool IsAlive() const{ return isAlive_; }
 
 	//攻撃可能のフラグ
 	bool GetCanAttack() { return canAttack_; }

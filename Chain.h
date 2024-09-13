@@ -55,7 +55,7 @@ public:
 
 	uint32_t GetSerialNumber() const { return serialNumber; }
 
-	bool IsAlive() { return isAlive_; }
+	bool IsAlive()const { return isAlive_; }
 
 private:
 	//-------------メンバ変数-------------//

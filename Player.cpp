@@ -481,6 +481,31 @@ void Player::BehaviorAttackUpdate()
 			}
 		}
 
+	}else if(lockOn_ && lockOn_->ExistChain())
+	{
+		// ロックオン座標
+		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+		// 追従対象からロックオン対象へのベクトル
+		Vector3 sub = lockOnPosition - worldTransform_.translation_;
+
+		//距離
+		float distance = Length(sub);
+		//距離閾値
+		const float threshold = 0.2f;
+
+		//閾値より離れているときのみ
+		if (distance > threshold)
+		{
+			//Y軸周り角度
+			worldTransform_.rotation_.y = std::atan2(sub.x, sub.z);
+
+			//閾値を超える速さなら修正する
+			if (speed_ > distance - threshold)
+			{
+
+				speed_ = distance - threshold;
+			}
+		}
 	}
 	Move();
 	Attack();

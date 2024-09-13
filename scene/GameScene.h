@@ -67,6 +67,9 @@ public: // メンバ関数
 	//敵に攻撃可能か判定するフラグ
 	void CheckCanAttackEnemy();
 
+	//終了条件をチェック
+	void CheckEndCondition();
+
 	//-------------ゲッター・セッター-------------//
 
 	/// <summary>

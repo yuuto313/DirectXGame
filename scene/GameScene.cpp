@@ -236,6 +236,14 @@ void GameScene::Update()
 			{
 				chain->Update();
 			}
+			for(const std::unique_ptr<Chain>& chain : chain_)
+			{
+				if(chain->IsAlive())
+				{
+					break;
+				}
+			}
+			
 
 			//===================================================
 			//プレイヤー
@@ -286,8 +294,9 @@ void GameScene::Update()
 				viewProjection_.TransferMatrix();
 			} else {
 				// 追従カメラ
-				lockOn_->Update(enemies_, viewProjection_);
+				lockOn_->Update(enemies_,chain_, viewProjection_);
 				followCamera_->Update();
+
 				viewProjection_.matView = followCamera_->GetViewProjection().matView;
 				viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
 				// ビュープロジェクション行列の更新と転送
@@ -464,4 +473,10 @@ void GameScene::CheckCanAttackEnemy()
 	{
 		enemy->SetCanAttack(true);
 	}
+
+}
+
+void GameScene::CheckEndCondition()
+{
+	
 }
