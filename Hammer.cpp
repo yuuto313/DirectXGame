@@ -101,7 +101,7 @@ void Hammer::OnCollision(Collider* other)
 		//接触履歴に追加
 		contactlog_.Add(serialNumber);
 
-		if(!enemy->IsAlive())
+		if(!enemy->IsAlive() || !enemy->GetCanAttack())
 		{
 			return;
 		}

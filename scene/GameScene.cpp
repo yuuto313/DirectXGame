@@ -62,6 +62,7 @@ void GameScene::Initialize() {
 
 	modelEnemyBody_.reset(Model::CreateFromOBJ("enemy", true));
 	modelEnemyWeapon_.reset(Model::CreateFromOBJ("enemy_Weapon", true));
+	modelEnemyBarrier_.reset(Model::CreateFromOBJ("barrier", true));
 
 	//===================================================
 	//鎖
@@ -158,7 +159,8 @@ void GameScene::Initialize() {
 	std::vector<Model*> enemyModels = {
 		modelEnemyBody_.get(),
 		modelEnemyWeapon_.get(),
-		modelEnemyWeapon_.get()
+		modelEnemyWeapon_.get(),
+		modelEnemyBarrier_.get(),
 	};
 
 	const int numEnemies = 1;

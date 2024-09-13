@@ -61,6 +61,7 @@ private:
 	const int kModelIndexBody = 0;
 	const int kModelIndexL_arm = 1;
 	const int kModelIndexR_arm = 2;
+	const int kModelIndexBarrier = 3;
 
 	Vector3 moveSpeed = { speed_,0.0f,0.0f };
 
@@ -71,9 +72,14 @@ private:
 	WorldTransform worldTransformBody_;
 	WorldTransform worldTransformL_arm_;
 	WorldTransform worldTransformR_arm_;
+	WorldTransform worldTransformBarrier_;
 
 	//モデル
 	std::vector<Model*> models_;
+
+	//バリアの色
+	ObjectColor barrierColor_;
+	Vector4 barrierColorValue_ = { 1.0f,1.0f,1.0f,1.0f };
 
 	/*---------------------[ステータス]-----------------------*/
 

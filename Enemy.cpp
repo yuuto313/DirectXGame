@@ -35,6 +35,14 @@ void Enemy::Initialize(const std::vector<Model*>& models)
 	//ステータスの初期化
 	InitializeStatus();
 
+	//バリアのα値を低くして透けさせる
+	barrierColor_.Initialize();
+	barrierColorValue_.w = 0.4f;
+
+	//色変更して転送
+	barrierColor_.SetColor(barrierColorValue_);
+	barrierColor_.TransferMatrix();
+
 	/*---------------------[種別IDの設定]-----------------------*/
 
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemy));
@@ -74,6 +82,11 @@ void Enemy::Draw(const ViewProjection& viewProjection)
 	models_[kModelIndexBody]->Draw(worldTransformBody_, viewProjection);
 	models_[kModelIndexL_arm]->Draw(worldTransformL_arm_, viewProjection);
 	models_[kModelIndexR_arm]->Draw(worldTransformR_arm_, viewProjection);
+	if(!canAttack_)
+	{
+		models_[kModelIndexBarrier]->Draw(worldTransformBarrier_, viewProjection,&barrierColor_);
+	}
+
 }
 
 void Enemy::Move()
@@ -94,6 +107,7 @@ void Enemy::UpdateMatrix()
 	worldTransformBody_.UpdateMatrix();
 	worldTransformL_arm_.UpdateMatrix();
 	worldTransformR_arm_.UpdateMatrix();
+	worldTransformBarrier_.UpdateMatrix();
 }
 
 Vector3 Enemy::GetWorldPosition()
@@ -130,7 +144,7 @@ Vector3 Enemy::GetCenterPosition() const
 void Enemy::InitializeWorldTransform()
 {
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = { 0.0f, 4.0f, 100.0f };
+	worldTransform_.translation_ = { 0.0f, 0.0f, 100.0f };
 
 
 	//パーツも
@@ -139,11 +153,15 @@ void Enemy::InitializeWorldTransform()
 	worldTransformL_arm_.translation_ = { 2.6f, 0.0f, 0.0f };
 	worldTransformR_arm_.Initialize();
 	worldTransformR_arm_.translation_ = { -2.6f, 0.0f, 0.0f };
+	worldTransformBarrier_.Initialize();
+	worldTransformBarrier_.translation_ = { 0.0f, 2.0f, 0.0f };
+	worldTransformBarrier_.scale_ = { 4.0f,2.0f,4.0f };
 
 	//親子関係を結ぶ
 	worldTransformBody_.parent_ = &worldTransform_;
 	worldTransformL_arm_.parent_ = &worldTransformBody_;
 	worldTransformR_arm_.parent_ = &worldTransformBody_;
+	worldTransformBarrier_.parent_ = &worldTransformBody_;
 }
 
 void Enemy::OnCollision(Collider* other)
