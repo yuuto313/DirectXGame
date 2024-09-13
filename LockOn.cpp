@@ -21,7 +21,7 @@ void LockOn::Initialize()
 	assert(lockOnMark_);
 }
 
-void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection)
+void LockOn::Update(const std::unique_ptr<Player>& player, const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection)
 {
 	ImGui::Begin("Lock On");
 	ImGui::DragFloat("Min Distance", &minDistance_);
@@ -37,17 +37,17 @@ void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies, const View
 	}
 
 	//ロックオン状態なら
-	if (target_)
+	if (targetEnemy_)
 	{
 		//ロックオン解除
 		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) && !(preJoyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER))
 		{
 			//ロックオンを外す
-			target_ = nullptr;
+			targetEnemy_ = nullptr;
 		} else if (IsOutOfRange(viewProjection))
 		{
 			// ロックオンを外す
-			target_ = nullptr;
+			targetEnemy_ = nullptr;
 		}
 
 	}else{
@@ -55,15 +55,15 @@ void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies, const View
 		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) && !(preJoyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER))
 		{
 			//ロックオン対象の検索
-			SearchLockOnTarget(enemies,viewProjection);
+			SearchLockOnTargetEnemy(enemies,viewProjection);
 		}
 		
 	}
 	//ロックオン状態なら
-	if (target_)
+	if (targetEnemy_)
 	{
 		//ロックオンマークの座標計算
-		Vector3 positionWorld = target_->GetCenterCoordinate();
+		Vector3 positionWorld = targetEnemy_->GetCenterCoordinate();
 		//ワールド座標からスクリーン座標に変換
 
 		// ビューポート行列
@@ -81,13 +81,17 @@ void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies, const View
 		lockOnMark_->SetPosition(positionScreenV2);
 		
 	}
+
+	// 敵がプレイヤーをロックオンする
+	SearchLockOnTargetPlayer(player,viewProjection);
+
 }
 
 void LockOn::Draw()
 {
 	Sprite::PreDraw(dxCommon_->GetCommandList());
 
-	if (target_)
+	if (targetEnemy_)
 	{
 		lockOnMark_->Draw();
 	}
@@ -96,7 +100,7 @@ void LockOn::Draw()
 
 }
 
-void LockOn::SearchLockOnTarget(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection)
+void LockOn::SearchLockOnTargetEnemy(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection)
 {
 	/*-------------[ ロックオン対象の絞り込み ]--------------*/
 
@@ -130,15 +134,50 @@ void LockOn::SearchLockOnTarget(const std::list<std::unique_ptr<Enemy>>& enemies
 	/*-------------[ 距離でソートしてロックオン ]--------------*/
 
 	//ロックオン対象をリセット
-	target_ = nullptr;
+	targetEnemy_ = nullptr;
 	if (!targets.empty())
 	{
 		//距離で昇順にソート
 		targets.sort([](auto& pair1, auto& pair2) { return pair1.first < pair2.first; }); 
-		target_ = targets.front().second;
+		targetEnemy_ = targets.front().second;
 	}
 
 	/*-------------[  ]--------------*/
+}
+
+void LockOn::SearchLockOnTargetPlayer(const std::unique_ptr<Player>& player, const ViewProjection& viewProjection) {
+	/*-------------[ ロックオン対象の絞り込み ]--------------*/
+
+	// 目標
+	std::list<std::pair<float, const Player*>> targets;
+
+	// 敵のロックオン座標を取得
+	Vector3 positionWorld = player->GetCenterCoordinate();
+
+	// ワールド→ビュー座標変換
+	Vector3 positionView = Transform(positionWorld, viewProjection.matView);
+
+	// 距離条件チェック
+	if (minDistance_ <= positionView.z && positionView.z <= maxDistance_) {
+		// カメラ前方との角度を計算
+		float arcTangent = std::atan2(std::sqrt(positionView.x * positionView.x + positionView.y * positionView.y), positionView.z);
+
+		// 角度条件チェック(コーンに収まっているか)
+		if (std::abs(arcTangent) <= angleRange_) {
+			targets.emplace_back(std::make_pair(positionView.z, player.get()));
+		}
+	}
+
+
+	/*-------------[ 距離でソートしてロックオン ]--------------*/
+
+	// ロックオン対象をリセット
+	targetPlayer_ = nullptr;
+	if (!targets.empty()) {
+		// 距離で昇順にソート
+		targets.sort([](auto& pair1, auto& pair2) { return pair1.first < pair2.first; });
+		targetPlayer_ = targets.front().second;
+	}
 }
 
 bool LockOn::IsOutOfRange(const ViewProjection& viewProjection)
@@ -149,7 +188,7 @@ bool LockOn::IsOutOfRange(const ViewProjection& viewProjection)
 	std::list<std::pair<float, const Enemy*>> targets;
 		
 	// 敵のロックオン座標を取得
-	Vector3 positionWorld = target_->GetCenterCoordinate();
+	Vector3 positionWorld = targetEnemy_->GetCenterCoordinate();
 
 	// ワールド→ビュー座標変換
 	Vector3 positionView = Transform(positionWorld, viewProjection.matView);
@@ -169,12 +208,22 @@ bool LockOn::IsOutOfRange(const ViewProjection& viewProjection)
 
 }
 
-Vector3 LockOn::GetTargetPosition() const
+Vector3 LockOn::GetTargetEnemyPosition() const
 {
-	if (target_)
+	if (targetEnemy_)
 	{
-		return target_->GetCenterCoordinate();
+		return targetEnemy_->GetCenterCoordinate();
 	}
+
 	return Vector3{};
+}
+
+Vector3 LockOn::GetTargetPlayerPosition() const { 
+	
+	if (targetPlayer_) {
+		return targetPlayer_->GetCenterCoordinate();
+	}
+
+	return Vector3(); 
 }
 

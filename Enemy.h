@@ -5,6 +5,7 @@
 #include "Model.h"
 #include "WorldTransform.h"
 
+class LockOn;
 class Enemy : public Collider
 {
 public:
@@ -14,6 +15,9 @@ public:
 	void Draw(const ViewProjection& viewProjection);
 	/// \brief 移動
 	void Move();
+
+	/// \brief ターゲットに体を向ける
+	void TurnToTarget();
 
 	/// \brief ワールド変換データの更新
 	void UpdateMatrix();
@@ -32,6 +36,9 @@ public:
 
 	/// \brief ワールド変換データの初期化
 	void InitializeWorldTransform();
+
+	// ロックオンのセット
+	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }
 
 public:
 	//// \brief 衝突時に呼び出される関数
@@ -71,11 +78,14 @@ private:
 	//モデル
 	std::vector<Model*> models_;
 
+	// ロックオン
+	const LockOn* lockOn_ = nullptr;
+
+
 	/*---------------------[ステータス]-----------------------*/
 
 	//生存フラグ
 	bool isAlive_ = true;
-
 
 	//速さ
 	float speed_;

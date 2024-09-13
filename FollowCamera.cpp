@@ -28,7 +28,7 @@ void FollowCamera::Follow()
 	if (lockOn_ && lockOn_->ExistTarget())
 	{
 		// ロックオン座標
-		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+		Vector3 lockOnPosition = lockOn_->GetTargetEnemyPosition();
 		// 追従対象からロックオン対象へのベクトル
 		Vector3 sub = lockOnPosition - target_->translation_;
 

@@ -15,32 +15,30 @@
 #include "ImGuiManager.h"
 #include "PlayerStatusConfig.h"
 
-void Player::Initialize(const std::vector<Model*>& models)
-{
-	//Nullポインタチェック
-	for (Model* model : models)
-	{
+void Player::Initialize(const std::vector<Model*>& models) {
+	// Nullポインタチェック
+	for (Model* model : models) {
 		assert(model);
 	}
 
-	//引数で受け取ったものを取得
+	// 引数で受け取ったものを取得
 	models_ = models;
 
-	//ワールド変換の初期化
+	// ワールド変換の初期化
 	InitializeWorldTransform();
 
-	//ステータスの初期化
+	// ステータスの初期化
 	InitializeStatus();
 
-	//ハンマーの初期化
+	// ハンマーの初期化
 	InitializeHammer();
 
-	//振る舞いの初期化
+	// 振る舞いの初期化
 	InitializeFloatingGimick();
 
 	behavior_ = Behavior::kRoot;
 
-	//周期
+	// 周期
 	floatingCycle_ = 30;
 	AttackCycle_ = 30;
 
@@ -245,7 +243,7 @@ void Player::Attack()
 void Player::TurnToTarget()
 {
 	//ロックオン座標
-	Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+	Vector3 lockOnPosition = lockOn_->GetTargetEnemyPosition();
 	//追従対象からロックオン対象へのベクトル
 	Vector3 sub = lockOnPosition - worldTransform_.translation_;
 	//Y軸周り角度
@@ -458,7 +456,7 @@ void Player::BehaviorAttackUpdate()
 		//TurnToTarget();
 
 		// ロックオン座標
-		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+		Vector3 lockOnPosition = lockOn_->GetTargetEnemyPosition();
 		// 追従対象からロックオン対象へのベクトル
 		Vector3 sub = lockOnPosition - worldTransform_.translation_;
 
@@ -529,7 +527,7 @@ void Player::GenerateShockWave()
 	if(lockOn_ && lockOn_->ExistTarget())
 	{
 		//ターゲットの座標
-		Vector3 targetPosition = lockOn_->GetTargetPosition();
+		Vector3 targetPosition = lockOn_->GetTargetEnemyPosition();
 		//高さの調整
 		targetPosition.y -= 4.0f;
 		//ロックオンの方向ベクトルを取得
@@ -572,8 +570,15 @@ void Player::DrawShockWave()
 	}
 }
 
-Vector3 Player::GetWorldPosition()
-{
+Vector3 Player::GetCenterCoordinate() const { 
+	//見た目上の中心オフセット
+	const Vector3 offset = {0.0f, 1.0f, 0.0f};
+	// ワールド座標に変換
+	Vector3 worldPos = Transform(offset, worldTransform_.matWorld_);
+	return worldPos;
+}
+
+Vector3 Player::GetWorldPosition() {
 	// ワールド座標を入れる変数
 	Vector3 worldPos;
 

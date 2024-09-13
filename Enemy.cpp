@@ -6,6 +6,7 @@
 #include "ImGuiManager.h"
 #include "MyMath.h"
 #include "ViewProjection.h"
+#include "LockOn.h"
 
 uint32_t Enemy::nextSerialNumber = 0;
 
@@ -54,6 +55,7 @@ void Enemy::Update()
 	ImGui::End();
 
 	Move();
+	TurnToTarget();
 	UpdateMatrix();
 }
 
@@ -74,6 +76,15 @@ void Enemy::Move()
 	velocity = TransformNormal(velocity,worldTransform_.matWorld_);
 	worldTransform_.translation_ += velocity;
 
+}
+
+void Enemy::TurnToTarget() {
+	// ロックオン座標
+	Vector3 lockOnPosition = lockOn_->GetTargetPlayerPosition();
+	// 追従対象からロックオン対象へのベクトル
+	Vector3 sub = lockOnPosition - worldTransform_.translation_;
+	// Y軸周り角度
+	worldTransform_.rotation_.y = std::atan2(sub.x, sub.z);
 }
 
 void Enemy::UpdateMatrix()

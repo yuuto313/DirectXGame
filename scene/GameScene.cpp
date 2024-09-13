@@ -165,6 +165,7 @@ void GameScene::Initialize() {
 	for (int i = 0; i < numEnemies; ++i) {
 		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>();
 		enemy->Initialize(enemyModels);
+		enemy->SetLockOn(lockOn_.get());
 		enemies_.push_back(std::move(enemy));
 	}
 
@@ -284,7 +285,7 @@ void GameScene::Update()
 			viewProjection_.TransferMatrix();
 		} else {
 			// 追従カメラ
-			lockOn_->Update(enemies_, viewProjection_);
+			lockOn_->Update(player_,enemies_, viewProjection_);
 			followCamera_->Update();
 			viewProjection_.matView = followCamera_->GetViewProjection().matView;
 			viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;

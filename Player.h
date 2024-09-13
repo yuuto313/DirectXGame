@@ -112,6 +112,8 @@ public:
 	/*---------------------[アクセッサ]-----------------------*/
 
 	/* ゲッター */
+	/// \brief モデルの中心座標を取得
+	Vector3 GetCenterCoordinate() const;
 	//ワールド変換データの取得
 	WorldTransform& GetWorldTransform() { return worldTransform_; }
 

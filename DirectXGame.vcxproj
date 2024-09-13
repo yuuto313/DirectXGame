@@ -116,6 +116,7 @@
     <ClCompile Include="Contactlog.cpp" />
     <ClCompile Include="Easing.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyAttack.cpp" />
     <ClCompile Include="Fade.cpp" />
     <ClCompile Include="FollowCamera.cpp" />
     <ClCompile Include="GameOverScene.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="Contactlog.h" />
     <ClInclude Include="Easing.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyAttack.h" />
     <ClInclude Include="EnemyStatusConfig.h" />
     <ClInclude Include="Fade.h" />
     <ClInclude Include="FollowCamera.h" />
