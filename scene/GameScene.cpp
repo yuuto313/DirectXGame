@@ -7,6 +7,13 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	//解放処理
 	delete uiSprite_;
+	delete playerSpriteUI_;
+	delete playerSpriteHP_;
+	delete playerSpriteMP_;
+	delete playerSkillSpPU_;
+	delete playerSkillSpPD_;
+	delete playerSkillSpSU_;
+	delete playerSkillSpSD_;
 }
 
 void GameScene::Initialize() {
@@ -27,6 +34,36 @@ void GameScene::Initialize() {
 	//--------------------------------
 
 	uiSprite_ = Sprite::Create(uiTexID_, {});
+
+	//===================================================
+	// Player UI
+	//===================================================
+
+	playerTexUI_ = TextureManager::Load("playerUI/playerUI.png");
+	playerSpriteUI_ = Sprite::Create(playerTexUI_, {});
+
+	playerTexHP_ = TextureManager::Load("playerUI/playerHP.png");
+	playerSpriteHP_ = Sprite::Create(playerTexHP_, {});
+
+	playerTexMP_ = TextureManager::Load("playerUI/playerMP.png");
+	playerSpriteMP_ = Sprite::Create(playerTexMP_, {});
+
+	//===================================================
+	// Player Skill UI 
+	//===================================================
+
+	playerSkillTexPU_ = TextureManager::Load("playerUI/sPowerUP.png");
+	playerSkillSpPU_ = Sprite::Create(playerSkillTexPU_, {});
+
+	playerSkillTexPD_ = TextureManager::Load("playerUI/sPowerDOWN.png");
+	playerSkillSpPD_ = Sprite::Create(playerSkillTexPD_, {});
+
+	playerSkillTexSU_ = TextureManager::Load("playerUI/sSpeedUP.png");
+	playerSkillSpSU_ = Sprite::Create(playerSkillTexSU_, {});
+
+	playerSkillTexSD_ = TextureManager::Load("playerUI/sSpeedDOWN.png");
+	playerSkillSpSD_ = Sprite::Create(playerSkillTexSD_, {});
+
 
 	/// <summary>
 	/// モデル読み込みここから
@@ -54,7 +91,7 @@ void GameScene::Initialize() {
 	modelPlayerR_arm_.reset(Model::CreateFromOBJ("float_R_arm", true));
 	modelPlayerWeapon_.reset(Model::CreateFromOBJ("player_Weapon", true));
 	modelHitEffect_.reset(Model::CreateFromOBJ("hitEffect", true));
-	modelShockWave_.reset(Model::Create());
+	modelShockWave_.reset(Model::CreateFromOBJ("wave", true));
 
 	//===================================================
 	//敵
@@ -464,6 +501,15 @@ void GameScene::Draw() {
 		//--------------------------------
 		
 		uiSprite_->Draw();
+
+		//===================================================
+	    // Player UI
+	    //===================================================
+
+		playerSpriteUI_->Draw();
+		playerSpriteHP_->Draw();
+		playerSpriteMP_->Draw();
+
 
 		break;
 	default:

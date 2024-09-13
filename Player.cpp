@@ -173,13 +173,13 @@ void Player::InitializeWorldTransform()
 	worldTransformBody_.Initialize();
 
 	worldTransformHead_.Initialize();
-	worldTransformHead_.translation_ = { 0.0f, 4.0f, 0.0f };
+	worldTransformHead_.translation_ = { 0.0f, 0.0f, 0.0f };
 
 	worldTransformL_arm_.Initialize();
-	worldTransformL_arm_.translation_ = { -0.625f, 3.75f, 0.0f };
+	worldTransformL_arm_.translation_ = { 0.0f, 0.0f, 0.0f };
 
 	worldTransformR_arm_.Initialize();
-	worldTransformR_arm_.translation_ = { 0.625f, 3.75f, 0.0f };
+	worldTransformR_arm_.translation_ = { 0.0f, 0.0f, 0.0f };
 
 	//パーツ同士の親子関係
 	worldTransformBody_.parent_ = &worldTransform_;
