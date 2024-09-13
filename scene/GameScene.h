@@ -66,6 +66,12 @@ public: // メンバ関数
 
 	void CheckAllCollision();
 
+	//敵に攻撃可能か判定するフラグ
+	void CheckCanAttackEnemy();
+
+	//終了条件をチェック
+	void CheckEndCondition();
+
 	//-------------ゲッター・セッター-------------//
 
 	/// <summary>
@@ -166,7 +172,7 @@ private: // メンバ変数
 	//鎖
 	//===================================================
 
-	std::unique_ptr<Chain> chain_;
+	std::list<std::unique_ptr<Chain>> chain_;
 	//モデル
 	std::unique_ptr<Model>modelChain_;
 

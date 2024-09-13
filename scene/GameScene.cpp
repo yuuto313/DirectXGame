@@ -36,7 +36,7 @@ void GameScene::Initialize() {
 	//天球
 	//===================================================
 	
-	skydomeModel_.reset(Model::CreateFromOBJ("Skydome", true));
+	skydomeModel_.reset(Model::CreateFromOBJ("skydome", true));
 	
 	//===================================================
 	//地面
@@ -172,9 +172,20 @@ void GameScene::Initialize() {
 	//鎖
 	//===================================================
 
-	chain_ = std::make_unique<Chain>();
-	chain_->Initilaize(modelChain_.get());
+	const int numChains = 3;
+	std::array<Vector3, numChains> chainPositions = {
+		Vector3{-100.0f, 0.0f, -100.0f},
+		Vector3{100.0f, 0.0f, -100.0f},
+		Vector3{0.0f, 0.0f, 200.0f}
+	};
 
+	for (int i = 0; i < numChains; ++i) {
+		std::unique_ptr<Chain> chain = std::make_unique<Chain>();
+		chain->Initilaize(modelChain_.get(),chainPositions[i]);
+		chain_.push_back(std::move(chain));
+	}
+
+	
 	//===================================================
 	//衝突判定マネージャー
 	//===================================================
@@ -238,11 +249,22 @@ void GameScene::Update()
 		// 鎖
 		//===================================================
 
-		chain_->Update();
+			for(const std::unique_ptr<Chain>& chain : chain_)
+			{
+				chain->Update();
+			}
+			for(const std::unique_ptr<Chain>& chain : chain_)
+			{
+				if(chain->IsAlive())
+				{
+					break;
+				}
+			}
+			
 
-		//===================================================
-		// プレイヤー
-		//===================================================
+			//===================================================
+			//プレイヤー
+			//===================================================
 
 		player_->Update();
 
@@ -254,15 +276,25 @@ void GameScene::Update()
 			enemy->Update();
 		}
 
-		//===================================================
-		// 衝突判定
-		//===================================================
+			//敵に攻撃可能か判定
+			CheckCanAttackEnemy();
+
+			//===================================================
+			//衝突判定
+			//===================================================
 
 		CheckAllCollision();
 
-		//===================================================
-		// ビュープロジェクション
-		//===================================================
+
+			//===================================================
+			//終了条件
+			//===================================================
+
+			CheckEndCondition();
+
+			//===================================================
+			//ビュープロジェクション
+			//===================================================
 
 		/*---------------------[カメラ]-----------------------*/
 
@@ -276,86 +308,32 @@ void GameScene::Update()
 		}
 #endif
 
-		if (isDebugCameraActive_) {
-			debugCamera_->Update();
-			viewProjection_.matView = debugCamera_->GetViewProjection().matView;
-			viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
-			// ビュープロジェクション行列の転送
-			viewProjection_.TransferMatrix();
-		} else {
-			// 追従カメラ
-			lockOn_->Update(enemies_, viewProjection_);
-			followCamera_->Update();
-			viewProjection_.matView = followCamera_->GetViewProjection().matView;
-			viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
-			// ビュープロジェクション行列の更新と転送
-			viewProjection_.TransferMatrix();
-		}
+			if (isDebugCameraActive_) {
+				debugCamera_->Update();
+				viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+				viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+				// ビュープロジェクション行列の転送
+				viewProjection_.TransferMatrix();
+			} else {
+				// 追従カメラ
+				lockOn_->Update(enemies_,chain_, viewProjection_);
+				followCamera_->Update();
 
-		//===================================================
-		// ゲームオーバーシーンへの移行を確認するための仮実装
-		//===================================================
-
-		if (input_->PushKey(DIK_O) || !player_->IsAlive()) {
-			// フェードアウト開始
-			float duration = 1.5f;
-			fade_->Start(Fade::Status::FadeOut, duration);
-			phase_ = Phase::kFadeOutGameOver;
-		}
-
-		//===================================================
-		// クリアシーンへの移行を確認するための仮実装
-		//===================================================
-		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-			if (input_->PushKey(DIK_I) || !enemy->IsAlive()) {
-				// フェードアウト開始
-				float duration = 1.5f;
-				fade_->Start(Fade::Status::FadeOut, duration);
-				phase_ = Phase::kFadeOutClear;
+				viewProjection_.matView = followCamera_->GetViewProjection().matView;
+				viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
+				// ビュープロジェクション行列の更新と転送
+				viewProjection_.TransferMatrix();
 			}
-		}
-		//===================================================
-		// メニュー画面
-		//===================================================
-
-		XINPUT_STATE currentState;
-		XINPUT_STATE previousState;
-
-		// スタートボタンでメニュー画面を開く
-		if (input_->GetJoystickState(0, currentState) && input_->GetJoystickStatePrevious(0, previousState)) {
-			if (!(previousState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && (currentState.Gamepad.wButtons & XINPUT_GAMEPAD_START)) {
-				if (pause_) {
-					pause_ = false;
-				} else {
-					pause_ = true;
-				}
+			break;
+		case GameScene::Phase::kFadeOut:
+			//フェードの更新
+			fade_->Update();
+			if(fade_->IsFinished()) {
+				//終了フラグを立てる
+				finished_ = true;
 			}
+			break;
 		}
-
-		break;
-	case GameScene::Phase::kFadeOutGameOver:
-		//フェードの更新
-		fade_->Update();
-
-		//フェードアウトが終わったらゲームオーバーのフラグを立てる
-		if (fade_->IsFinished()) {
-			finished_ = true;
-		}
-
-		break;
-	case GameScene::Phase::kFadeOutClear:
-		//フェードの更新
-		fade_->Update();
-
-		//フェードアウトが終わったらクリアのフラグを立てる
-		if (fade_->IsFinished()) {
-			isCleared_ = true;
-		}
-
-		break;
-	default:
-		break;
-	}
 
 		/// <summary>
 		/// ゲームオブジェクトの更新ここまで
@@ -407,7 +385,10 @@ void GameScene::Draw() {
 	//鎖
 	//===================================================
 
-	chain_->Draw(viewProjection_);
+	for(const std::unique_ptr<Chain>& chain : chain_)
+	{
+		chain->Draw(viewProjection_);
+	}
 
 	//===================================================
 	//プレイヤー
@@ -502,6 +483,48 @@ void GameScene::CheckAllCollision()
 		collisionManager_->AddCollider(shockWave.get());
 	}
 
+	for(const std::unique_ptr<Chain>& chain : chain_)
+	{
+		collisionManager_->AddCollider(chain.get());
+	}
+
 	//衝突判定と応答
 	collisionManager_->CheckAllCollision();
+}
+
+void GameScene::CheckCanAttackEnemy()
+{
+	//鎖が全て生存しているか
+	for(const std::unique_ptr<Chain>& chain : chain_)
+	{
+		if (chain->IsAlive())
+		{
+			return;
+		}
+	}
+
+	//全ての鎖が破壊されていたら
+	//攻撃可能
+	for(const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		enemy->SetCanAttack(true);
+	}
+
+}
+
+void GameScene::CheckEndCondition()
+{
+	//敵が全滅しているか
+	for(const std::unique_ptr<Enemy>& enemy : enemies_)
+	{
+		if (enemy->IsAlive())
+		{
+			return;
+		}
+	}
+
+	//全滅していたら
+	//ゲームクリア
+	phase_ = Phase::kFadeOut;
+	fade_->Start(Fade::Status::FadeOut, 2.0f);
 }

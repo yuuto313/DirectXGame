@@ -2,6 +2,7 @@
 
 #include <numbers>
 
+#include "Chain.h"
 #include "CollisionConfig.h"
 #include "CollisionTypeIdDef.h"
 #include "Easing.h"
@@ -22,10 +23,11 @@ void Hammer::Initialize(std::vector<Model*> models,Player* player, float damage)
 
 	SetAttackPower(damage);
 	
+	ClearContactlog();
 
 	/*---------------------[種別IDの設定]-----------------------*/
 
-	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon));
+	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kHammer));
 	Collider::SetCollisionRadius(3.0f);
 
 }
@@ -75,6 +77,7 @@ void Hammer::DrawEffect(const ViewProjection& viewProjection)
 void Hammer::ClearContactlog()
 {
 	contactlog_.Clear();
+	contactlogChain_.Clear();
 }
 
 
@@ -84,6 +87,7 @@ void Hammer::OnCollision(Collider* other)
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手が敵なら
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy)) {
+		
 		// 敵のポインタを取得
 		Enemy* enemy = static_cast<Enemy*>(other);
 		uint32_t serialNumber = enemy->GetSerialNumber();
@@ -97,10 +101,48 @@ void Hammer::OnCollision(Collider* other)
 		//接触履歴に追加
 		contactlog_.Add(serialNumber);
 
+		if(!enemy->IsAlive())
+		{
+			return;
+		}
+
 		// 敵の位置にエフェクトを発生
 		auto newHitEffect = std::make_unique<HitEffect>();
 		newHitEffect->Initialize(models_[kIndexModelEffect], enemy->GetWorldPosition());
 		hitEffects_.push_back(std::move(newHitEffect));
+
+		//ダメージを与える
+		other->TakeDamage(GetAttackPower());
+	}
+
+	//衝突相手が敵なら
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kChain)) {
+
+		// 敵のポインタを取得
+		Chain* chain = static_cast<Chain*>(other);
+		uint32_t serialNumber = chain->GetSerialNumber();
+
+		//接触履歴があれば何もせずに抜ける
+		if (contactlogChain_.LogCheck(serialNumber))
+		{
+			return;
+		}
+
+		//接触履歴に追加
+		contactlogChain_.Add(serialNumber);
+
+		if(!chain->IsAlive())
+		{
+			return;
+		}
+
+		// 敵の位置にエフェクトを発生
+		auto newHitEffect = std::make_unique<HitEffect>();
+		newHitEffect->Initialize(models_[kIndexModelEffect], chain->GetCenterPosition());
+		hitEffects_.push_back(std::move(newHitEffect));
+
+		//ダメージを与える
+		other->TakeDamage(GetAttackPower());
 	}
 }
 

@@ -43,6 +43,12 @@ void Enemy::Initialize(const std::vector<Model*>& models)
 
 void Enemy::Update()
 {
+	//生存フラグがfalseの場合は何もしない
+	if(!isAlive_)
+	{
+		return;
+	}
+
 	ImGui::Begin("Enemy");
 	float hp = GetHP();
 	ImGui::Text("HP %f",hp, 0.0f, 100.0f);
@@ -59,6 +65,12 @@ void Enemy::Update()
 
 void Enemy::Draw(const ViewProjection& viewProjection)
 {
+	//生存フラグがfalseの場合は何もしない
+	if(!isAlive_)
+	{
+		return;
+	}
+
 	models_[kModelIndexBody]->Draw(worldTransformBody_, viewProjection);
 	models_[kModelIndexL_arm]->Draw(worldTransformL_arm_, viewProjection);
 	models_[kModelIndexR_arm]->Draw(worldTransformR_arm_, viewProjection);
@@ -136,22 +148,24 @@ void Enemy::InitializeWorldTransform()
 
 void Enemy::OnCollision(Collider* other)
 {
-	//衝突相手の種別IDを取得
-	uint32_t typeID = other->GetTypeID();
-	//衝突相手が敵ならダメージを受ける
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kHammer))
+	//攻撃可能でなければ早期リターン
+	if (!canAttack_) 
 	{
-		//ダメージを受ける
-		TakeDamage(other->GetAttackPower());
+		return;
 	}
 
 	//衝突相手の種別IDを取得
-	typeID = other->GetTypeID();
-	//衝突相手が敵ならダメージを受ける
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kShockWave))
+	uint32_t typeID = other->GetTypeID();
+	//衝突相手がプレイヤー以外なら消す
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer))
 	{
-		//ダメージを受ける
-		TakeDamage(other->GetAttackPower());
+		//ダメージを与える
+		other->TakeDamage(GetAttackPower());
+	}
+
+	if(GetHP() <= 0)
+	{
+		isAlive_ = false;
 	}
 }
 

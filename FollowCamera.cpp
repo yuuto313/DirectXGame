@@ -35,7 +35,17 @@ void FollowCamera::Follow()
 		// Y軸周り角度
 		viewProjection_.rotation_.y = std::atan2(sub.x, sub.z);
 
-	}else
+	}else if(lockOn_ && lockOn_->ExistChain())
+	{
+		// ロックオン座標
+		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+		// 追従対象からロックオン対象へのベクトル
+		Vector3 sub = lockOnPosition - target_->translation_;
+
+		// Y軸周り角度
+		viewProjection_.rotation_.y = std::atan2(sub.x, sub.z);
+	}
+	else
 	{
 		Turn();
 	}

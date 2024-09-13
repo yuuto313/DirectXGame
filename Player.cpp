@@ -481,6 +481,31 @@ void Player::BehaviorAttackUpdate()
 			}
 		}
 
+	}else if(lockOn_ && lockOn_->ExistChain())
+	{
+		// ロックオン座標
+		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+		// 追従対象からロックオン対象へのベクトル
+		Vector3 sub = lockOnPosition - worldTransform_.translation_;
+
+		//距離
+		float distance = Length(sub);
+		//距離閾値
+		const float threshold = 0.2f;
+
+		//閾値より離れているときのみ
+		if (distance > threshold)
+		{
+			//Y軸周り角度
+			worldTransform_.rotation_.y = std::atan2(sub.x, sub.z);
+
+			//閾値を超える速さなら修正する
+			if (speed_ > distance - threshold)
+			{
+
+				speed_ = distance - threshold;
+			}
+		}
 	}
 	Move();
 	Attack();
@@ -525,8 +550,13 @@ void Player::BehaviorJumpUpdate()
 
 void Player::GenerateShockWave()
 {
+	std::vector<Model*> models = {
+		models_[kModelIndexShockWave],
+		models_[kModelIndexEffect],
+	};
+
 	//ロックオンされているならロックオン対象の方向に向かって衝撃波を生成
-	if(lockOn_ && lockOn_->ExistTarget())
+	if((lockOn_ && lockOn_->ExistTarget()) || (lockOn_ && lockOn_->ExistChain()) )
 	{
 		//ターゲットの座標
 		Vector3 targetPosition = lockOn_->GetTargetPosition();
@@ -537,7 +567,7 @@ void Player::GenerateShockWave()
 
 		//衝撃波を生成
 		std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
-		shockWave->Initialize(models_[kModelIndexShockWave],hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
+		shockWave->Initialize(models,hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
 		shockWaves_.push_back(std::move(shockWave));
 		return;
 	}
@@ -546,7 +576,7 @@ void Player::GenerateShockWave()
 	Vector3 velocity = {0.0f,0.0f,1.0f};
 	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 	std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
-	shockWave->Initialize(models_[kModelIndexShockWave], hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
+	shockWave->Initialize(models, hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
 	shockWaves_.push_back(std::move(shockWave));
 }
 
