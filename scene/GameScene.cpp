@@ -53,16 +53,27 @@ void GameScene::Update() {
 	case GameScene::Phase::kPlay:
 
 		// ゲームオーバーシーンへの移行を確認するための仮実装
-		// 誤作動を防ぐため同次押し込みで遷移
 
 		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_RETURN)) {
 			// フェードアウト開始
 			float duration = 1.5f;
 			fade_->Start(Fade::Status::FadeOut, duration);
-			phase_ = Phase::kFadeOut;
+			phase_ = Phase::kFadeOutGameOver;
 		}
 
-		//仮実装
+		// クリアシーンへの移行を確認するための仮実装
+	
+		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_B)) {
+			//フェードアウト開始
+			float duration = 1.5f;
+			fade_->Start(Fade::Status::FadeOut, duration);
+			phase_ = Phase::kFadeOutClear;
+		}
+
+		//--------------------------------
+		// メニュー画面
+		//--------------------------------
+
 		XINPUT_STATE joyState;
 		Input::GetInstance()->GetJoystickState(0, joyState);
 		// AボタンorSPACEキーでメインフェーズ終了
@@ -75,12 +86,23 @@ void GameScene::Update() {
 		}
 
 		break;
-	case GameScene::Phase::kFadeOut:
+	case GameScene::Phase::kFadeOutGameOver:
 		//フェードの更新
 		fade_->Update();
 
+		//フェードアウトが終わったらゲームオーバーのフラグを立てる
 		if (fade_->IsFinished()) {
 			finished_ = true;
+		}
+
+		break;
+	case GameScene::Phase::kFadeOutClear:
+		//フェードの更新
+		fade_->Update();
+
+		//フェードアウトが終わったらクリアのフラグを立てる
+		if (fade_->IsFinished()) {
+			isCleared_ = true;
 		}
 
 		break;
@@ -131,7 +153,8 @@ void GameScene::Draw() {
 	// フェードの描画
 	switch (phase_) {
 	case GameScene::Phase::kFadeIn:
-	case GameScene::Phase::kFadeOut:
+	case GameScene::Phase::kFadeOutGameOver:
+	case GameScene::Phase::kFadeOutClear:
 		//--------------------------------
 		// フェードの描画
 		//--------------------------------

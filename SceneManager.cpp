@@ -34,7 +34,7 @@ void SceneManager::ChangeScene() {
 			menuScene_.reset();
 		}
 		
-		// ゲームシーンが終わったら
+		// ゲームシーンが終わったら(プレイヤーが死んだら)
 		if (gameScene_->IsFinished()) {
 			// シーン変更
 			scene = Scene::kGameOver;
@@ -44,9 +44,19 @@ void SceneManager::ChangeScene() {
 			gameoverScene_ = std::make_unique<GameOverScene>();
 			gameoverScene_->Initialize();
 		}
-		break;
-	
 
+		// クリアしたら
+		if (gameScene_->IsCleared()) {
+			// シーン変更
+			scene = Scene::kGameClear;
+			// 旧シーンの解放
+			gameScene_.reset();
+			// 新シーンの生成と初期化
+			gameClearScene_ = std::make_unique<ClearScene>();
+			gameClearScene_->Initialize();
+		}
+
+		break;
 	case Scene::kGameOver:
 		// ゲームオーバーシーンが終わったら
 		if (gameoverScene_->IsFinished()) {
@@ -54,6 +64,18 @@ void SceneManager::ChangeScene() {
 			scene = Scene::kTitle;
 			// 旧シーンの解放
 			gameoverScene_.reset();
+			// 新シーンの生成と初期化
+			titleScene_ = std::make_unique<TitleScene>();
+			titleScene_->Initialize();
+		}
+		break;
+	case Scene::kGameClear:
+		//クリアシーンが終わったら
+		if (gameClearScene_->IsFinished()) {
+			// シーン変更
+			scene = Scene::kTitle;
+			// 旧シーンの解放
+			gameClearScene_.reset();
 			// 新シーンの生成と初期化
 			titleScene_ = std::make_unique<TitleScene>();
 			titleScene_->Initialize();
@@ -86,6 +108,10 @@ void SceneManager::UpdateScene() {
 		//ゲームオーバーシーンの更新
 		gameoverScene_->Update();
 		break;
+	case Scene::kGameClear:
+		//クリアシーンの更新
+		gameClearScene_->Update();
+		break;
 	default:
 		break;
 	}
@@ -112,6 +138,10 @@ void SceneManager::DrawScene() {
 	case Scene::kGameOver:
 		//ゲームオーバーシーンの描画
 		gameoverScene_->Draw();
+		break;
+	case Scene::kGameClear:
+		//クリアシーンの描画
+		gameClearScene_->Draw();
 		break;
 	default:
 		break;

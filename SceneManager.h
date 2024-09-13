@@ -3,6 +3,7 @@
 #include "TitleScene.h"
 #include "GameOverScene.h"
 #include "MenuScene.h"
+#include "ClearScene.h"
 
 //--------------------------------
 //ゲームオーバーやクリアなど追加の画面はここへ
@@ -25,7 +26,7 @@ public:
 		// ゲームオーバー
 		kGameOver,
 		// クリア
-
+		kGameClear,
 	};
 
 	//-------------基本処理-------------//
@@ -66,8 +67,7 @@ private:
 	std::unique_ptr<GameOverScene> gameoverScene_;
 	
 	//クリアシーン
-
-
+	std::unique_ptr<ClearScene> gameClearScene_;
 
 	//-------------メンバ変数-------------//
 
