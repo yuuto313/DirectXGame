@@ -2,16 +2,31 @@
 #include "TextureManager.h"
 #include <cassert>
 
-
 GameScene::GameScene() {}
 
-GameScene::~GameScene() {}
+GameScene::~GameScene() {
+	//解放処理
+	delete uiSprite_;
+}
 
 void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+
+
+	//--------------------------------
+	// テクスチャ読み込み
+	//--------------------------------
+
+	uiTexID_ = TextureManager::Load("operationR.png");
+
+	//--------------------------------
+	// 生成と初期化
+	//--------------------------------
+
+	uiSprite_ = Sprite::Create(uiTexID_, {});
 
 	/// <summary>
 	/// モデル読み込みここから
@@ -170,6 +185,7 @@ void GameScene::Initialize() {
 	//フェード
 	//===================================================
 
+
 	// フェードの初期化
 	fade_ = std::make_unique<Fade>();
 	fade_->Initialize();
@@ -186,6 +202,7 @@ void GameScene::Initialize() {
 
 }
 
+
 void GameScene::Update()
 {
 		switch (phase_) {
@@ -197,6 +214,7 @@ void GameScene::Update()
 				//プレイフェーズへ
 				phase_ = Phase::kPlay;
 			}
+
 
 			break;
 		case GameScene::Phase::kPlay:
@@ -276,16 +294,70 @@ void GameScene::Update()
 				// ビュープロジェクション行列の更新と転送
 				viewProjection_.TransferMatrix();
 			}
-			break;
-		case GameScene::Phase::kFadeOut:
-			//フェードの更新
-			fade_->Update();
-			break;
+  
+      // ゲームオーバーシーンへの移行を確認するための仮実装
+
+		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_RETURN)) {
+			// フェードアウト開始
+			float duration = 1.5f;
+			fade_->Start(Fade::Status::FadeOut, duration);
+			phase_ = Phase::kFadeOutGameOver;
 		}
+
+		// クリアシーンへの移行を確認するための仮実装
+	
+		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_B)) {
+			//フェードアウト開始
+			float duration = 1.5f;
+			fade_->Start(Fade::Status::FadeOut, duration);
+			phase_ = Phase::kFadeOutClear;
+		}
+
+		//--------------------------------
+		// メニュー画面
+		//--------------------------------
+
+		XINPUT_STATE joyState;
+		Input::GetInstance()->GetJoystickState(0, joyState);
+		// AボタンorSPACEキーでメインフェーズ終了
+		if (input_->TriggerKey(DIK_TAB) || joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
+			if (pause_) {
+				pause_ = false;
+			} else {
+				pause_ = true;
+			}
+		}
+
+  
+			break;
+		case GameScene::Phase::kFadeOutGameOver:
+		//フェードの更新
+		fade_->Update();
+
+		//フェードアウトが終わったらゲームオーバーのフラグを立てる
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
+
+		break;
+	case GameScene::Phase::kFadeOutClear:
+		//フェードの更新
+		fade_->Update();
+
+		//フェードアウトが終わったらクリアのフラグを立てる
+		if (fade_->IsFinished()) {
+			isCleared_ = true;
+		}
+
+		break;
+	default:
+		break;
+	}
 
 		/// <summary>
 		/// ゲームオブジェクトの更新ここまで
 		/// </summary>
+
 }
 
 
@@ -374,12 +446,21 @@ void GameScene::Draw() {
 	// フェードの描画
 	switch (phase_) {
 	case GameScene::Phase::kFadeIn:
-	case GameScene::Phase::kFadeOut:
+	case GameScene::Phase::kFadeOutGameOver:
+	case GameScene::Phase::kFadeOutClear:
+		//--------------------------------
+		// フェードの描画
+		//--------------------------------
 
 		fade_->Draw();
 
 		break;
 	case GameScene::Phase::kPlay:
+		//--------------------------------
+		// UIの描画
+		//--------------------------------
+		
+		uiSprite_->Draw();
 
 		break;
 	default:

@@ -1,6 +1,9 @@
 #pragma once
 #include "GameScene.h"
 #include "TitleScene.h"
+#include "GameOverScene.h"
+#include "MenuScene.h"
+#include "ClearScene.h"
 
 //--------------------------------
 //ゲームオーバーやクリアなど追加の画面はここへ
@@ -16,12 +19,14 @@ public:
 		kUnknown = 0,
 		// タイトル
 		kTitle,
+		//メニュー(操作説明)
+		kMenu,
 		// ゲーム
 		kGame,
 		// ゲームオーバー
-
+		kGameOver,
 		// クリア
-
+		kGameClear,
 	};
 
 	//-------------基本処理-------------//
@@ -55,12 +60,14 @@ private:
 	// ゲームシーン
 	std::unique_ptr<GameScene> gameScene_;
 
-	//ゲームオーバーシーン
+	//メニューシーン
+	std::unique_ptr<MenuScene> menuScene_;
 
+	//ゲームオーバーシーン
+	std::unique_ptr<GameOverScene> gameoverScene_;
 	
 	//クリアシーン
-
-
+	std::unique_ptr<ClearScene> gameClearScene_;
 
 	//-------------メンバ変数-------------//
 

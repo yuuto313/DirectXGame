@@ -27,12 +27,14 @@ public: // メンバ関数
 
 	//シーンのフェーズ
 	enum class Phase {
-		//フェードイン
+		// フェードイン
 		kFadeIn,
-		//ゲームプレイ
+		// ゲームプレイ
 		kPlay,
-		//フェードアウト
-		kFadeOut,
+		// ゲームオーバー時のフェードアウト
+		kFadeOutGameOver,
+		//クリア時のフェードアウト
+		kFadeOutClear,
 	};
 
 	//-------------基本処理-------------//
@@ -72,10 +74,23 @@ public: // メンバ関数
 	/// <returns></returns>
 	bool IsFinished() const { return finished_; }
 
+	/// <summary>
+	/// ポーズのフラグゲッター
+	/// </summary>
+	/// <returns></returns>
+	bool IsPaused() const { return pause_; }
+
+	/// <summary>
+	/// クリアフラグのゲッター
+	/// </summary>
+	/// <returns></returns>
+	bool IsCleared() const { return isCleared_; }
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
+
 
 	//現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;
@@ -174,5 +189,23 @@ private: // メンバ変数
 	//===================================================
 
 	std::unique_ptr<Fade> fade_;
+  
+  // 現在のフェーズ
+	Phase phase_ = Phase::kFadeIn;
+
+	// 終了フラグ
+	bool finished_ = false;
+
+	// クリアフラグ
+	bool isCleared_ = false;
+
+	// ボーズフラグ
+	bool pause_ = false;
+  
+  // 操作説明UI
+	Sprite* uiSprite_ = nullptr;
+
+	// UIテクスチャ
+	uint32_t uiTexID_ = 0;
 
 };
