@@ -318,14 +318,17 @@ void GameScene::Update()
 		// メニュー画面
 		//===================================================
 
-		XINPUT_STATE joyState;
-		Input::GetInstance()->GetJoystickState(0, joyState);
-		// AボタンorSPACEキーでメインフェーズ終了
-		if (input_->TriggerKey(DIK_TAB) || joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
-			if (pause_) {
-				pause_ = false;
-			} else {
-				pause_ = true;
+		XINPUT_STATE currentState;
+		XINPUT_STATE previousState;
+
+		// スタートボタンでメニュー画面を開く
+		if (input_->GetJoystickState(0, currentState) && input_->GetJoystickStatePrevious(0, previousState)) {
+			if (!(previousState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && (currentState.Gamepad.wButtons & XINPUT_GAMEPAD_START)) {
+				if (pause_) {
+					pause_ = false;
+				} else {
+					pause_ = true;
+				}
 			}
 		}
 
