@@ -27,20 +27,36 @@ void Chain::Initilaize(Model* model) {
 
 	//ワールド変換初期化
 	worldTransform_.Initialize();
+	worldTransform_.translation_ = { 5.0f,0.0f,5.0f };
 
 	//種別IDの設定
 	SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kChain));
+
+	objColor_.Initialize();
+	color_ = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	preHp_ = GetHP();
 
 }
 
 void Chain::Update()
 {
+	//生存フラグがfalseの場合は何もしない
+	if(!isAlive_)
+	{
+		return;
+	}
+
 	ImGui::Begin("Chain");
 	ImGui::Text("hp %f", GetHP());
+	ImGui::Text("hit Count %d", hitCount_);
 	ImGui::End();
 
 	//浮遊アニメーション
 	floatAnimation();
+
+	//色の更新
+	ColorUpdate();
 
 	//ワールド変換更新
 	worldTransform_.UpdateMatrix();
@@ -48,8 +64,14 @@ void Chain::Update()
 }
 
 void Chain::Draw(const ViewProjection& viewProjection)
-{ 
-	model_->Draw(worldTransform_,viewProjection); 
+{
+	//生存フラグがfalseの場合は何もしない
+	if(!isAlive_)
+	{
+		return;
+	}
+
+	model_->Draw(worldTransform_,viewProjection,&objColor_); 
 }
 
 void Chain::floatAnimation()
@@ -65,18 +87,27 @@ void Chain::floatAnimation()
 	worldTransform_.translation_.y = floatingAmplitude_ * std::sin(floatingParameter_);
 }
 
-void Chain::OnCollision(Collider* other)
+void Chain::ColorUpdate()
 {
-	// 衝突相手の種別IDを取得
-	uint32_t typeID = other->GetTypeID();
+	float alpha = 1.0f - (hitCount_ * 0.3f); // 1ヒットごとに30%ずつ薄くする
+	if (alpha < 0.0f) alpha = 0.0f; // アルファ値が0未満にならないようにする
 
-	// 
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy))
+	color_.w = alpha;
+	objColor_.SetColor(color_);
+	objColor_.TransferMatrix();
+}
+
+void Chain::OnCollision([[maybe_unused]] Collider* other)
+{
+	if(GetHP() < preHp_)
 	{
-		// ダメージを与える
-		other->TakeDamage(GetAttackPower());
-		// ダメージを受ける
-	}
+		hitCount_++;
+		preHp_ = GetHP();
+		if(hitCount_ >= 3)
+		{
+			isAlive_ = false;
+		}
+	}	
 }
 
 Vector3 Chain::GetCenterPosition() const

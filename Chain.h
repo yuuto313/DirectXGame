@@ -47,15 +47,21 @@ public:
 	//浮遊アニメーション
 	void floatAnimation();
 
+	void ColorUpdate();
+
 	void OnCollision(Collider* other) override;
 
 	Vector3 GetCenterPosition() const override;
 
 	uint32_t GetSerialNumber() const { return serialNumber; }
 
+	bool IsAlive() { return isAlive_; }
+
 private:
 	//-------------メンバ変数-------------//
-	
+
+	bool isAlive_ = true;
+
 	//ワールド変換データ
 	WorldTransform worldTransform_;
 
@@ -71,5 +77,16 @@ private:
 
 	//次のシリアルナンバー
 	static uint32_t nextSerialNumber;
+
+	//攻撃を受けた回数
+	uint32_t hitCount_ = 0;
+
+	//色変更オブジェクト
+	ObjectColor objColor_;
+
+	//色の数値
+	Vector4 color_;
+
+	float preHp_;
 
 };
