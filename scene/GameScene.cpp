@@ -21,7 +21,7 @@ void GameScene::Initialize() {
 	// テクスチャ読み込み
 	//--------------------------------
 
-	uiTexID_ = TextureManager::Load("operationR.png");
+	uiTexID_ = TextureManager::Load("operation.png");
 
 	//--------------------------------
 	// 生成と初期化
@@ -235,6 +235,24 @@ void GameScene::Update()
 		/// <summary>
 		/// ゲームオブジェクトの更新ここから
 		/// </summary>
+
+		//--------------------------------
+		// メニュー画面
+		//--------------------------------
+
+		XINPUT_STATE joyState;
+		Input::GetInstance()->GetJoystickState(0, joyState);
+		XINPUT_STATE preJoyState;
+		Input::GetInstance()->GetJoystickStatePrevious(0, preJoyState);
+
+		// AボタンorSPACEキーでメインフェーズ終了
+		if (input_->TriggerKey(DIK_TAB) || ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && !(preJoyState.Gamepad.wButtons & XINPUT_GAMEPAD_START))) {
+			if (pause_) {
+				pause_ = false;
+			} else {
+				pause_ = true;
+			}
+		}
 
 		//===================================================
 		// 地面
@@ -457,8 +475,11 @@ void GameScene::Draw() {
 		//--------------------------------
 		// UIの描画
 		//--------------------------------
-		
-		uiSprite_->Draw();
+
+		if (pause_) {
+			// 操作説明UIの描画
+			uiSprite_->Draw();
+		}
 
 		//===================================================
 	    // Player UI
