@@ -14,7 +14,7 @@ ClearScene::~ClearScene() {
 void ClearScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
-
+	audio_ = Audio::GetInstance();
 
 	//--------------------------------
 	// テクスチャ読み込み
@@ -49,6 +49,12 @@ void ClearScene::Initialize() {
 
 	// デバッグ時にゲームシーンからスタートさせるためtrueに
 	// finished_ = true;
+
+	//BGM
+
+	clearBGM_ = audio_->LoadWave("fun-8-bit-video-game-music-boss-133663.mp3");
+	clearBGMHandle_ = audio_->PlayWave(clearBGM_, true);
+
 }
 
 void ClearScene::Update() {
@@ -156,6 +162,7 @@ void ClearScene::ChangePhase() {
 			float duration = 1.5f;
 			fade_->Start(Fade::Status::FadeOut, duration);
 			phase_ = Phase::kFadeOut;
+			audio_->StopWave(clearBGMHandle_);
 		}
 
 		break;

@@ -15,6 +15,7 @@ void TitleScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
+	audio_ = Audio::GetInstance();
 
 	//--------------------------------
 	// テクスチャ読み込み
@@ -50,6 +51,11 @@ void TitleScene::Initialize() {
 	//デバッグ時にゲームシーンからスタートさせるためtrueに
 	//finished_ = true;
 
+
+	//BGM
+
+	titleBGM_ = audio_->LoadWave("into-space-134242.mp3");
+	titleBGMHandle_ = audio_->PlayWave(titleBGM_,true);
 }
 
 void TitleScene::Update() { 
@@ -157,6 +163,7 @@ void TitleScene::ChangePhase() {
 			float duration = 1.5f;
 			fade_->Start(Fade::Status::FadeOut, duration);
 			phase_ = Phase::kFadeOut;
+			audio_->StopWave(titleBGMHandle_);
 		}
 
 		break;
@@ -196,3 +203,5 @@ void TitleScene::UpdateUI() {
 	// 色変更オブジェクトに色の数値を設定する
 	uiSprite_->SetColor(uiColor_);
 }
+
+

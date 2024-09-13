@@ -22,10 +22,10 @@ void Enemy::Initialize(const std::vector<Model*>& models)
 {
 	/*---------------------[ワールド変換データの初期化]-----------------------*/
 	//Nullポインタチェック
-	for (Model* model : models)
-	{
-		assert(model);
-	}
+	//for (Model* model : models)
+	//{
+	//	assert(model);
+	//}
 
 	models_ = models;
 
@@ -49,15 +49,15 @@ void Enemy::Update()
 		return;
 	}
 
-	ImGui::Begin("Enemy");
-	float hp = GetHP();
-	ImGui::Text("HP %f",hp, 0.0f, 100.0f);
-	ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
-	ImGui::SliderFloat3("ArmL Translation",&worldTransformL_arm_.translation_.x,-20.0f,20.0f);
-	ImGui::SliderFloat3("ArmR Translation",&worldTransformR_arm_.translation_.x,-20.0f,20.0f);
-	ImGui::NewLine();
-	ImGui::SliderFloat("Move Speed", &moveSpeed.x, 0.0f, 3.0f);
-	ImGui::End();
+	//ImGui::Begin("Enemy");
+	//float hp = GetHP();
+	//ImGui::Text("HP %f",hp, 0.0f, 100.0f);
+	//ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
+	//ImGui::SliderFloat3("ArmL Translation",&worldTransformL_arm_.translation_.x,-20.0f,20.0f);
+	//ImGui::SliderFloat3("ArmR Translation",&worldTransformR_arm_.translation_.x,-20.0f,20.0f);
+	//ImGui::NewLine();
+	//ImGui::SliderFloat("Move Speed", &moveSpeed.x, 0.0f, 3.0f);
+	//ImGui::End();
 
 	Move();
 	UpdateMatrix();

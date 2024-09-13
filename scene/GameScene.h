@@ -162,6 +162,7 @@ private: // メンバ変数
 	std::unique_ptr<Model>modelPlayerWeapon_;
 	std::unique_ptr<Model>modelHitEffect_;
 	std::unique_ptr<Model>modelShockWave_;
+	std::unique_ptr<Model>modelAttackRange_;
 
 
 	//===================================================
@@ -172,6 +173,7 @@ private: // メンバ変数
 	//モデル
 	std::unique_ptr<Model>modelEnemyBody_;
 	std::unique_ptr<Model>modelEnemyWeapon_;
+	std::unique_ptr<Model>modelEnemyBarrier_;
 
 	//===================================================
 	//鎖
@@ -192,7 +194,7 @@ private: // メンバ変数
 	//===================================================
 
 	std::unique_ptr<Fade> fade_;
-  
+
 	// 現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;
 
@@ -204,7 +206,7 @@ private: // メンバ変数
 
 	// ボーズフラグ
 	bool pause_ = false;
-  
+
 	//===================================================
 	// UI
 	//===================================================
@@ -215,31 +217,8 @@ private: // メンバ変数
 	// UIテクスチャ
 	uint32_t uiTexID_ = 0;
 
-
-	//===================================================
-	// Player UI
-	//===================================================
-
-	Sprite* playerSpriteUI_ = nullptr;
-    uint32_t playerTexUI_ = 0;
-
-	Sprite* playerSpriteHP_ = nullptr;
-	uint32_t playerTexHP_ = 0;
-
-	Sprite* playerSpriteMP_ = nullptr;
-	uint32_t playerTexMP_ = 0;
-
-	Sprite* playerSkillSpPU_ = nullptr;
-	uint32_t playerSkillTexPU_ = 0;
-
-	Sprite* playerSkillSpPD_ = nullptr;
-	uint32_t playerSkillTexPD_ = 0;
-
-	Sprite* playerSkillSpSU_ = nullptr;
-	uint32_t playerSkillTexSU_ = 0;
-
-	Sprite* playerSkillSpSD_ = nullptr;
-	uint32_t playerSkillTexSD_ = 0;
-
+	//BGM
+	uint32_t gameBGM_ = 0;
+	uint32_t gameBGMHandle_ = 0;
 
 };

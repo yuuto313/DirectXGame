@@ -58,6 +58,8 @@ void SceneManager::ChangeScene() {
 			break;
 		}
 
+		
+
 		break;
 	case Scene::kGameOver:
 		// ゲームオーバーシーンが終わったら

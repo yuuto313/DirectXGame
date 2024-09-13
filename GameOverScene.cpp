@@ -13,7 +13,7 @@ GameOverScene::~GameOverScene() {
 void GameOverScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
-
+	audio_ = Audio::GetInstance();
 	//--------------------------------
 	// テクスチャ読み込み
 	//--------------------------------
@@ -47,6 +47,12 @@ void GameOverScene::Initialize() {
 
 	// デバッグ時にゲームシーンからスタートさせるためtrueに
 	// finished_ = true;
+
+	//BGM
+
+	overBGM_ = audio_->LoadWave("into-space-134242.mp3");
+	overBGMHandle_ = audio_->PlayWave(overBGM_, true);
+
 }
 
 void GameOverScene::Update() {
@@ -154,6 +160,7 @@ void GameOverScene::ChangePhase() {
 			float duration = 1.5f;
 			fade_->Start(Fade::Status::FadeOut, duration);
 			phase_ = Phase::kFadeOut;
+			audio_->StopWave(overBGMHandle_);
 		}
 
 		break;

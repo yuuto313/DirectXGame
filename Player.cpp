@@ -14,6 +14,18 @@
 
 #include "ImGuiManager.h"
 #include "PlayerStatusConfig.h"
+#include "TextureManager.h"
+
+Player::~Player()
+{
+	delete playerSpriteUI_;
+	delete playerSpriteHP_;
+	delete playerSpriteMP_;
+	delete playerSkillSpPU_;
+	delete playerSkillSpPD_;
+	delete playerSkillSpSU_;
+	delete playerSkillSpSD_;
+}
 
 void Player::Initialize(const std::vector<Model*>& models)
 {
@@ -31,6 +43,9 @@ void Player::Initialize(const std::vector<Model*>& models)
 
 	//ステータスの初期化
 	InitializeStatus();
+
+	//UIの初期化
+	InitializeUI();
 
 	//ハンマーの初期化
 	InitializeHammer();
@@ -55,7 +70,7 @@ void Player::Initialize(const std::vector<Model*>& models)
 void Player::Update()
 {
 	//生存フラグが降りていたら何もしない
-	if(!isAlive_)
+	if (!isAlive_)
 	{
 		return;
 	}
@@ -70,7 +85,7 @@ void Player::Update()
 		switch (behavior_)
 		{
 		case Behavior::kRoot:
-		default :
+		default:
 			BehaviorRootInitialize();
 			break;
 		case Behavior::kAttack:
@@ -88,7 +103,7 @@ void Player::Update()
 	{
 		//通常行動
 	case Behavior::kRoot:
-	default :
+	default:
 		BehaviorRootUpdate();
 		break;
 		//攻撃行動
@@ -102,13 +117,13 @@ void Player::Update()
 
 	hammer_->Update();
 	UpdateShockWave();
-
+	UpdateUI();
 }
 
 void Player::Draw()
 {
 	//生存フラグが降りていたら何もしない
-	if(!isAlive_)
+	if (!isAlive_)
 	{
 		return;
 	}
@@ -117,6 +132,7 @@ void Player::Draw()
 	models_[kModelIndexHead]->Draw(worldTransformHead_, *viewProjection_);
 	models_[kModelIndexL_arm]->Draw(worldTransformL_arm_, *viewProjection_);
 	models_[kModelIndexR_arm]->Draw(worldTransformR_arm_, *viewProjection_);
+	models_[kModelIndexAttackRange]->Draw(worldTransformAttackRange_, *viewProjection_);
 	hammer_->Draw(*viewProjection_);
 	hammer_->DrawEffect(*viewProjection_);
 	DrawShockWave();
@@ -128,7 +144,7 @@ void Player::Move()
 	XINPUT_STATE joyState;
 
 	//コントローラが接続されているのなら
-	if (Input::GetInstance()->GetJoystickState(0,joyState))
+	if (Input::GetInstance()->GetJoystickState(0, joyState))
 	{
 		//速さ
 		// float speed_ = 0.3f;
@@ -148,11 +164,15 @@ void Player::Move()
 		}
 
 		//移動ベクトルをカメラの角度だけ回転させる　
-		velocity_ = Transform(velocity_, MakeRotateYMatrix(viewProjection_->rotation_.y)); 
+		velocity_ = Transform(velocity_, MakeRotateYMatrix(viewProjection_->rotation_.y));
 
 		//移動
 		worldTransform_.translation_ += velocity_;
 	}
+
+	//移動制限
+	worldTransform_.translation_.x = std::clamp(worldTransform_.translation_.x, -400.0f, 400.0f);
+	worldTransform_.translation_.z = std::clamp(worldTransform_.translation_.z, -400.0f, 400.0f);
 
 }
 
@@ -163,6 +183,7 @@ void Player::UpdateMatrix()
 	worldTransformHead_.UpdateMatrix();
 	worldTransformL_arm_.UpdateMatrix();
 	worldTransformR_arm_.UpdateMatrix();
+	worldTransformAttackRange_.UpdateMatrix();
 
 }
 
@@ -181,11 +202,14 @@ void Player::InitializeWorldTransform()
 	worldTransformR_arm_.Initialize();
 	worldTransformR_arm_.translation_ = { 0.0f, 0.0f, 0.0f };
 
+	worldTransformAttackRange_.Initialize();
+
 	//パーツ同士の親子関係
 	worldTransformBody_.parent_ = &worldTransform_;
 	worldTransformHead_.parent_ = &worldTransformBody_;
 	worldTransformL_arm_.parent_ = &worldTransformBody_;
 	worldTransformR_arm_.parent_ = &worldTransformBody_;
+	worldTransformAttackRange_.parent_ = &worldTransform_;
 }
 
 void Player::InitializeHammer()
@@ -193,7 +217,7 @@ void Player::InitializeHammer()
 	//ハンマーの初期化
 	hammer_ = std::make_unique<Hammer>();
 	std::vector<Model*> hammerModels = { models_[kModelindexWeapon], models_[kModelIndexEffect] };
-	hammer_->Initialize(hammerModels, this,GetAttackPower());
+	hammer_->Initialize(hammerModels, this, GetAttackPower());
 	hammer_->SetParent(worldTransformBody_);
 }
 
@@ -206,6 +230,44 @@ void Player::InitializeStatus()
 	skillTimer_ = 0.0f;
 	emotionGauge_ = kInitialEmotionGauge;
 	emotionGaugeCost_ = kInitialEmotionGaugeCost;
+}
+
+void Player::InitializeUI()
+{
+	//===================================================
+	// Player UI
+	//===================================================
+
+	playerTexUI_ = TextureManager::Load("playerUI/playerUI.png");
+	playerSpriteUI_ = Sprite::Create(playerTexUI_, {});
+
+	playerTexHP_ = TextureManager::Load("playerUI/playerHP.png");
+	playerSpriteHP_ = Sprite::Create(playerTexHP_, {});
+
+	playerTexMP_ = TextureManager::Load("playerUI/playerMP.png");
+	playerSpriteMP_ = Sprite::Create(playerTexMP_, {});
+
+	//HPばーの初期サイズを記録しておく
+	hpUiInitialize_ = playerSpriteHP_->GetSize();
+
+	//感情ゲージの初期サイズを記録しておく
+	emotionGaugeUiInitilalize_ = playerSpriteMP_->GetSize();
+
+	//===================================================
+	// Player Skill UI 
+	//===================================================
+
+	playerSkillTexPU_ = TextureManager::Load("playerUI/sPowerUP.png");
+	playerSkillSpPU_ = Sprite::Create(playerSkillTexPU_, {});
+
+	playerSkillTexPD_ = TextureManager::Load("playerUI/sPowerDOWN.png");
+	playerSkillSpPD_ = Sprite::Create(playerSkillTexPD_, {});
+
+	playerSkillTexSU_ = TextureManager::Load("playerUI/sSpeedUP.png");
+	playerSkillSpSU_ = Sprite::Create(playerSkillTexSU_, {});
+
+	playerSkillTexSD_ = TextureManager::Load("playerUI/sSpeedDOWN.png");
+	playerSkillSpSD_ = Sprite::Create(playerSkillTexSD_, {});
 }
 
 
@@ -229,14 +291,27 @@ void Player::Attack()
 		AttackParameter_ += step;
 
 		// 腕の角度の始点と終点
-		float armOriginRotation = std::numbers::pi_v<float>;                           // １８０度
-		float armEndRotation = abs(armOriginRotation - 2 * std::numbers::pi_v<float> / 3); // ２７０度
+		//float armOriginRotation = std::numbers::pi_v<float>;                           // １８０度
+		//float armEndRotation = abs(armOriginRotation - 2 * std::numbers::pi_v<float> / 3); // ２７０度
+		//
+		//// 腕の回転
+		//worldTransformL_arm_.rotation_.x = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
+		//worldTransformR_arm_.rotation_.x = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
 
-		// 腕の回転
-		worldTransformL_arm_.rotation_.x = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
-		worldTransformR_arm_.rotation_.x = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
-	}
-	else
+		float armOriginRotation = -std::numbers::pi_v<float> / 5;
+		float armEndRotation = std::numbers::pi_v<float> / 2;
+
+		float armForwardRotationX = std::numbers::pi_v<float> / 4;
+
+		worldTransformL_arm_.rotation_.x = armForwardRotationX;
+		worldTransformR_arm_.rotation_.x = armForwardRotationX;
+
+		worldTransformL_arm_.rotation_.y = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
+		worldTransformR_arm_.rotation_.y = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
+
+
+
+	} else
 	{
 		behaviorRequest_ = Behavior::kRoot;
 	}
@@ -255,14 +330,14 @@ void Player::TurnToTarget()
 void Player::SkillInitialize()
 {
 	// スキルがアクティブなら何もしない
-	if(skillActive_)
+	if (skillActive_)
 	{
 		return;
 	}
 
 	// スキルのゲージを消費
 	emotionGauge_ -= emotionGaugeCost_;
-	if(emotionGauge_ < 0.0f)
+	if (emotionGauge_ < 0.0f)
 	{
 		emotionGauge_ = 0.0f;
 		return;
@@ -320,6 +395,43 @@ void Player::SkillUpdate()
 	}
 }
 
+void Player::UpdateUI()
+{
+	// HPに応じてスプライトの大きさを変更
+	float hpRatio = static_cast<float>(GetHP()) / kInitialHp;
+	float newWidth = hpUiInitialize_.x * hpRatio; // 初期幅にHPの割合を掛ける
+	playerSpriteHP_->SetSize({ newWidth,hpUiInitialize_.y }); // 高さは固定
+
+	// 感情ゲージに応じてスプライトの大きさを変更
+	float emotionGaugeRatio = emotionGauge_ / kInitialEmotionGauge;
+	float newWidthEmotionGauge = emotionGaugeUiInitilalize_.x * emotionGaugeRatio; // 初期幅に感情ゲージの割合を掛ける
+	playerSpriteMP_->SetSize({ newWidthEmotionGauge,emotionGaugeUiInitilalize_.y }); // 高さは固定
+
+
+
+}
+
+void Player::DrawUI()
+{
+	playerSpriteUI_->Draw();
+	playerSpriteHP_->Draw();
+	playerSpriteMP_->Draw();
+	//スキルのアクティブ状態に応じてスプライトの種類を変更
+	if (skillActive_)
+	{
+		switch (currentEffect_)
+		{
+		case EffectType::SpeedUp:
+			playerSkillSpSU_->Draw();
+			break;
+		case EffectType::AttackUp:
+			playerSkillSpPU_->Draw();
+			break;
+		}
+	}
+
+}
+
 void Player::UpdateImGui() {
 	ImGui::Begin("Floating Model");
 	float hp = GetHP();
@@ -360,14 +472,14 @@ void Player::OnCollision(Collider* other)
 		//ダメージを受ける
 		TakeDamage(other->GetAttackPower());
 	}
-	
+
 }
 
 void Player::InitializeFloatingGimick()
 {
 	floatingParameter_ = 0.0f;
 	floatingAmplitude_ = 0.4f;
-	
+
 }
 
 void Player::UpdateFloatingGimick()
@@ -481,7 +593,7 @@ void Player::BehaviorAttackUpdate()
 			}
 		}
 
-	}else if(lockOn_ && lockOn_->ExistChain())
+	} else if (lockOn_ && lockOn_->ExistChain())
 	{
 		// ロックオン座標
 		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
@@ -532,7 +644,7 @@ void Player::BehaviorJumpUpdate()
 	//重力加速度
 	const float kGravityAcceleration = 0.05f;
 	//加速度ベクトル
-	Vector3 accelerationVector = {0.0f, -kGravityAcceleration, 0.0f};
+	Vector3 accelerationVector = { 0.0f, -kGravityAcceleration, 0.0f };
 	//加速する
 	velocity_ += accelerationVector;
 
@@ -556,7 +668,7 @@ void Player::GenerateShockWave()
 	};
 
 	//ロックオンされているならロックオン対象の方向に向かって衝撃波を生成
-	if((lockOn_ && lockOn_->ExistTarget()) || (lockOn_ && lockOn_->ExistChain()) )
+	if ((lockOn_ && lockOn_->ExistTarget()) || (lockOn_ && lockOn_->ExistChain()))
 	{
 		//ターゲットの座標
 		Vector3 targetPosition = lockOn_->GetTargetPosition();
@@ -567,16 +679,16 @@ void Player::GenerateShockWave()
 
 		//衝撃波を生成
 		std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
-		shockWave->Initialize(models,hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
+		shockWave->Initialize(models, hammer_->GetWorldPosition(), velocity, viewProjection_, GetAttackPower());
 		shockWaves_.push_back(std::move(shockWave));
 		return;
 	}
-	
+
 	//ロックオンされていないならプレイヤーの前方向に向かって衝撃波を生成
-	Vector3 velocity = {0.0f,0.0f,1.0f};
+	Vector3 velocity = { 0.0f,0.0f,1.0f };
 	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 	std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
-	shockWave->Initialize(models, hammer_->GetWorldPosition(), velocity,viewProjection_,GetAttackPower());
+	shockWave->Initialize(models, hammer_->GetWorldPosition(), velocity, viewProjection_, GetAttackPower());
 	shockWaves_.push_back(std::move(shockWave));
 }
 
@@ -591,7 +703,7 @@ void Player::UpdateShockWave()
 	//無効な衝撃波を削除
 	shockWaves_.remove_if([](const std::unique_ptr<ShockWave>& shockwave) {
 		return !shockwave->IsActive();
-	});
+		});
 }
 
 void Player::DrawShockWave()

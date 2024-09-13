@@ -3,7 +3,7 @@
 #include "Sprite.h"
 #include "Input.h"
 #include "DirectXCommon.h"
-
+#include "Audio.h"
 #include "Fade.h"
 
 /// <summary>
@@ -66,9 +66,11 @@ public:
 	/// <returns></returns>
 	bool IsFinished() const { return finished_; }
 
+
 private:
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
+	Audio* audio_ = nullptr;
 
 	//-------------ポインタ-------------//
 
@@ -104,5 +106,9 @@ private:
 
 	// UIの色
 	Vector4 uiColor_;
+
+	//BGM
+	uint32_t titleBGM_ = 0;
+	uint32_t titleBGMHandle_ = 0;
 
 };

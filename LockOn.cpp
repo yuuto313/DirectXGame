@@ -23,10 +23,10 @@ void LockOn::Initialize()
 
 void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies, const std::list<std::unique_ptr<Chain>>& chains, const ViewProjection& viewProjection)
 {
-	ImGui::Begin("Lock On");
-	ImGui::DragFloat("Min Distance", &minDistance_);
-	ImGui::DragFloat("Maz Distance", &maxDistance_);
-	ImGui::End();
+	//ImGui::Begin("Lock On");
+	//ImGui::DragFloat("Min Distance", &minDistance_);
+	//ImGui::DragFloat("Maz Distance", &maxDistance_);
+	//ImGui::End();
 
 	XINPUT_STATE joyState;
 	XINPUT_STATE preJoyState;
