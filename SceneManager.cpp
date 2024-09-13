@@ -129,13 +129,13 @@ void SceneManager::DrawScene() {
 		break;
 	case Scene::kMenu:
 	case Scene::kGame:
-		//メニューの描画
+		// ゲームシーンの描画
+		gameScene_->Draw();
+		
+		// メニューの描画
 		if (menuScene_) {
 			menuScene_->Draw();
 		}
-	
-		// ゲームシーンの描画
-		gameScene_->Draw();
 		break;
 	case Scene::kGameOver:
 		//ゲームオーバーシーンの描画

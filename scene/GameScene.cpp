@@ -205,117 +205,118 @@ void GameScene::Initialize() {
 
 void GameScene::Update()
 {
-		switch (phase_) {
-		case GameScene::Phase::kFadeIn:
-			//フェードの更新
-			fade_->Update();
+	switch (phase_) {
+	case GameScene::Phase::kFadeIn:
+		// フェードの更新
+		fade_->Update();
 
-			if (fade_->IsFinished()) {
-				//プレイフェーズへ
-				phase_ = Phase::kPlay;
-			}
+		if (fade_->IsFinished()) {
+			// プレイフェーズへ
+			phase_ = Phase::kPlay;
+		}
 
+		break;
+	case GameScene::Phase::kPlay:
 
-			break;
-		case GameScene::Phase::kPlay:
+		/// <summary>
+		/// ゲームオブジェクトの更新ここから
+		/// </summary>
 
-			/// <summary>
-			/// ゲームオブジェクトの更新ここから
-			/// </summary>
+		//===================================================
+		// 地面
+		//===================================================
 
-			//===================================================
-			//地面
-			//===================================================
+		ground_->Update();
 
-			ground_->Update();
+		//===================================================
+		// 天球
+		//===================================================
 
-			//===================================================
-			//天球
-			//===================================================
+		skydome_->Update();
 
-			skydome_->Update();
+		//===================================================
+		// 鎖
+		//===================================================
 
-			//===================================================
-			//鎖
-			//===================================================
+		chain_->Update();
 
-			chain_->Update();
+		//===================================================
+		// プレイヤー
+		//===================================================
 
-			//===================================================
-			//プレイヤー
-			//===================================================
+		player_->Update();
 
-			player_->Update();
+		//===================================================
+		// 敵
+		//===================================================
 
+		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+			enemy->Update();
+		}
 
-			//===================================================
-			//敵
-			//===================================================
+		//===================================================
+		// 衝突判定
+		//===================================================
 
-			for (const std::unique_ptr<Enemy>& enemy : enemies_)
-			{
-				enemy->Update();
-			}
+		CheckAllCollision();
 
-			//===================================================
-			//衝突判定
-			//===================================================
+		//===================================================
+		// ビュープロジェクション
+		//===================================================
 
-			CheckAllCollision();
+		/*---------------------[カメラ]-----------------------*/
 
-			//===================================================
-			//ビュープロジェクション
-			//===================================================
-
-			/*---------------------[カメラ]-----------------------*/
-
-		#ifdef _DEBUG
-			if (input_->TriggerKey(DIK_P)) {
-				if (isDebugCameraActive_) {
-					isDebugCameraActive_ = false;
-				} else {
-					isDebugCameraActive_ = true;
-				}
-			}
-		#endif
-
+#ifdef _DEBUG
+		if (input_->TriggerKey(DIK_P)) {
 			if (isDebugCameraActive_) {
-				debugCamera_->Update();
-				viewProjection_.matView = debugCamera_->GetViewProjection().matView;
-				viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
-				// ビュープロジェクション行列の転送
-				viewProjection_.TransferMatrix();
+				isDebugCameraActive_ = false;
 			} else {
-				// 追従カメラ
-				lockOn_->Update(enemies_, viewProjection_);
-				followCamera_->Update();
-				viewProjection_.matView = followCamera_->GetViewProjection().matView;
-				viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
-				// ビュープロジェクション行列の更新と転送
-				viewProjection_.TransferMatrix();
+				isDebugCameraActive_ = true;
 			}
-  
-      // ゲームオーバーシーンへの移行を確認するための仮実装
+		}
+#endif
 
-		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_RETURN)) {
+		if (isDebugCameraActive_) {
+			debugCamera_->Update();
+			viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+			viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+			// ビュープロジェクション行列の転送
+			viewProjection_.TransferMatrix();
+		} else {
+			// 追従カメラ
+			lockOn_->Update(enemies_, viewProjection_);
+			followCamera_->Update();
+			viewProjection_.matView = followCamera_->GetViewProjection().matView;
+			viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
+			// ビュープロジェクション行列の更新と転送
+			viewProjection_.TransferMatrix();
+		}
+
+		//===================================================
+		// ゲームオーバーシーンへの移行を確認するための仮実装
+		//===================================================
+
+		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_RETURN) || !player_->IsAlive()) {
 			// フェードアウト開始
 			float duration = 1.5f;
 			fade_->Start(Fade::Status::FadeOut, duration);
 			phase_ = Phase::kFadeOutGameOver;
 		}
 
+		//===================================================
 		// クリアシーンへの移行を確認するための仮実装
-	
-		if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_B)) {
-			//フェードアウト開始
-			float duration = 1.5f;
-			fade_->Start(Fade::Status::FadeOut, duration);
-			phase_ = Phase::kFadeOutClear;
+		//===================================================
+		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+			if (input_->PushKey(DIK_SPACE) && input_->PushKey(DIK_B) || !enemy->IsAlive()) {
+				// フェードアウト開始
+				float duration = 1.5f;
+				fade_->Start(Fade::Status::FadeOut, duration);
+				phase_ = Phase::kFadeOutClear;
+			}
 		}
-
-		//--------------------------------
+		//===================================================
 		// メニュー画面
-		//--------------------------------
+		//===================================================
 
 		XINPUT_STATE joyState;
 		Input::GetInstance()->GetJoystickState(0, joyState);
@@ -328,9 +329,8 @@ void GameScene::Update()
 			}
 		}
 
-  
-			break;
-		case GameScene::Phase::kFadeOutGameOver:
+		break;
+	case GameScene::Phase::kFadeOutGameOver:
 		//フェードの更新
 		fade_->Update();
 

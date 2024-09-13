@@ -92,14 +92,6 @@ private: // メンバ変数
 	Audio* audio_ = nullptr;
 
 
-	//現在のフェーズ
-	Phase phase_ = Phase::kFadeIn;
-
-	
-
-	//終了フラグ
-	bool finished_ = false;
-
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
@@ -190,7 +182,7 @@ private: // メンバ変数
 
 	std::unique_ptr<Fade> fade_;
   
-  // 現在のフェーズ
+	// 現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;
 
 	// 終了フラグ
@@ -202,7 +194,11 @@ private: // メンバ変数
 	// ボーズフラグ
 	bool pause_ = false;
   
-  // 操作説明UI
+	//===================================================
+	// UI
+	//===================================================
+
+	 // 操作説明UI
 	Sprite* uiSprite_ = nullptr;
 
 	// UIテクスチャ
