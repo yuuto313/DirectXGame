@@ -9,11 +9,11 @@ class Fade {
 public:
 	// フェードの状態
 	enum class Status {
-		//フェードなし
+		// フェードなし
 		None,
-		//フェードイン中
+		// フェードイン中
 		FadeIn,
-		//フェードアウト中
+		// フェードアウト中
 		FadeOut,
 	};
 

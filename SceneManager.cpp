@@ -43,6 +43,7 @@ void SceneManager::ChangeScene() {
 			// 新シーンの生成と初期化
 			gameoverScene_ = std::make_unique<GameOverScene>();
 			gameoverScene_->Initialize();
+			break;
 		}
 
 		// クリアしたら
@@ -54,6 +55,7 @@ void SceneManager::ChangeScene() {
 			// 新シーンの生成と初期化
 			gameClearScene_ = std::make_unique<ClearScene>();
 			gameClearScene_->Initialize();
+			break;
 		}
 
 		break;
