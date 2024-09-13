@@ -551,7 +551,7 @@ void Player::BehaviorJumpUpdate()
 void Player::GenerateShockWave()
 {
 	//ロックオンされているならロックオン対象の方向に向かって衝撃波を生成
-	if(lockOn_ && lockOn_->ExistTarget())
+	if((lockOn_ && lockOn_->ExistTarget()) || (lockOn_ && lockOn_->ExistChain()) )
 	{
 		//ターゲットの座標
 		Vector3 targetPosition = lockOn_->GetTargetPosition();
