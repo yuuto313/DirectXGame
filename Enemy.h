@@ -3,6 +3,7 @@
 
 #include "Collider.h"
 #include "Model.h"
+#include "Player.h"
 #include "WorldTransform.h"
 
 class Enemy : public Collider
@@ -18,6 +19,8 @@ public:
 	/// \brief ワールド変換データの更新
 	void UpdateMatrix();
 
+	void UpdateUI();
+
 	/// \brief ワールド座標を取得
 	Vector3 GetWorldPosition();
 
@@ -32,6 +35,8 @@ public:
 
 	/// \brief ワールド変換データの初期化
 	void InitializeWorldTransform();
+
+	void SetPlayer(const Player* player) { player_ = player; }
 
 public:
 	//// \brief 衝突時に呼び出される関数
@@ -62,10 +67,14 @@ private:
 	const int kModelIndexL_arm = 1;
 	const int kModelIndexR_arm = 2;
 	const int kModelIndexBarrier = 3;
+	const int kModelIndexHPBar = 4;
+	const int kModelIndexHPBarBack = 5;
 
 	Vector3 moveSpeed = { speed_,0.0f,0.0f };
 
 	const ViewProjection* viewProjection_ = nullptr;
+
+	const Player* player_ = nullptr;
 
 	//パーツごとのワールド変換データ
 	WorldTransform worldTransform_;
@@ -73,6 +82,8 @@ private:
 	WorldTransform worldTransformL_arm_;
 	WorldTransform worldTransformR_arm_;
 	WorldTransform worldTransformBarrier_;
+	WorldTransform worldTransformHPBar_;
+	WorldTransform worldTransformHPBarBack_;
 
 	//モデル
 	std::vector<Model*> models_;

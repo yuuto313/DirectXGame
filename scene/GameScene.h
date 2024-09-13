@@ -174,6 +174,8 @@ private: // メンバ変数
 	std::unique_ptr<Model>modelEnemyBody_;
 	std::unique_ptr<Model>modelEnemyWeapon_;
 	std::unique_ptr<Model>modelEnemyBarrier_;
+	std::unique_ptr<Model>modelEnemyHPBar_;
+	std::unique_ptr<Model>modelEnemyHPBarBack_;
 
 	//===================================================
 	//鎖

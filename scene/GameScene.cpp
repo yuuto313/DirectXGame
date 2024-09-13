@@ -66,6 +66,8 @@ void GameScene::Initialize() {
 	modelEnemyBody_.reset(Model::CreateFromOBJ("enemy", true));
 	modelEnemyWeapon_.reset(Model::CreateFromOBJ("enemy_Weapon", true));
 	modelEnemyBarrier_.reset(Model::CreateFromOBJ("barrier", true));
+	modelEnemyHPBarBack_.reset(Model::CreateFromOBJ("enemyGaugeBar", true));
+	modelEnemyHPBar_.reset(Model::CreateFromOBJ("enemyGaugeHP", true));
 
 	//===================================================
 	//鎖
@@ -165,12 +167,15 @@ void GameScene::Initialize() {
 		modelEnemyWeapon_.get(),
 		modelEnemyWeapon_.get(),
 		modelEnemyBarrier_.get(),
+		modelEnemyHPBar_.get(),
+		modelEnemyHPBarBack_.get(),
 	};
 
 	const int numEnemies = 1;
 	for (int i = 0; i < numEnemies; ++i) {
 		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>();
 		enemy->Initialize(enemyModels);
+		enemy->SetPlayer(player_.get());
 		enemies_.push_back(std::move(enemy));
 	}
 

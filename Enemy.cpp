@@ -1,5 +1,7 @@
 #include "Enemy.h"
 
+#include <corecrt_math_defines.h>
+
 #include "CollisionConfig.h"
 #include "CollisionTypeIdDef.h"
 #include "EnemyStatusConfig.h"
@@ -68,6 +70,7 @@ void Enemy::Update()
 	ImGui::End();
 
 	Move();
+	UpdateUI();
 	UpdateMatrix();
 }
 
@@ -85,6 +88,12 @@ void Enemy::Draw(const ViewProjection& viewProjection)
 	if(!canAttack_)
 	{
 		models_[kModelIndexBarrier]->Draw(worldTransformBarrier_, viewProjection,&barrierColor_);
+	}
+
+	if(GetHP() > 0)
+	{
+		models_[kModelIndexHPBar]->Draw(worldTransformHPBar_, viewProjection);
+		models_[kModelIndexHPBarBack]->Draw(worldTransformHPBarBack_, viewProjection);
 	}
 
 }
@@ -108,6 +117,33 @@ void Enemy::UpdateMatrix()
 	worldTransformL_arm_.UpdateMatrix();
 	worldTransformR_arm_.UpdateMatrix();
 	worldTransformBarrier_.UpdateMatrix();
+	worldTransformHPBar_.UpdateMatrix();
+	worldTransformHPBarBack_.UpdateMatrix();
+}
+
+void Enemy::UpdateUI()
+{
+	/*------------------[ HPバーの向きをプレイヤーに向ける ]-------------------------*/
+
+// ロックオン座標
+	Vector3 playerPosition = player_->GetCenterPosition();
+	// 追従対象からロックオン対象へのベクトル
+	Vector3 sub = playerPosition - worldTransform_.translation_;
+	// Y軸周り角度
+	worldTransform_.rotation_.y = float(std::atan2(sub.x, sub.z) + M_PI); // 180度（πラジアン）を加える
+
+	/*------------------[ HPの変動 ]-------------------------*/
+	// 初期のスケールを設定
+	Vector3 initialScale = { 1.0f, 1.0f, 1.0f };
+
+	// HPに応じてスプライトのスケールを変更
+	float hpRatio = static_cast<float>(GetHP()) / kInitialHp;
+	float newScaleX = initialScale.x * hpRatio; // 初期スケールにHPの割合を掛ける
+	// 新しいスケールを設定
+	worldTransformHPBar_.scale_ = { newScaleX, initialScale.y, initialScale.z };
+
+
+
 }
 
 Vector3 Enemy::GetWorldPosition()
@@ -156,12 +192,17 @@ void Enemy::InitializeWorldTransform()
 	worldTransformBarrier_.Initialize();
 	worldTransformBarrier_.translation_ = { 0.0f, 2.0f, 0.0f };
 	worldTransformBarrier_.scale_ = { 4.0f,2.0f,4.0f };
+	worldTransformHPBar_.Initialize();
+	worldTransformHPBarBack_.Initialize();
+	worldTransformHPBarBack_.translation_ = { 0.0f,3.0f,0.0f };
 
 	//親子関係を結ぶ
 	worldTransformBody_.parent_ = &worldTransform_;
 	worldTransformL_arm_.parent_ = &worldTransformBody_;
 	worldTransformR_arm_.parent_ = &worldTransformBody_;
 	worldTransformBarrier_.parent_ = &worldTransformBody_;
+	worldTransformHPBarBack_.parent_ = &worldTransformBody_;
+	worldTransformHPBar_.parent_ = &worldTransformHPBarBack_;
 }
 
 void Enemy::OnCollision(Collider* other)
@@ -191,7 +232,7 @@ void Enemy::InitializeStatus()
 {
 	//生存フラグ
 	isAlive_ = true;
-
+	
 	//HP
 	SetHP(kInitialHp);
 
