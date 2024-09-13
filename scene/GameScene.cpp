@@ -30,44 +30,12 @@ void GameScene::Initialize() {
 	uiSprite_ = Sprite::Create(uiTexID_, {});
 
 
-	// Player UI
-	//===================================================
-
-	playerTexUI_ = TextureManager::Load("playerUI/playerUI.png");
-	playerSpriteUI_ = Sprite::Create(playerTexUI_, {});
-
-	playerTexHP_ = TextureManager::Load("playerUI/playerHP.png");
-	playerSpriteHP_ = Sprite::Create(playerTexHP_, {});
-
-	playerTexMP_ = TextureManager::Load("playerUI/playerMP.png");
-	playerSpriteMP_ = Sprite::Create(playerTexMP_, {});
-
-	//===================================================
-	// Player Skill UI 
-	//===================================================
-
-	playerSkillTexPU_ = TextureManager::Load("playerUI/sPowerUP.png");
-	playerSkillSpPU_ = Sprite::Create(playerSkillTexPU_, {});
-
-	playerSkillTexPD_ = TextureManager::Load("playerUI/sPowerDOWN.png");
-	playerSkillSpPD_ = Sprite::Create(playerSkillTexPD_, {});
-
-	playerSkillTexSU_ = TextureManager::Load("playerUI/sSpeedUP.png");
-	playerSkillSpSU_ = Sprite::Create(playerSkillTexSU_, {});
-
-	playerSkillTexSD_ = TextureManager::Load("playerUI/sSpeedDOWN.png");
-	playerSkillSpSD_ = Sprite::Create(playerSkillTexSD_, {});
-
-
 	/// <summary>
 	/// モデル読み込みここから
 	/// </summary>
 
 	//===================================================
 	//天球
-	modelEnemyBarrier_.reset(Model::CreateFromOBJ("barrier", true));
-	modelEnemyHPBarBack_.reset(Model::CreateFromOBJ("enemyGaugeBar", true));
-	modelEnemyHPBar_.reset(Model::CreateFromOBJ("enemyGaugeHP", true));
 	//===================================================
 
 	skydomeModel_.reset(Model::CreateFromOBJ("skydome", true));
@@ -97,6 +65,9 @@ void GameScene::Initialize() {
 
 	modelEnemyBody_.reset(Model::CreateFromOBJ("enemy", true));
 	modelEnemyWeapon_.reset(Model::CreateFromOBJ("enemy_Weapon", true));
+	modelEnemyBarrier_.reset(Model::CreateFromOBJ("barrier", true));
+	modelEnemyHPBarBack_.reset(Model::CreateFromOBJ("enemyGaugeBar", true));
+	modelEnemyHPBar_.reset(Model::CreateFromOBJ("enemyGaugeHP", true));
 
 	//===================================================
 	//鎖
@@ -165,10 +136,7 @@ void GameScene::Initialize() {
 	//===================================================
 
 	//モデル
-		modelEnemyWeapon_.get(),
-		modelEnemyBarrier_.get(),
-		modelEnemyHPBar_.get(),
-		modelEnemyHPBarBack_.get(),
+	std::vector<Model*> playerModels = {
 		modelPlayerBody_.get(),
 		modelPlayerHead_.get(),
 		modelPlayerL_arm_.get(),
@@ -197,7 +165,10 @@ void GameScene::Initialize() {
 	std::vector<Model*> enemyModels = {
 		modelEnemyBody_.get(),
 		modelEnemyWeapon_.get(),
-		modelEnemyWeapon_.get()
+		modelEnemyWeapon_.get(),
+		modelEnemyBarrier_.get(),
+		modelEnemyHPBar_.get(),
+		modelEnemyHPBarBack_.get(),
 	};
 
 	const int numEnemies = 1;
@@ -247,13 +218,12 @@ void GameScene::Initialize() {
 	/// <summary>
 	/// ゲームオブジェクトの初期化ここまで
 	/// </summary>
-	/// 
-	
+
+
 	//BGM
 
 	gameBGM_ = audio_->LoadWave("doom-133866.mp3");
 	gameBGMHandle_ = audio_->PlayWave(gameBGM_, true);
-	
 
 }
 

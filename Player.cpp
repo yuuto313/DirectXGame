@@ -30,10 +30,10 @@ Player::~Player()
 void Player::Initialize(const std::vector<Model*>& models)
 {
 	//Nullポインタチェック
-	//for (Model* model : models)
-	//{
-	//	assert(model);
-	//}
+	for (Model* model : models)
+	{
+		assert(model);
+	}
 
 	//引数で受け取ったものを取得
 	models_ = models;
@@ -75,7 +75,7 @@ void Player::Update()
 		return;
 	}
 
-	//UpdateImGui();
+	UpdateImGui();
 
 	if (behaviorRequest_)
 	{
@@ -257,6 +257,20 @@ void Player::InitializeUI()
 	// Player Skill UI 
 	//===================================================
 
+	playerSkillTexPU_ = TextureManager::Load("playerUI/sPowerUP.png");
+	playerSkillSpPU_ = Sprite::Create(playerSkillTexPU_, {});
+
+	playerSkillTexPD_ = TextureManager::Load("playerUI/sPowerDOWN.png");
+	playerSkillSpPD_ = Sprite::Create(playerSkillTexPD_, {});
+
+	playerSkillTexSU_ = TextureManager::Load("playerUI/sSpeedUP.png");
+	playerSkillSpSU_ = Sprite::Create(playerSkillTexSU_, {});
+
+	playerSkillTexSD_ = TextureManager::Load("playerUI/sSpeedDOWN.png");
+	playerSkillSpSD_ = Sprite::Create(playerSkillTexSD_, {});
+}
+
+
 void Player::Turn()
 {
 	//Y軸周り角度(0ｙ)
@@ -284,6 +298,7 @@ void Player::Attack()
 		//worldTransformL_arm_.rotation_.x = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
 		//worldTransformR_arm_.rotation_.x = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
 
+
 		float armOriginRotation = -std::numbers::pi_v<float> / 5;
 		float armEndRotation = std::numbers::pi_v<float> / 2;
 
@@ -294,8 +309,6 @@ void Player::Attack()
 
 		worldTransformL_arm_.rotation_.y = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
 		worldTransformR_arm_.rotation_.y = armOriginRotation + EaseOutQuint<float>(AttackParameter_) * armEndRotation;
-
-
 
 	} else
 	{
@@ -386,43 +399,6 @@ void Player::UpdateUI()
 	// HPに応じてスプライトの大きさを変更
 	float hpRatio = static_cast<float>(GetHP()) / kInitialHp;
 	float newWidth = hpUiInitialize_.x * hpRatio; // 初期幅にHPの割合を掛ける
-	playerSpriteHP_->SetSize({ newWidth,hpUiInitialize_.y  }); // 高さは固定
-
-	// 感情ゲージに応じてスプライトの大きさを変更
-	float emotionGaugeRatio = emotionGauge_ / kInitialEmotionGauge;
-	float newWidthEmotionGauge = emotionGaugeUiInitilalize_.x * emotionGaugeRatio; // 初期幅に感情ゲージの割合を掛ける
-	playerSpriteMP_->SetSize({ newWidthEmotionGauge,emotionGaugeUiInitilalize_.y }); // 高さは固定
-
-	
-
-}
-
-void Player::DrawUI()
-{
-	playerSpriteUI_->Draw();
-	playerSpriteHP_->Draw();
-	playerSpriteMP_->Draw();
-	//スキルのアクティブ状態に応じてスプライトの種類を変更
-	if(skillActive_)
-	{
-		switch (currentEffect_)
-		{
-		case EffectType::SpeedUp:
-			playerSkillSpSU_->Draw();
-			break;
-		case EffectType::AttackUp:
-			playerSkillSpPU_->Draw();
-			break;
-		}
-	}
-	
-}
-
-void Player::UpdateUI()
-{
-	// HPに応じてスプライトの大きさを変更
-	float hpRatio = static_cast<float>(GetHP()) / kInitialHp;
-	float newWidth = hpUiInitialize_.x * hpRatio; // 初期幅にHPの割合を掛ける
 	playerSpriteHP_->SetSize({ newWidth,hpUiInitialize_.y }); // 高さは固定
 
 	// 感情ゲージに応じてスプライトの大きさを変更
@@ -455,35 +431,35 @@ void Player::DrawUI()
 
 }
 
-//void Player::UpdateImGui() {
-//	ImGui::Begin("Floating Model");
-//	float hp = GetHP();
-//	ImGui::Text("HP %f", hp, 0.0f, 100.0f);
-//	ImGui::Text("emotionGauge %f", emotionGauge_);
-//	ImGui::Text("AttackPower %f", GetAttackPower());
-//	ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
-//	ImGui::SliderFloat3("Head Translation", &worldTransformHead_.translation_.x, -20.0f, 20.0f);
-//	ImGui::SliderFloat3("ArmL Translation", &worldTransformL_arm_.translation_.x, -20.0f, 20.0f);
-//	ImGui::SliderAngle("ArmL Rotation", &worldTransformL_arm_.rotation_.x);
-//	ImGui::SliderFloat3("ArmR Translation", &worldTransformR_arm_.translation_.x, -20.0f, 20.0f);
-//	ImGui::SliderAngle("ArmR Rotation", &worldTransformR_arm_.rotation_.x);
-//	int cycle = static_cast<int>(floatingCycle_);
-//	ImGui::SliderInt("Cycle", &cycle, 0, 600);
-//	floatingCycle_ = static_cast<uint16_t>(cycle);
-//	ImGui::SliderFloat("Amplitude", &floatingAmplitude_, 0.0f, 10.0f);
-//	int attackCycle = static_cast<int>(AttackCycle_);
-//	ImGui::SliderInt("Attack Cycle", &attackCycle, 0, 600);
-//	AttackCycle_ = static_cast<uint16_t>(attackCycle);
-//
-//
-//	bool attack = false;
-//	ImGui::Checkbox("attack", &attack);
-//	if (attack) {
-//		behaviorRequest_ = Behavior::kAttack;
-//	}
-//
-//	ImGui::End();
-//}
+void Player::UpdateImGui() {
+	ImGui::Begin("Floating Model");
+	float hp = GetHP();
+	ImGui::Text("HP %f", hp, 0.0f, 100.0f);
+	ImGui::Text("emotionGauge %f", emotionGauge_);
+	ImGui::Text("AttackPower %f", GetAttackPower());
+	ImGui::SliderFloat3("Base Translation", &worldTransform_.translation_.x, -20.0f, 20.0f);
+	ImGui::SliderFloat3("Head Translation", &worldTransformHead_.translation_.x, -20.0f, 20.0f);
+	ImGui::SliderFloat3("ArmL Translation", &worldTransformL_arm_.translation_.x, -20.0f, 20.0f);
+	ImGui::SliderAngle("ArmL Rotation", &worldTransformL_arm_.rotation_.x);
+	ImGui::SliderFloat3("ArmR Translation", &worldTransformR_arm_.translation_.x, -20.0f, 20.0f);
+	ImGui::SliderAngle("ArmR Rotation", &worldTransformR_arm_.rotation_.x);
+	int cycle = static_cast<int>(floatingCycle_);
+	ImGui::SliderInt("Cycle", &cycle, 0, 600);
+	floatingCycle_ = static_cast<uint16_t>(cycle);
+	ImGui::SliderFloat("Amplitude", &floatingAmplitude_, 0.0f, 10.0f);
+	int attackCycle = static_cast<int>(AttackCycle_);
+	ImGui::SliderInt("Attack Cycle", &attackCycle, 0, 600);
+	AttackCycle_ = static_cast<uint16_t>(attackCycle);
+
+
+	bool attack = false;
+	ImGui::Checkbox("attack", &attack);
+	if (attack) {
+		behaviorRequest_ = Behavior::kAttack;
+	}
+
+	ImGui::End();
+}
 
 void Player::OnCollision(Collider* other)
 {
@@ -494,6 +470,10 @@ void Player::OnCollision(Collider* other)
 	{
 		//ダメージを受ける
 		TakeDamage(other->GetAttackPower());
+	}
+
+	if (GetHP() <= 0) {
+		isAlive_ = false;
 	}
 
 }

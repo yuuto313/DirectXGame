@@ -46,7 +46,7 @@ public:
 
 	/// \brief UIの初期化
 	void InitializeUI();
-	
+
 	/*---------------------[動作]-----------------------*/
 
 	/// \brief 移動
@@ -213,7 +213,7 @@ private:
 	float speed_;
 
 	/*---------------------[UI]-----------------------*/
-	
+
 
 	Sprite* playerSpriteUI_ = nullptr;
 	uint32_t playerTexUI_ = 0;
