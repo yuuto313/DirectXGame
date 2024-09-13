@@ -15,15 +15,13 @@ public:
 	void Initialize();
 
 	/// \brief 更新
-	void Update(const std::unique_ptr<Player>& player, const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection);
+	void Update(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection);
 
 	/// \brief 描画
 	void Draw();
 
 	/// \brief ロックオン対象を検索
 	void SearchLockOnTargetEnemy(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection);
-
-	void SearchLockOnTargetPlayer(const std::unique_ptr<Player>& player, const ViewProjection& viewProjection);
 
 	/// \brief 範囲外判定
 	/// \return 
@@ -33,11 +31,7 @@ public:
 	/// \return 
 	Vector3 GetTargetEnemyPosition() const;
 
-	/// \brief ロックオン対象(プレイヤー)の座標取得
-	/// \return 
-	Vector3 GetTargetPlayerPosition() const;
-
-	/// \brief ロックオン中かどうか
+	/// \brief 敵をロックオン中かどうか
 	/// \return 
 	bool ExistTarget() const { return targetEnemy_ ? true : false; }
 
@@ -50,7 +44,6 @@ private:
 
 	//ロックオン対象
 	const Enemy* targetEnemy_ = nullptr;
-	const Player* targetPlayer_ = nullptr;
 
 	const float kDegreeToRadian_ = std::numbers::pi_v<float> / 180.0f;
 	// 最小距離

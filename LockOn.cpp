@@ -21,7 +21,7 @@ void LockOn::Initialize()
 	assert(lockOnMark_);
 }
 
-void LockOn::Update(const std::unique_ptr<Player>& player, const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection)
+void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection)
 {
 	ImGui::Begin("Lock On");
 	ImGui::DragFloat("Min Distance", &minDistance_);
@@ -81,10 +81,6 @@ void LockOn::Update(const std::unique_ptr<Player>& player, const std::list<std::
 		lockOnMark_->SetPosition(positionScreenV2);
 		
 	}
-
-	// 敵がプレイヤーをロックオンする
-	SearchLockOnTargetPlayer(player,viewProjection);
-
 }
 
 void LockOn::Draw()
@@ -145,41 +141,6 @@ void LockOn::SearchLockOnTargetEnemy(const std::list<std::unique_ptr<Enemy>>& en
 	/*-------------[  ]--------------*/
 }
 
-void LockOn::SearchLockOnTargetPlayer(const std::unique_ptr<Player>& player, const ViewProjection& viewProjection) {
-	/*-------------[ ロックオン対象の絞り込み ]--------------*/
-
-	// 目標
-	std::list<std::pair<float, const Player*>> targets;
-
-	// 敵のロックオン座標を取得
-	Vector3 positionWorld = player->GetCenterCoordinate();
-
-	// ワールド→ビュー座標変換
-	Vector3 positionView = Transform(positionWorld, viewProjection.matView);
-
-	// 距離条件チェック
-	if (minDistance_ <= positionView.z && positionView.z <= maxDistance_) {
-		// カメラ前方との角度を計算
-		float arcTangent = std::atan2(std::sqrt(positionView.x * positionView.x + positionView.y * positionView.y), positionView.z);
-
-		// 角度条件チェック(コーンに収まっているか)
-		if (std::abs(arcTangent) <= angleRange_) {
-			targets.emplace_back(std::make_pair(positionView.z, player.get()));
-		}
-	}
-
-
-	/*-------------[ 距離でソートしてロックオン ]--------------*/
-
-	// ロックオン対象をリセット
-	targetPlayer_ = nullptr;
-	if (!targets.empty()) {
-		// 距離で昇順にソート
-		targets.sort([](auto& pair1, auto& pair2) { return pair1.first < pair2.first; });
-		targetPlayer_ = targets.front().second;
-	}
-}
-
 bool LockOn::IsOutOfRange(const ViewProjection& viewProjection)
 {
 	/*-------------[ ロックオン座標取得 ]--------------*/
@@ -216,14 +177,5 @@ Vector3 LockOn::GetTargetEnemyPosition() const
 	}
 
 	return Vector3{};
-}
-
-Vector3 LockOn::GetTargetPlayerPosition() const { 
-	
-	if (targetPlayer_) {
-		return targetPlayer_->GetCenterCoordinate();
-	}
-
-	return Vector3(); 
 }
 

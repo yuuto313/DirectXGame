@@ -158,14 +158,14 @@ void GameScene::Initialize() {
 	std::vector<Model*> enemyModels = {
 		modelEnemyBody_.get(),
 		modelEnemyWeapon_.get(),
-		modelEnemyWeapon_.get()
+		modelEnemyWeapon_.get() ,
+		modelShockWave_.get(),
 	};
 
 	const int numEnemies = 1;
 	for (int i = 0; i < numEnemies; ++i) {
 		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>();
-		enemy->Initialize(enemyModels);
-		enemy->SetLockOn(lockOn_.get());
+		enemy->Initialize(enemyModels,player_.get());
 		enemies_.push_back(std::move(enemy));
 	}
 
@@ -285,7 +285,7 @@ void GameScene::Update()
 			viewProjection_.TransferMatrix();
 		} else {
 			// 追従カメラ
-			lockOn_->Update(player_,enemies_, viewProjection_);
+			lockOn_->Update(enemies_, viewProjection_);
 			followCamera_->Update();
 			viewProjection_.matView = followCamera_->GetViewProjection().matView;
 			viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
@@ -479,25 +479,27 @@ void GameScene::Draw() {
 #pragma endregion
 }
 
-void GameScene::CheckAllCollision()
-{
-	//衝突マネージャーのリセット
+void GameScene::CheckAllCollision() {
+	// 衝突マネージャーのリセット
 	collisionManager_->Reset();
 
-	//コライダーをリストに登録
+	// コライダーをリストに登録
 	collisionManager_->AddCollider(player_.get());
 
-	//コライダーリストに登録(ハンマー)
+	// コライダーリストに登録(ハンマー)
 	collisionManager_->AddCollider(player_->GetHammer());
 
-	//敵全てについて
-	for (const std::unique_ptr<Enemy>& enemy : enemies_)
-	{
-		//コライダーをリストに登録
-		collisionManager_->AddCollider(enemy.get());
+	// 敵全てについて
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		for (const std::unique_ptr<ShockWave>& shockWave : enemy->GetShockWaves()) {
+			// コライダーをリストに登録
+			collisionManager_->AddCollider(enemy.get());
+			//敵の衝撃波の登録
+			collisionManager_->AddCollider(shockWave.get());
+		}
 	}
-
-	//衝撃波の登録
+	
+	//プレイヤーの衝撃波の登録
 	for (const std::unique_ptr<ShockWave>& shockWave : player_->GetShockWaves())
 	{
 		collisionManager_->AddCollider(shockWave.get());

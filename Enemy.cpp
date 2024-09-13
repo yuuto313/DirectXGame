@@ -7,6 +7,7 @@
 #include "MyMath.h"
 #include "ViewProjection.h"
 #include "LockOn.h"
+#include "Player.h"
 
 uint32_t Enemy::nextSerialNumber = 0;
 
@@ -19,7 +20,7 @@ Enemy::Enemy()
 	nextSerialNumber++;
 }
 
-void Enemy::Initialize(const std::vector<Model*>& models)
+void Enemy::Initialize(const std::vector<Model*>& models,const Player* player)
 {
 	/*---------------------[ワールド変換データの初期化]-----------------------*/
 	//Nullポインタチェック
@@ -29,6 +30,8 @@ void Enemy::Initialize(const std::vector<Model*>& models)
 	}
 
 	models_ = models;
+
+	player_ = player;
 
 	//ワールド変換初期化
 	InitializeWorldTransform();
@@ -55,7 +58,11 @@ void Enemy::Update()
 	ImGui::End();
 
 	Move();
+	GenerateShockWave();
+	UpdateShockWave();
+
 	TurnToTarget();
+
 	UpdateMatrix();
 }
 
@@ -64,6 +71,7 @@ void Enemy::Draw(const ViewProjection& viewProjection)
 	models_[kModelIndexBody]->Draw(worldTransformBody_, viewProjection);
 	models_[kModelIndexL_arm]->Draw(worldTransformL_arm_, viewProjection);
 	models_[kModelIndexR_arm]->Draw(worldTransformR_arm_, viewProjection);
+	DrawShockWave(viewProjection);
 }
 
 void Enemy::Move()
@@ -80,11 +88,43 @@ void Enemy::Move()
 
 void Enemy::TurnToTarget() {
 	// ロックオン座標
-	Vector3 lockOnPosition = lockOn_->GetTargetPlayerPosition();
+	Vector3 lockOnPosition = player_->GetCenterCoordinate();
 	// 追従対象からロックオン対象へのベクトル
 	Vector3 sub = lockOnPosition - worldTransform_.translation_;
 	// Y軸周り角度
 	worldTransform_.rotation_.y = std::atan2(sub.x, sub.z);
+}
+
+void Enemy::GenerateShockWave() {
+	// ロックオンされているならロックオン対象の方向に向かって衝撃波を生成
+
+	// ターゲットの座標
+	Vector3 targetPosition = player_->GetCenterCoordinate();
+	// 高さの調整
+	targetPosition.y -= 4.0f;
+	// ロックオンの方向ベクトルを取得
+	Vector3 velocity = targetPosition - worldTransform_.translation_;
+
+	// 衝撃波を生成
+	std::unique_ptr<ShockWave> shockWave = std::make_unique<ShockWave>();
+	shockWave->Initialize(models_[kModelIndexShockWave], GetWorldPosition(), velocity, viewProjection_, GetAttackPower());
+	shockWaves_.push_back(std::move(shockWave));
+}
+
+void Enemy::UpdateShockWave() {
+	// 衝撃波を更新
+	for (const std::unique_ptr<ShockWave>& shockwave : shockWaves_) {
+		shockwave->Update();
+	}
+
+	// 無効な衝撃波を削除
+	shockWaves_.remove_if([](const std::unique_ptr<ShockWave>& shockwave) { return !shockwave->IsActive(); });
+}
+
+void Enemy::DrawShockWave(const ViewProjection& viewProjection) {
+	for (const std::unique_ptr<ShockWave>& shockwave : shockWaves_) {
+		shockwave->Draw(viewProjection);
+	}
 }
 
 void Enemy::UpdateMatrix()
