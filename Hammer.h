@@ -65,8 +65,10 @@ private:
 	//エネミーのポインタ
 	Enemy* enemy_ = nullptr;
 
-	//
+	//接触履歴
 	Contactlog contactlog_;
+
+	Contactlog contactlogChain_;
 
 	/*---------------------[ヒットエフェクト]-----------------------*/
 

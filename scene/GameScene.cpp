@@ -21,7 +21,7 @@ void GameScene::Initialize() {
 	//天球
 	//===================================================
 	
-	skydomeModel_.reset(Model::CreateFromOBJ("Skydome", true));
+	skydomeModel_.reset(Model::CreateFromOBJ("skydome", true));
 	
 	//===================================================
 	//地面
@@ -417,6 +417,8 @@ void GameScene::CheckAllCollision()
 	{
 		collisionManager_->AddCollider(shockWave.get());
 	}
+
+	collisionManager_->AddCollider(chain_.get());
 
 	//衝突判定と応答
 	collisionManager_->CheckAllCollision();

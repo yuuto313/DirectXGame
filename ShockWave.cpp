@@ -75,6 +75,16 @@ void ShockWave::OnCollision([[maybe_unused]] Collider* other)
 	//衝突相手がプレイヤー以外なら消す
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy))
 	{
+		//ダメージを与える
+		other->TakeDamage(GetAttackPower());
+		//ダメージを受ける
+		isActive_ = false;
+	}
+
+	if(typeID == static_cast<uint32_t>(CollisionTypeIdDef::kChain))
+	{
+		//ダメージを与える
+		other->TakeDamage(GetAttackPower());
 		//ダメージを受ける
 		isActive_ = false;
 	}

@@ -138,20 +138,11 @@ void Enemy::OnCollision(Collider* other)
 {
 	//衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
-	//衝突相手が敵ならダメージを受ける
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kHammer))
+	//衝突相手がプレイヤー以外なら消す
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer))
 	{
-		//ダメージを受ける
-		TakeDamage(other->GetAttackPower());
-	}
-
-	//衝突相手の種別IDを取得
-	typeID = other->GetTypeID();
-	//衝突相手が敵ならダメージを受ける
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kShockWave))
-	{
-		//ダメージを受ける
-		TakeDamage(other->GetAttackPower());
+		//ダメージを与える
+		other->TakeDamage(GetAttackPower());
 	}
 }
 

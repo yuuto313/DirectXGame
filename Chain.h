@@ -1,4 +1,5 @@
 #pragma once
+#include "Collider.h"
 #include "WorldTransform.h"
 #include "ViewProjection.h"
 #include "Model.h"
@@ -11,7 +12,8 @@
 /// <summary>
 /// 鎖
 /// </summary>
-class Chain {
+class Chain : public Collider
+{
 public:
 	//-------------基本処理-------------//
 	
@@ -41,7 +43,16 @@ public:
 	/// </summary>
 	/// <param name="viewProjection"></param>
 	void Draw(const ViewProjection& viewProjection);
-	
+
+	//浮遊アニメーション
+	void floatAnimation();
+
+	void OnCollision(Collider* other) override;
+
+	Vector3 GetCenterPosition() const override;
+
+	uint32_t GetSerialNumber() const { return serialNumber; }
+
 private:
 	//-------------メンバ変数-------------//
 	
@@ -50,5 +61,15 @@ private:
 
 	//モデルデータ
 	Model* model_ = nullptr;
+
+	//浮遊アニメーション用パラメータ
+	float floatingParameter_ = 0.0f;
+	float floatingCycle_ = 90.0f;
+	float floatingAmplitude_ = 0.5f;
+
+	uint32_t serialNumber = 1;
+
+	//次のシリアルナンバー
+	static uint32_t nextSerialNumber;
 
 };

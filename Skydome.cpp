@@ -4,6 +4,7 @@
 
 Skydome::Skydome()
 {
+
 }
 
 Skydome::~Skydome()
@@ -18,7 +19,6 @@ void Skydome::Initialize(Model* model)
 
 	//ワールド座標の初期化
 	worldTransform_.Initialize();
-
 }
 
 void Skydome::Update()
